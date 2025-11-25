@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Utensils,
@@ -12,6 +12,29 @@ import {
   PersonStanding,
   X,
   Trash2,
+  Vegan,
+  GlassWater,
+  CakeSlice,
+  Siren,
+  Pill,
+  ShieldAlert,
+  Languages,
+  UserPlus,
+  Phone,
+  CarTaxiFront,
+  MapPin,
+  Compass,
+  KeyRound,
+  Sparkles,
+  Wifi,
+  Ticket,
+  Camera,
+  ShoppingBag,
+  Landmark,
+  Car,
+  CircleDollarSign,
+  WashingMachine,
+  Briefcase,
 } from 'lucide-react';
 
 import AppHeader from '@/components/app/app-header';
@@ -21,6 +44,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useReadingMode } from '@/components/app/reading-mode-provider';
+import { Separator } from '@/components/ui/separator';
 
 type Lang = 'az' | 'en' | 'ru';
 
@@ -33,13 +57,44 @@ const translations = (lang: Lang) => ({
     clear: 'Təmizlə',
     iconBoardTab: 'İkon Lövhəsi',
     iconBoardDescription: 'Ehtiyacınızı bildirmək üçün bir ikona klikləyin.',
+    categories: {
+      food: 'Yemək / İçki',
+      health: 'Sağlamlıq və Təhlükəsizlik',
+      communication: 'Ünsiyyət',
+      transport: 'Nəqliyyat və Yönləndirmə',
+      accommodation: 'Yerləşmə və Otel',
+      entertainment: 'Əyləncə və Aktivliklər',
+      security: 'Təhlükəsizlik',
+      general: 'Ümumi Ehtiyaclar',
+      social: 'Sosial və Mədəni',
+    },
     icons: {
-      food: 'Yemək istəyirəm',
+      vegetarian: 'Vegetarian/Vegan yemək istəyirəm',
+      drink: 'İçki istəyirəm',
+      dessert: 'Şirniyyat istəyirəm',
+      emergency: 'Təcili yardım lazımdır',
+      medicine: 'Dərmana ehtiyacım var',
+      allergy: 'Allergiyam var',
+      language: 'Dil problemi yaşayıram',
+      translator: 'Tərcüməçiyə ehtiyacım var',
+      phone: 'Zəng etməliyəm',
+      taxi: 'Taksi lazımdır',
+      guide: 'Bələdçiyə ehtiyacım var',
+      direction: 'Yolu göstərin',
+      roomKey: 'Otaq açarı lazımdır',
+      roomCleaning: 'Otağı təmizləyin',
+      wifi: 'Wi-Fi lazımdır',
+      activity: 'Gəzinti/Aktivlik etmək istəyirəm',
+      ticket: 'Bilet almaq istəyirəm',
       police: 'Polisə ehtiyacım var',
-      hospital: 'Tibb yardımına ehtiyacım var',
-      hotel: 'Otellə bağlı kömək lazımdır',
+      danger: 'Qəza/Təhlükə var',
+      currency: 'Valyuta dəyişmək istəyirəm',
       water: 'Su istəyirəm',
       restroom: 'WC',
+      laundry: 'Paltaryumaya ehtiyacım var',
+      lostItem: 'Əşyamı itirmişəm',
+      photo: 'Şəkil çəkə bilərsiniz?',
+      souvenir: 'Hədiyyə almaq istəyirəm',
     },
   },
   en: {
@@ -50,13 +105,44 @@ const translations = (lang: Lang) => ({
     clear: 'Clear',
     iconBoardTab: 'Icon Board',
     iconBoardDescription: 'Click an icon to communicate your need.',
+    categories: {
+      food: 'Food / Drink',
+      health: 'Health & Safety',
+      communication: 'Communication',
+      transport: 'Transport & Direction',
+      accommodation: 'Accommodation & Hotel',
+      entertainment: 'Entertainment & Activities',
+      security: 'Security',
+      general: 'General Needs',
+      social: 'Social & Cultural',
+    },
     icons: {
-      food: 'I want to eat',
+      vegetarian: 'I want a vegetarian/vegan meal',
+      drink: 'I want a drink',
+      dessert: 'I want a dessert',
+      emergency: 'I need emergency help',
+      medicine: 'I need medicine',
+      allergy: 'I have an allergy',
+      language: 'I have a language problem',
+      translator: 'I need a translator',
+      phone: 'I need to make a call',
+      taxi: 'I need a taxi',
+      guide: 'I need a guide',
+      direction: 'Show me the way',
+      roomKey: 'I need my room key',
+      roomCleaning: 'Please clean the room',
+      wifi: 'I need Wi-Fi',
+      activity: 'I want to do an activity/tour',
+      ticket: 'I want to buy a ticket',
       police: 'I need the police',
-      hospital: 'I need medical help',
-      hotel: 'I need help with a hotel',
+      danger: 'There is an accident/danger',
+      currency: 'I want to exchange currency',
       water: 'I want water',
       restroom: 'Restroom',
+      laundry: 'I need to do laundry',
+      lostItem: 'I lost my item',
+      photo: 'Can you take a photo?',
+      souvenir: 'I want to buy a souvenir',
     },
   },
   ru: {
@@ -67,30 +153,132 @@ const translations = (lang: Lang) => ({
     clear: 'Очистить',
     iconBoardTab: 'Доска с иконами',
     iconBoardDescription: 'Нажмите на иконку, чтобы сообщить о своей потребности.',
+    categories: {
+      food: 'Еда / Напитки',
+      health: 'Здоровье и безопасность',
+      communication: 'Общение',
+      transport: 'Транспорт и направление',
+      accommodation: 'Проживание и отель',
+      entertainment: 'Развлечения и мероприятия',
+      security: 'Безопасность',
+      general: 'Общие потребности',
+      social: 'Социальные и культурные',
+    },
     icons: {
-      food: 'Я хочу есть',
+      vegetarian: 'Я хочу вегетарианское/веганское блюдо',
+      drink: 'Я хочу пить',
+      dessert: 'Я хочу десерт',
+      emergency: 'Мне нужна неотложная помощь',
+      medicine: 'Мне нужно лекарство',
+      allergy: 'У меня аллергия',
+      language: 'У меня языковой барьер',
+      translator: 'Мне нужен переводчик',
+      phone: 'Мне нужно позвонить',
+      taxi: 'Мне нужно такси',
+      guide: 'Мне нужен гид',
+      direction: 'Покажите дорогу',
+      roomKey: 'Мне нужен ключ от номера',
+      roomCleaning: 'Пожалуйста, уберите в номере',
+      wifi: 'Мне нужен Wi-Fi',
+      activity: 'Я хочу на экскурсию/мероприятие',
+      ticket: 'Я хочу купить билет',
       police: 'Мне нужна полиция',
-      hospital: 'Мне нужна медицинская помощь',
-      hotel: 'Мне нужна помощь с отелем',
+      danger: 'Произошла авария/опасность',
+      currency: 'Я хочу обменять валюту',
       water: 'Я хочу воды',
       restroom: 'Туалет',
+      laundry: 'Мне нужно постирать одежду',
+      lostItem: 'Я потерял свою вещь',
+      photo: 'Можете сфотографировать?',
+      souvenir: 'Я хочу купить сувенир',
     },
   },
 });
 
-type IconInfo = {
-  id: keyof ReturnType<typeof translations>['az']['icons'];
-  icon: LucideIcon;
+type IconId = keyof ReturnType<typeof translations>['az']['icons'];
+
+type IconCategory = {
+  id: keyof ReturnType<typeof translations>['az']['categories'];
+  icons: {
+    id: IconId;
+    icon: LucideIcon;
+  }[];
 };
 
-const ICONS: IconInfo[] = [
-  { id: 'food', icon: Utensils },
-  { id: 'police', icon: Shield },
-  { id: 'hospital', icon: Hospital },
-  { id: 'hotel', icon: BedDouble },
-  { id: 'water', icon: Droplet },
-  { id: 'restroom', icon: PersonStanding },
+const ICON_CATEGORIES: IconCategory[] = [
+  {
+    id: 'food',
+    icons: [
+      { id: 'vegetarian', icon: Vegan },
+      { id: 'drink', icon: GlassWater },
+      { id: 'dessert', icon: CakeSlice },
+    ],
+  },
+  {
+    id: 'health',
+    icons: [
+      { id: 'emergency', icon: Siren },
+      { id: 'medicine', icon: Pill },
+      { id: 'allergy', icon: ShieldAlert },
+    ],
+  },
+  {
+    id: 'communication',
+    icons: [
+      { id: 'language', icon: Languages },
+      { id: 'translator', icon: UserPlus },
+      { id: 'phone', icon: Phone },
+    ],
+  },
+  {
+    id: 'transport',
+    icons: [
+      { id: 'taxi', icon: CarTaxiFront },
+      { id: 'guide', icon: Compass },
+      { id: 'direction', icon: MapPin },
+    ],
+  },
+  {
+    id: 'accommodation',
+    icons: [
+      { id: 'roomKey', icon: KeyRound },
+      { id: 'roomCleaning', icon: Sparkles },
+      { id: 'wifi', icon: Wifi },
+    ],
+  },
+  {
+    id: 'entertainment',
+    icons: [
+      { id: 'activity', icon: Landmark },
+      { id: 'ticket', icon: Ticket },
+    ],
+  },
+  {
+    id: 'security',
+    icons: [
+      { id: 'police', icon: Shield },
+      { id: 'danger', icon: Car },
+    ],
+  },
+  {
+    id: 'general',
+    icons: [
+      { id: 'currency', icon: CircleDollarSign },
+      { id: 'water', icon: Droplet },
+      { id: 'restroom', icon: PersonStanding },
+      { id: 'laundry', icon: WashingMachine },
+      { id: 'lostItem', icon: Briefcase },
+    ],
+  },
+  {
+    id: 'social',
+    icons: [
+      { id: 'photo', icon: Camera },
+      { id: 'souvenir', icon: ShoppingBag },
+    ],
+  },
 ];
+
 
 function IconDisplay({ icon, text, onClear }: { icon: LucideIcon; text: string; onClear: () => void }) {
   const Icon = icon;
@@ -118,7 +306,7 @@ function IconDisplay({ icon, text, onClear }: { icon: LucideIcon; text: string; 
 export default function CommunicationAidPage() {
   const [lang, setLang] = useState<Lang>('az');
   const [whiteboardText, setWhiteboardText] = useState('');
-  const [selectedIcon, setSelectedIcon] = useState<IconInfo | null>(null);
+  const [selectedIcon, setSelectedIcon] = useState<{ id: IconId; icon: LucideIcon } | null>(null);
   const { isReadingMode, speakText } = useReadingMode();
 
   useEffect(() => {
@@ -159,10 +347,10 @@ export default function CommunicationAidPage() {
           </p>
         </div>
 
-        <Tabs defaultValue="whiteboard" className="w-full max-w-2xl mx-auto">
+        <Tabs defaultValue="icon-board" className="w-full max-w-4xl mx-auto">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="whiteboard">{trans.whiteboardTab}</TabsTrigger>
             <TabsTrigger value="icon-board">{trans.iconBoardTab}</TabsTrigger>
+            <TabsTrigger value="whiteboard">{trans.whiteboardTab}</TabsTrigger>
           </TabsList>
           <TabsContent value="whiteboard">
             <Card>
@@ -202,23 +390,33 @@ export default function CommunicationAidPage() {
                 <p className="text-center text-muted-foreground mb-6" onClick={() => handleSpeak(trans.iconBoardDescription)}>
                   {trans.iconBoardDescription}
                 </p>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {ICONS.map((iconInfo) => {
-                    const text = trans.icons[iconInfo.id];
-                    return (
-                      <Card
-                        key={iconInfo.id}
-                        className="p-4 flex flex-col items-center justify-center gap-2 text-center cursor-pointer hover:bg-accent hover:-translate-y-1 transition-transform"
-                        onClick={() => {
-                          setSelectedIcon(iconInfo);
-                          handleSpeak(text);
-                        }}
-                      >
-                        <iconInfo.icon className="h-12 w-12 text-primary" />
-                        <p className="font-semibold">{text}</p>
-                      </Card>
-                    );
-                  })}
+                <div className="space-y-8">
+                  {ICON_CATEGORIES.map((category) => (
+                    <Fragment key={category.id}>
+                       <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-center">{trans.categories[category.id]}</h3>
+                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                              {category.icons.map((iconInfo) => {
+                                const text = trans.icons[iconInfo.id];
+                                return (
+                                  <Card
+                                    key={iconInfo.id}
+                                    className="p-4 flex flex-col items-center justify-center gap-2 text-center cursor-pointer hover:bg-accent hover:-translate-y-1 transition-transform"
+                                    onClick={() => {
+                                      setSelectedIcon(iconInfo);
+                                      handleSpeak(text);
+                                    }}
+                                  >
+                                    <iconInfo.icon className="h-10 w-10 text-primary" />
+                                    <p className="font-medium text-sm">{text}</p>
+                                  </Card>
+                                );
+                              })}
+                          </div>
+                       </div>
+                       <Separator />
+                    </Fragment>
+                  ))}
                 </div>
               </CardContent>
             </Card>
