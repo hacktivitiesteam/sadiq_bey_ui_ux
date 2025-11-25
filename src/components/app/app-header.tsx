@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { Globe, Languages, Check, ChevronDown, Headset, Ear } from 'lucide-react';
+import { Globe, Languages, Check, ChevronDown, Headset, Ear, PenSquare } from 'lucide-react';
 import ContactUs from './contact-us';
 import { ThemeToggle } from './theme-toggle';
 import {
@@ -117,6 +117,11 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
             <div className='flex items-center gap-1'>
                 {lang && setLang && <LanguageSwitcher currentLang={lang} setLang={setLang} />}
                 {lang && <ContactUs lang={lang} />}
+                <Button asChild variant="ghost" size="icon" aria-label="Communication Aid">
+                    <Link href="/communication-aid">
+                        <PenSquare className="h-6 w-6" />
+                    </Link>
+                </Button>
                 <ReadingModeToggle />
                 <ThemeToggle />
             </div>
