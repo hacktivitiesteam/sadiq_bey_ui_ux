@@ -16,8 +16,6 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { useReadingMode } from '@/components/app/reading-mode-provider';
-import { cn } from '@/lib/utils';
 
 type Lang = 'az' | 'en' | 'ru';
 
@@ -73,7 +71,6 @@ const t = (lang: Lang) => ({
 function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
     const router = useRouter();
     const canReserve = item.category === 'hotels' || item.category === 'restaurants';
-    const { isReadingMode, speakText } = useReadingMode();
     
     const hasNearbyRestaurant = !!item.nearbyRestaurants;
     const hasLocation = !!item.googleMapsUrl;
@@ -97,10 +94,6 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
     const ingredients = (lang === 'en' && item.ingredients_en) ? item.ingredients_en : (lang === 'ru' && item.ingredients_ru) ? item.ingredients_ru : item.ingredients;
     const trans = t(lang);
 
-    const handleSpeak = (text: string | undefined) => {
-        if (text) speakText(text, lang === 'az' ? 'tr-TR' : `${lang}-${lang.toUpperCase()}`);
-    }
-
     return (
         <Card className="overflow-hidden shadow-lg rounded-xl flex flex-col transition-transform duration-300 hover:-translate-y-1">
            {item.imageUrl && <div className="relative h-56 w-full">
@@ -112,7 +105,7 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
                     className="object-cover"
                 />
             </div>}
-            <CardHeader onClick={() => handleSpeak(name)} className={cn(isReadingMode && 'cursor-pointer hover:bg-muted/50')}>
+            <CardHeader>
                 <CardTitle>{name}</CardTitle>
                 <div className="flex items-center justify-between pt-2">
                     {item.rating != null && (
@@ -125,11 +118,11 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
                 </div>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
-                <CardDescription className={cn("line-clamp-3", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(description)}>
+                <CardDescription className="line-clamp-3">
                     {description}
                 </CardDescription>
                 {item.address && (
-                    <div className="flex items-start gap-2 text-sm text-muted-foreground" onClick={() => handleSpeak(item.address)} >
+                    <div className="flex items-start gap-2 text-sm text-muted-foreground">
                         <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
                         <span>{item.address}</span>
                     </div>
@@ -148,7 +141,7 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
                     </div>
                 )}
                 {ingredients && (
-                     <div className="pt-2" onClick={() => handleSpeak(`${trans.ingredients} ${ingredients}`)}>
+                     <div className="pt-2">
                         <h4 className="font-semibold text-sm mb-1">{trans.ingredients}</h4>
                         <p className="text-sm text-muted-foreground">{ingredients}</p>
                     </div>
@@ -180,7 +173,7 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
                                         <Image src={item.menu.trim()} alt={`${name || 'Restaurant'} menu`} fill className="object-contain" />
                                     </div>
                                 ) : (
-                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap" onClick={() => handleSpeak(item.menu)}>{item.menu}</p>
+                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.menu}</p>
                                 )}
                             </div>
                         </DialogContent>
@@ -198,13 +191,21 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
 
 function PhraseCard({ item, lang }: { item: InfoItem, lang: Lang }) {
     const { toast } = useToast();
-    const { speakText } = useReadingMode();
     const trans = t(lang);
     
     const topPhrase = lang === 'en' ? item.phrase_en : lang === 'ru' ? item.phrase_ru : item.phrase;
     const bottomPhrase = item.translation;
 
     const handleSpeak = () => {
+        if (typeof window === 'undefined' || !window.speechSynthesis) {
+            toast({
+                variant: "destructive",
+                title: "Unsupported Browser",
+                description: "Your browser does not support text-to-speech.",
+            });
+            return;
+        }
+
         const textToSpeak = item.translation; // Always speak the local language phrase
         const speechLang = item.language;
 
@@ -217,7 +218,21 @@ function PhraseCard({ item, lang }: { item: InfoItem, lang: Lang }) {
             return;
         }
 
-        speakText(textToSpeak, speechLang);
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.lang = speechLang;
+        
+        utterance.onerror = (event) => {
+            console.error("SpeechSynthesisUtterance.onerror", event);
+            toast({
+                variant: "destructive",
+                title: trans.pronunciationError,
+                description: trans.pronunciationErrorGeneric,
+            });
+        };
+        
+        window.speechSynthesis.speak(utterance);
     };
 
     return (
@@ -239,13 +254,8 @@ function PhraseCard({ item, lang }: { item: InfoItem, lang: Lang }) {
 
 
 function ItemDetails({ item, lang }: { item: InfoItem, lang: Lang }) {
-    const { isReadingMode, speakText } = useReadingMode();
     const name = (lang === 'en' && item.name_en) ? item.name_en : (lang === 'ru' && item.name_ru) ? item.name_ru : item.name;
     const description = (lang === 'en' && item.description_en) ? item.description_en : (lang === 'ru' && item.description_ru) ? item.description_ru : item.description;
-
-    const handleSpeak = (text: string | undefined) => {
-        if (text) speakText(text, lang === 'az' ? 'tr-TR' : `${lang}-${lang.toUpperCase()}`);
-    }
 
     return (
         <Card className="w-full max-w-4xl mx-auto overflow-hidden shadow-lg rounded-xl transition-transform duration-300 hover:-translate-y-1">
@@ -254,11 +264,11 @@ function ItemDetails({ item, lang }: { item: InfoItem, lang: Lang }) {
                     <Image src={item.imageUrl} alt={name || 'Image'} fill className="object-cover" />
                 </div>
              )}
-            <CardHeader onClick={() => handleSpeak(name)} className={cn(isReadingMode && 'cursor-pointer hover:bg-muted/50')}>
+            <CardHeader>
                 <CardTitle className="text-3xl font-bold">{name}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6" onClick={() => handleSpeak(description?.replace(/<[^>]+>/g, ''))}>
-                <div className={cn("prose dark:prose-invert max-w-none", isReadingMode && 'cursor-pointer')} dangerouslySetInnerHTML={{ __html: description?.replace(/\n/g, '<br />') || '' }} />
+            <CardContent className="space-y-6">
+                <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: description?.replace(/\n/g, '<br />') || '' }} />
             </CardContent>
         </Card>
     );
@@ -270,7 +280,6 @@ export default function CategoryPage() {
   const countrySlug = Array.isArray(params.country) ? params.country[0] : params.country;
   const categoryId = Array.isArray(params.category) ? params.category[0] : params.category as InfoCategory;
   const firestore = useFirestore();
-  const { isReadingMode, speakText } = useReadingMode();
 
   const [country, setCountry] = useState<Country | null>(null);
   const [items, setItems] = useState<InfoItem[]>([]);
@@ -293,8 +302,6 @@ export default function CategoryPage() {
   const pageLang = globalLang;
   const trans = t(pageLang);
   const categoryDetails = CATEGORIES.find(c => c.id === categoryId);
-  const countryName = (pageLang === 'en' && country?.name_en) ? country.name_en : (pageLang === 'ru' && country?.name_ru) ? country.name_ru : country?.name;
-  const categoryName = (pageLang === 'en' ? categoryDetails?.name : (pageLang === 'ru' && categoryDetails?.name_ru) ? categoryDetails?.name_ru : categoryDetails?.name_az);
 
   useEffect(() => {
     if (!countrySlug || !categoryId || !firestore) return;
@@ -319,9 +326,6 @@ export default function CategoryPage() {
     loadData();
   }, [countrySlug, categoryId, firestore]);
   
-  const handleSpeak = (text: string | undefined) => {
-    if (text) speakText(text, pageLang === 'az' ? 'tr-TR' : `${pageLang}-${pageLang.toUpperCase()}`);
-  }
 
   const renderContent = () => {
     if (loading) {
@@ -338,7 +342,7 @@ export default function CategoryPage() {
     
     if (items.length === 0) {
         return (
-            <div className="text-center py-20 bg-muted rounded-lg" onClick={() => handleSpeak(`${trans.noInfo}. ${trans.noInfoDesc}`)}>
+            <div className="text-center py-20 bg-muted rounded-lg">
                 <h2 className="text-2xl font-bold">{trans.noInfo}</h2>
                 <p className="text-muted-foreground mt-2">{trans.noInfoDesc}</p>
             </div>
@@ -373,6 +377,9 @@ export default function CategoryPage() {
       </div>
     );
   };
+  
+  const countryName = (pageLang === 'en' && country?.name_en) ? country.name_en : (pageLang === 'ru' && country?.name_ru) ? country.name_ru : country?.name;
+  const categoryName = (pageLang === 'en' ? categoryDetails?.name : (pageLang === 'ru' && categoryDetails?.name_ru) ? categoryDetails?.name_ru : categoryDetails?.name_az);
 
   return (
     <>
@@ -383,7 +390,7 @@ export default function CategoryPage() {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {countryName || trans.back}
             </Button>
-            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl font-headline" onClick={() => handleSpeak(categoryName)} >
+            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl font-headline">
                 {categoryName}
             </h1>
         </div>

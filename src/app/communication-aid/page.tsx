@@ -39,7 +39,7 @@ const translations = (lang: Lang) => ({
       hospital: 'Tibb yardımına ehtiyacım var',
       hotel: 'Otellə bağlı kömək lazımdır',
       water: 'Su istəyirəm',
-      restroom: 'Tualetə getməliyəm',
+      restroom: 'WC',
     },
   },
   en: {
@@ -56,7 +56,7 @@ const translations = (lang: Lang) => ({
       hospital: 'I need medical help',
       hotel: 'I need help with a hotel',
       water: 'I want water',
-      restroom: 'I need to go to the restroom',
+      restroom: 'Restroom',
     },
   },
   ru: {
@@ -73,7 +73,7 @@ const translations = (lang: Lang) => ({
       hospital: 'Мне нужна медицинская помощь',
       hotel: 'Мне нужна помощь с отелем',
       water: 'Я хочу воды',
-      restroom: 'Мне нужно в туалет',
+      restroom: 'Туалет',
     },
   },
 });
