@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Languages, UtensilsCrossed, MapPinned, Globe, Repeat, ArrowRight, Compass } from 'lucide-react';
+import { Languages, UtensilsCrossed, MapPinned, Globe, Repeat, ArrowRight, Compass, BookOpen, Route } from 'lucide-react';
 import AppHeader from '@/components/app/app-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -25,37 +25,43 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
     const { isReadingMode, speakText } = useReadingMode();
     const content = {
         az: {
-            section_title: 'Turistlərin Üzləşdiyi Əsas Problemlər',
-            info_gap: 'Məlumat əskikliyi',
-            info_gap_desc: 'Turistlərin əksəriyyəti gedəcəyi ölkə haqqında yetərli məlumata sahib deyil.',
-            lang_barrier: 'Dil Baryeri',
-            lang_barrier_desc: 'Səyahətçilər ünsiyyət qurmaqda çətinlik çəkir, əsas yerli ifadələr təcrübəni yaxşılaşdırır.',
-            cuisine: 'Mətbəx və Restoranlar',
-            cuisine_desc: 'Turistlər ölkənin milli mətbəxini və yaxşı restoranlarını tanımır.',
-            attractions: 'Turistik Məkanlar',
-            attractions_desc: 'Gəzməli yerlər və onlara yaxın olan digər maraqlı nöqtələr haqqında məlumatları yoxdur.',
+            section_title: 'Səyahətçilərin Maraqları',
+            route: 'Səyahət rotası',
+            route_desc: 'Turistlərin əksəriyyəti səyahət rotasını əvvəlcədən planlayır.',
+            language: 'Dil',
+            language_desc: 'Səyahətçilər yeni dillər öyrənməyə və yerli ünsiyyətə önəm verir.',
+            culture: 'Mədəniyyət',
+            culture_desc: 'Mədəniyyətlə tanışlıq səyahətin ayrılmaz hissəsidir.',
+            attractions: 'Görməli yerlər',
+            attractions_desc: 'Yeni məkanlar kəşf etmək əsas motivasiyalardan biridir.',
+            cuisine: 'Milli Mətbəx',
+            cuisine_desc: 'Yerli təamları dadmaq səyahət təcrübəsini zənginləşdirir.',
         },
         en: {
-            section_title: 'Key Challenges for Travelers',
-            info_gap: 'Information Gap',
-            info_gap_desc: 'The majority of tourists do not have enough information about the country they are visiting.',
-            lang_barrier: 'Language Barrier',
-            lang_barrier_desc: 'Travelers have difficulty communicating; basic local phrases improve the experience.',
-            cuisine: 'Cuisine and Restaurants',
-            cuisine_desc: "Tourists are unfamiliar with the country's national cuisine and good restaurants.",
-            attractions: 'Tourist Attractions',
-            attractions_desc: 'They lack information about places to visit and other interesting points nearby.',
+            section_title: 'Traveler Interests',
+            route: 'Travel Route',
+            route_desc: 'Most tourists plan their travel route in advance.',
+            language: 'Language',
+            language_desc: 'Travelers prioritize learning new languages and local communication.',
+            culture: 'Culture',
+            culture_desc: 'Getting acquainted with the culture is an integral part of travel.',
+            attractions: 'Attractions',
+            attractions_desc: 'Discovering new places is one of the main motivations.',
+            cuisine: 'National Cuisine',
+            cuisine_desc: 'Tasting local dishes enriches the travel experience.',
         },
         ru: {
-            section_title: 'Основные проблемы туристов',
-            info_gap: 'Информационный пробел',
-            info_gap_desc: 'Большинство туристов не имеют достаточной информации о стране, которую они посещают.',
-            lang_barrier: 'Языковой барьер',
-            lang_barrier_desc: 'Путешественникам трудно общаться; базовые местные фразы улучшают впечатления.',
-            cuisine: 'Кухня и рестораны',
-            cuisine_desc: 'Туристы не знакомы с национальной кухней страны и хорошими ресторанами.',
-            attractions: 'Туристические достопримечательности',
-            attractions_desc: 'У них нет информации о местах для посещения и других интересных точках поблизости.',
+            section_title: 'Интересы путешественников',
+            route: 'Маршрут путешествия',
+            route_desc: 'Большинство туристов планируют свой маршрут заранее.',
+            language: 'Язык',
+            language_desc: 'Путешественники уделяют первостепенное внимание изучению новых языков и местному общению.',
+            culture: 'Культура',
+            culture_desc: 'Знакомство с культурой - неотъемлемая часть путешествия.',
+            attractions: 'Достопримечательности',
+            attractions_desc: 'Открытие новых мест - одна из главных мотиваций.',
+            cuisine: 'Национальная кухня',
+            cuisine_desc: 'Дегустация местных блюд обогащает впечатления от путешествия.',
         }
     };
 
@@ -64,16 +70,17 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
     }
     
   const stats = [
-    { icon: Globe, percentage: '35%', title: content[lang].info_gap, description: content[lang].info_gap_desc },
-    { icon: Languages, percentage: '32%', title: content[lang].lang_barrier, description: content[lang].lang_barrier_desc },
-    { icon: UtensilsCrossed, percentage: '15%', title: content[lang].cuisine, description: content[lang].cuisine_desc },
-    { icon: MapPinned, percentage: '30%', title: content[lang].attractions, description: content[lang].attractions_desc },
+    { icon: Route, percentage: '33.29%', title: content[lang].route, description: content[lang].route_desc },
+    { icon: Languages, percentage: '31.25%', title: content[lang].language, description: content[lang].language_desc },
+    { icon: BookOpen, percentage: '28.67%', title: content[lang].culture, description: content[lang].culture_desc },
+    { icon: MapPinned, percentage: '19.89%', title: content[lang].attractions, description: content[lang].attractions_desc },
+    { icon: UtensilsCrossed, percentage: '14.81%', title: content[lang].cuisine, description: content[lang].cuisine_desc },
   ];
 
   return (
     <div>
         <h2 className={cn("text-2xl font-bold mb-6 text-center", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(content[lang].section_title)}>{content[lang].section_title}</h2>
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
           {stats.map((stat, index) => (
             <Card key={index} className="flex flex-col items-center p-6 text-center bg-card/50 border-border/50 transition-transform duration-300 hover:-translate-y-1" onClick={() => handleSpeak(`${stat.title}. ${stat.description}`)}>
               <stat.icon className="mb-4 h-10 w-10 text-primary" />
