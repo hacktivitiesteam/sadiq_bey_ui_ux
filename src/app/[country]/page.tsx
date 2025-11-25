@@ -90,7 +90,7 @@ export default function CountryPage() {
   };
 
   const handleSpeak = (text: string | undefined) => {
-    if (text) speakText(text, pageLang === 'az' ? 'tr-TR' : `${pageLang}-${pageLang.toUpperCase()}`);
+    if (text) speakText(text, pageLang === 'az' ? 'tr-TR' : `${lang}-${lang.toUpperCase()}`);
   }
 
   const renderContent = () => {
@@ -135,7 +135,7 @@ export default function CountryPage() {
                     const href = `/${country.slug}/${category.id}`;
                     return (
                         <a key={category.id} href={href} onClick={(e) => handleCategoryClick(e, href, CategoryIcon)}>
-                            <Card className="p-4 hover:bg-muted transition-all duration-300 group hover:-translate-y-1">
+                            <Card className={cn("p-4 hover:bg-muted transition-all duration-300 group hover:-translate-y-1", isReadingMode && 'cursor-pointer')} onClick={() => handleSpeak(categoryName)}>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         <CategoryIcon className="h-8 w-8 text-primary" />

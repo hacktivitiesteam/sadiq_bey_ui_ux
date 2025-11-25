@@ -351,17 +351,17 @@ export default function CommunicationAidPage() {
                 {trans.backToHome}
             </Link>
         </div>
-        <div className="text-center mb-8" onClick={() => handleSpeak(`${trans.title}. ${trans.description}`)}>
-          <h1 className={cn("text-4xl font-extrabold tracking-tight lg:text-5xl", isReadingMode && 'cursor-pointer')}>{trans.title}</h1>
-          <p className={cn("mt-2 text-lg text-muted-foreground", isReadingMode && 'cursor-pointer')}>
+        <div className={cn("text-center mb-8", isReadingMode && "cursor-pointer hover:bg-muted/50")} onClick={() => handleSpeak(`${trans.title}. ${trans.description}`)}>
+          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">{trans.title}</h1>
+          <p className="mt-2 text-lg text-muted-foreground">
             {trans.description}
           </p>
         </div>
 
         <Tabs defaultValue="icon-board" className="w-full max-w-4xl mx-auto">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="icon-board">{trans.iconBoardTab}</TabsTrigger>
-            <TabsTrigger value="whiteboard">{trans.whiteboardTab}</TabsTrigger>
+            <TabsTrigger value="icon-board" onClick={() => handleSpeak(trans.iconBoardTab)}>{trans.iconBoardTab}</TabsTrigger>
+            <TabsTrigger value="whiteboard" onClick={() => handleSpeak(trans.whiteboardTab)}>{trans.whiteboardTab}</TabsTrigger>
           </TabsList>
           <TabsContent value="whiteboard">
             <Card>
@@ -398,14 +398,14 @@ export default function CommunicationAidPage() {
           <TabsContent value="icon-board">
             <Card>
               <CardContent className="p-4">
-                <p className="text-center text-muted-foreground mb-6" onClick={() => handleSpeak(trans.iconBoardDescription)}>
+                <p className={cn("text-center text-muted-foreground mb-6", isReadingMode && "cursor-pointer hover:bg-muted/50")} onClick={() => handleSpeak(trans.iconBoardDescription)}>
                   {trans.iconBoardDescription}
                 </p>
                 <div className="space-y-8">
                   {ICON_CATEGORIES.map((category, index) => (
                     <Fragment key={category.id}>
                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-center">{trans.categories[category.id]}</h3>
+                          <h3 className={cn("text-lg font-semibold text-center", isReadingMode && "cursor-pointer hover:bg-muted/50")} onClick={() => handleSpeak(trans.categories[category.id])}>{trans.categories[category.id]}</h3>
                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               {category.icons.map((iconInfo) => {
                                 const text = trans.icons[iconInfo.id];

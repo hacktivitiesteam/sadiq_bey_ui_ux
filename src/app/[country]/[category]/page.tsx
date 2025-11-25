@@ -16,6 +16,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { useReadingMode } from '@/components/app/reading-mode-provider';
+import { cn } from '@/lib/utils';
 
 type Lang = 'az' | 'en' | 'ru';
 
@@ -70,6 +72,7 @@ const t = (lang: Lang) => ({
 
 function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
     const router = useRouter();
+    const { isReadingMode, speakText } = useReadingMode();
     const canReserve = item.category === 'hotels' || item.category === 'restaurants';
     
     const hasNearbyRestaurant = !!item.nearbyRestaurants;
@@ -94,6 +97,10 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
     const ingredients = (lang === 'en' && item.ingredients_en) ? item.ingredients_en : (lang === 'ru' && item.ingredients_ru) ? item.ingredients_ru : item.ingredients;
     const trans = t(lang);
 
+    const handleSpeak = (text: string | undefined) => {
+        if (text) speakText(text, lang === 'az' ? 'tr-TR' : `${lang}-${lang.toUpperCase()}`);
+    }
+
     return (
         <Card className="overflow-hidden shadow-lg rounded-xl flex flex-col transition-transform duration-300 hover:-translate-y-1">
            {item.imageUrl && <div className="relative h-56 w-full">
@@ -105,7 +112,7 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
                     className="object-cover"
                 />
             </div>}
-            <CardHeader>
+            <CardHeader onClick={() => handleSpeak(name)} className={cn(isReadingMode && 'cursor-pointer hover:bg-muted/50')}>
                 <CardTitle>{name}</CardTitle>
                 <div className="flex items-center justify-between pt-2">
                     {item.rating != null && (
@@ -118,30 +125,30 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
                 </div>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
-                <CardDescription className="line-clamp-3">
+                <CardDescription className={cn("line-clamp-3", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(description)}>
                     {description}
                 </CardDescription>
                 {item.address && (
-                    <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <div className={cn("flex items-start gap-2 text-sm text-muted-foreground", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(item.address)}>
                         <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
                         <span>{item.address}</span>
                     </div>
                 )}
                 {item.phone && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className={cn("flex items-center gap-2 text-sm text-muted-foreground", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(item.phone)}>
                         <Phone className="h-4 w-4 shrink-0" />
                         <span>{item.phone}</span>
                     </div>
                 )}
                  {showEntranceFee && (
-                     <div className="pt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                     <div className={cn("pt-2 flex items-center gap-2 text-sm text-muted-foreground", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(`${trans.entranceFee} ${item.entranceFee}`)}>
                         <Ticket className="h-4 w-4" />
                         <span className="font-semibold">{trans.entranceFee}</span>
                         <span>{item.entranceFee}</span>
                     </div>
                 )}
                 {ingredients && (
-                     <div className="pt-2">
+                     <div className={cn("pt-2", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(`${trans.ingredients} ${ingredients}`)}>
                         <h4 className="font-semibold text-sm mb-1">{trans.ingredients}</h4>
                         <p className="text-sm text-muted-foreground">{ingredients}</p>
                     </div>
@@ -173,7 +180,9 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
                                         <Image src={item.menu.trim()} alt={`${name || 'Restaurant'} menu`} fill className="object-contain" />
                                     </div>
                                 ) : (
-                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.menu}</p>
+                                    <p className={cn("text-sm text-muted-foreground whitespace-pre-wrap", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(item.menu)}>
+                                        {item.menu}
+                                    </p>
                                 )}
                             </div>
                         </DialogContent>
@@ -191,12 +200,13 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
 
 function PhraseCard({ item, lang }: { item: InfoItem, lang: Lang }) {
     const { toast } = useToast();
+    const { isReadingMode, speakText } = useReadingMode();
     const trans = t(lang);
     
     const topPhrase = lang === 'en' ? item.phrase_en : lang === 'ru' ? item.phrase_ru : item.phrase;
     const bottomPhrase = item.translation;
 
-    const handleSpeak = () => {
+    const handleSpeak = (textToSpeak: string | undefined, speechLang: string | undefined) => {
         if (typeof window === 'undefined' || !window.speechSynthesis) {
             toast({
                 variant: "destructive",
@@ -205,9 +215,6 @@ function PhraseCard({ item, lang }: { item: InfoItem, lang: Lang }) {
             });
             return;
         }
-
-        const textToSpeak = item.translation; // Always speak the local language phrase
-        const speechLang = item.language;
 
         if (!textToSpeak || !speechLang) {
             toast({
@@ -236,14 +243,14 @@ function PhraseCard({ item, lang }: { item: InfoItem, lang: Lang }) {
     };
 
     return (
-        <Card className="p-4 transition-transform duration-300 hover:-translate-y-1">
+        <Card className={cn("p-4 transition-transform duration-300 hover:-translate-y-1", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(bottomPhrase, item.language)}>
             <CardContent className="p-0 flex items-center justify-between">
                 <div className="space-y-1">
                     <p className="text-lg font-semibold">{topPhrase}</p>
                     <p className="text-muted-foreground">{bottomPhrase}</p>
                 </div>
                 {item.translation && item.language && (
-                  <Button variant="ghost" size="icon" onClick={handleSpeak}>
+                  <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleSpeak(bottomPhrase, item.language); }}>
                       <Volume2 className="h-6 w-6" />
                   </Button>
                 )}
@@ -254,8 +261,13 @@ function PhraseCard({ item, lang }: { item: InfoItem, lang: Lang }) {
 
 
 function ItemDetails({ item, lang }: { item: InfoItem, lang: Lang }) {
+    const { isReadingMode, speakText } = useReadingMode();
     const name = (lang === 'en' && item.name_en) ? item.name_en : (lang === 'ru' && item.name_ru) ? item.name_ru : item.name;
     const description = (lang === 'en' && item.description_en) ? item.description_en : (lang === 'ru' && item.description_ru) ? item.description_ru : item.description;
+
+    const handleSpeak = (text: string | undefined) => {
+        if (text) speakText(text, lang === 'az' ? 'tr-TR' : `${lang}-${lang.toUpperCase()}`);
+    }
 
     return (
         <Card className="w-full max-w-4xl mx-auto overflow-hidden shadow-lg rounded-xl transition-transform duration-300 hover:-translate-y-1">
@@ -264,10 +276,10 @@ function ItemDetails({ item, lang }: { item: InfoItem, lang: Lang }) {
                     <Image src={item.imageUrl} alt={name || 'Image'} fill className="object-cover" />
                 </div>
              )}
-            <CardHeader>
+            <CardHeader onClick={() => handleSpeak(name)} className={cn(isReadingMode && 'cursor-pointer hover:bg-muted/50')}>
                 <CardTitle className="text-3xl font-bold">{name}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className={cn("space-y-6", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(description?.replace(/<[^>]+>/g, ''))}>
                 <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: description?.replace(/\n/g, '<br />') || '' }} />
             </CardContent>
         </Card>
@@ -286,6 +298,7 @@ export default function CategoryPage() {
   const [loading, setLoading] = useState(true);
   const [globalLang, setGlobalLang] = useState<Lang>('az');
   const { toast } = useToast();
+  const { isReadingMode, speakText } = useReadingMode();
 
   useEffect(() => {
     const savedLang = localStorage.getItem('app-lang') as Lang;
@@ -327,6 +340,10 @@ export default function CategoryPage() {
   }, [countrySlug, categoryId, firestore]);
   
 
+  const handleSpeak = (text: string | undefined) => {
+    if (text) speakText(text, pageLang === 'az' ? 'tr-TR' : `${pageLang}-${pageLang.toUpperCase()}`);
+  }
+
   const renderContent = () => {
     if (loading) {
       const gridCols = 'md:grid-cols-2 lg:grid-cols-3';
@@ -342,7 +359,7 @@ export default function CategoryPage() {
     
     if (items.length === 0) {
         return (
-            <div className="text-center py-20 bg-muted rounded-lg">
+            <div className={cn("text-center py-20 bg-muted rounded-lg", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(`${trans.noInfo}. ${trans.noInfoDesc}`)}>
                 <h2 className="text-2xl font-bold">{trans.noInfo}</h2>
                 <p className="text-muted-foreground mt-2">{trans.noInfoDesc}</p>
             </div>
@@ -390,7 +407,7 @@ export default function CategoryPage() {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {countryName || trans.back}
             </Button>
-            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl font-headline">
+            <h1 className={cn("text-4xl font-extrabold tracking-tight lg:text-5xl font-headline", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(categoryName)}>
                 {categoryName}
             </h1>
         </div>
