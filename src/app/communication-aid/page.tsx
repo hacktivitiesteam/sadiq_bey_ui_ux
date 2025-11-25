@@ -80,7 +80,7 @@ const t = (lang: Lang) => ({
 });
 
 type IconInfo = {
-  id: keyof (ReturnType<typeof t>['az']['icons']);
+  id: keyof ReturnType<typeof t>['az']['icons'];
   icon: LucideIcon;
 };
 
