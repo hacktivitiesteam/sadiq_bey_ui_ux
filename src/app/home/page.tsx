@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -284,7 +284,7 @@ function CurrencyConverter({ lang }: { lang: 'az' | 'en' | 'ru' }) {
         ru: { title: 'Конвертер валют', amount: 'Сумма', from: 'Из', to: 'В', negative_error: 'Нельзя конвертировать отрицательное значение.' },
     }[lang];
   
-  const handleConversion = () => {
+  const handleConversion = useCallback(() => {
     const numericAmount = parseFloat(amount);
     
     if (numericAmount < 0) {
@@ -304,7 +304,7 @@ function CurrencyConverter({ lang }: { lang: 'az' | 'en' | 'ru' }) {
     } else {
         setResult(null);
     }
-  }
+  }, [amount, fromCurrency, toCurrency, rates, t.negative_error]);
 
   const swapCurrencies = () => {
     setFromCurrency(toCurrency);
@@ -313,8 +313,7 @@ function CurrencyConverter({ lang }: { lang: 'az' | 'en' | 'ru' }) {
   
   useEffect(() => {
     handleConversion();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount, fromCurrency, toCurrency, lang]);
+  }, [handleConversion]);
 
   const currencyOptions = Object.keys(rates).sort().map(currency => (
     <SelectItem key={currency} value={currency}>{currency}</SelectItem>
