@@ -109,7 +109,7 @@ export default function CountryPage() {
     return (
       <div>
         <div className="relative h-96 w-full">
-          <Image src={country.imageUrl} alt={countryName || ''} layout="fill" objectFit="cover" className="brightness-75" />
+          <Image src={country.imageUrl} alt={countryName || ''} fill objectFit="cover" className="brightness-75" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         </div>
         <div className="container mx-auto px-4 md:px-6 -mt-24 relative z-10">

@@ -1,46 +1,47 @@
 'use client';
 
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import CategoryAnimationOverlay from './category-animation-overlay';
 
-type AnimationPayload = {
+interface AnimationData {
   icon: LucideIcon;
-  onAnimationEnd?: () => void;
-};
+}
 
-type AnimationContextType = {
-  triggerAnimation: (payload: AnimationPayload) => void;
-};
+interface AnimationParams extends AnimationData {
+  onAnimationEnd?: () => void;
+}
+
+interface AnimationContextType {
+  triggerAnimation: (params: AnimationParams) => void;
+}
 
 const AnimationContext = createContext<AnimationContextType | undefined>(undefined);
 
-export const AnimationProvider = ({ children }: { children: ReactNode }) => {
-  const [animation, setAnimation] = useState<AnimationPayload | null>(null);
+export function AnimationProvider({ children }: { children: ReactNode }) {
+  const [animation, setAnimation] = useState<AnimationData | null>(null);
 
-  const triggerAnimation = (payload: AnimationPayload) => {
-    setAnimation(payload);
+  const triggerAnimation = useCallback(({ icon, onAnimationEnd }: AnimationParams) => {
+    setAnimation({ icon });
+
     setTimeout(() => {
-      payload.onAnimationEnd?.();
+      onAnimationEnd?.();
       setAnimation(null);
     }, 500); // Corresponds to the animation duration
-  };
+  }, []);
 
   return (
     <AnimationContext.Provider value={{ triggerAnimation }}>
       {children}
-      {animation && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
-          <animation.icon className="animate-scale-and-fade h-24 w-24 text-primary" />
-        </div>
-      )}
+      <CategoryAnimationOverlay animation={animation} />
     </AnimationContext.Provider>
   );
-};
+}
 
-export const useAnimation = () => {
+export function useAnimation() {
   const context = useContext(AnimationContext);
   if (context === undefined) {
     throw new Error('useAnimation must be used within an AnimationProvider');
   }
   return context;
-};
+}
