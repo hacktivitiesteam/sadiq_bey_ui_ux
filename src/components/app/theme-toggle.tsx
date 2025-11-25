@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Laptop } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,8 +25,7 @@ export function ThemeToggle() {
     } else if (newTheme === 'dark') {
         Icon = Moon;
     } else { // 'system'
-        const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        Icon = isSystemDark ? Moon : Sun;
+        Icon = Laptop;
     }
     
     triggerAnimation({
@@ -46,13 +45,16 @@ export function ThemeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onSelect={(e) => handleThemeChange(e, 'light')}>
-          Light
+          <Sun className="mr-2 h-4 w-4" />
+          <span>Light</span>
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={(e) => handleThemeChange(e, 'dark')}>
-          Dark
+          <Moon className="mr-2 h-4 w-4" />
+          <span>Dark</span>
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={(e) => handleThemeChange(e, 'system')}>
-          System
+          <Laptop className="mr-2 h-4 w-4" />
+          <span>System</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
