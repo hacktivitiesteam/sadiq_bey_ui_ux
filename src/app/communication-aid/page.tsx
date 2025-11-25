@@ -12,7 +12,6 @@ import {
   PersonStanding,
   X,
   Trash2,
-  Send
 } from 'lucide-react';
 
 import AppHeader from '@/components/app/app-header';
@@ -25,7 +24,7 @@ import { useReadingMode } from '@/components/app/reading-mode-provider';
 
 type Lang = 'az' | 'en' | 'ru';
 
-const t = (lang: Lang) => ({
+const translations = (lang: Lang) => ({
   az: {
     title: 'Ünsiyyət Köməkçisi',
     description: 'Danışmaqda çətinlik çəkənlər üçün vizual ünsiyyət vasitələri.',
@@ -80,7 +79,7 @@ const t = (lang: Lang) => ({
 });
 
 type IconInfo = {
-  id: keyof ReturnType<typeof t>['az']['icons'];
+  id: keyof ReturnType<typeof translations>['az']['icons'];
   icon: LucideIcon;
 };
 
@@ -134,7 +133,7 @@ export default function CommunicationAidPage() {
     localStorage.setItem('app-lang', newLang);
   };
   
-  const trans = t(lang);
+  const trans = translations(lang)[lang];
 
   const handleSpeak = (text: string | undefined) => {
     if (text) speakText(text, lang === 'az' ? 'tr-TR' : `${lang}-${lang.toUpperCase()}`);
