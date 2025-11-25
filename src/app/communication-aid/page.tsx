@@ -3,6 +3,7 @@
 
 import { useState, useEffect, Fragment } from 'react';
 import type { LucideIcon } from 'lucide-react';
+import Link from 'next/link';
 import {
   Utensils,
   Shield,
@@ -35,6 +36,7 @@ import {
   CircleDollarSign,
   WashingMachine,
   Briefcase,
+  ArrowLeft,
 } from 'lucide-react';
 
 import AppHeader from '@/components/app/app-header';
@@ -57,6 +59,7 @@ const translations = (lang: Lang) => ({
     clear: 'Təmizlə',
     iconBoardTab: 'İkon Lövhəsi',
     iconBoardDescription: 'Ehtiyacınızı bildirmək üçün bir ikona klikləyin.',
+    backToHome: 'Əsas Səhifəyə Qayıt',
     categories: {
       food: 'Yemək / İçki',
       health: 'Sağlamlıq və Təhlükəsizlik',
@@ -105,6 +108,7 @@ const translations = (lang: Lang) => ({
     clear: 'Clear',
     iconBoardTab: 'Icon Board',
     iconBoardDescription: 'Click an icon to communicate your need.',
+    backToHome: 'Back to Home',
     categories: {
       food: 'Food / Drink',
       health: 'Health & Safety',
@@ -153,6 +157,7 @@ const translations = (lang: Lang) => ({
     clear: 'Очистить',
     iconBoardTab: 'Доска с иконами',
     iconBoardDescription: 'Нажмите на иконку, чтобы сообщить о своей потребности.',
+    backToHome: 'Вернуться на главную',
     categories: {
       food: 'Еда / Напитки',
       health: 'Здоровье и безопасность',
@@ -340,6 +345,12 @@ export default function CommunicationAidPage() {
       )}
 
       <main className="container mx-auto px-4 py-8">
+        <div className="mb-4">
+            <Link href="/home" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                {trans.backToHome}
+            </Link>
+        </div>
         <div className="text-center mb-8" onClick={() => handleSpeak(`${trans.title}. ${trans.description}`)}>
           <h1 className={cn("text-4xl font-extrabold tracking-tight lg:text-5xl", isReadingMode && 'cursor-pointer')}>{trans.title}</h1>
           <p className={cn("mt-2 text-lg text-muted-foreground", isReadingMode && 'cursor-pointer')}>
@@ -391,7 +402,7 @@ export default function CommunicationAidPage() {
                   {trans.iconBoardDescription}
                 </p>
                 <div className="space-y-8">
-                  {ICON_CATEGORIES.map((category) => (
+                  {ICON_CATEGORIES.map((category, index) => (
                     <Fragment key={category.id}>
                        <div className="space-y-4">
                           <h3 className="text-lg font-semibold text-center">{trans.categories[category.id]}</h3>
@@ -414,7 +425,7 @@ export default function CommunicationAidPage() {
                               })}
                           </div>
                        </div>
-                       <Separator />
+                       {index < ICON_CATEGORIES.length - 1 && <Separator />}
                     </Fragment>
                   ))}
                 </div>
@@ -426,3 +437,5 @@ export default function CommunicationAidPage() {
     </>
   );
 }
+
+    
