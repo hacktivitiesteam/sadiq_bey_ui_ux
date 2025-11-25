@@ -25,7 +25,7 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
     const { isReadingMode, speakText } = useReadingMode();
     const content = {
         az: {
-            section_title: 'Səyahətçilərin Maraqları',
+            section_title: 'Səyahətçilərin üzləşdiyi problemlər',
             route: 'Səyahət rotası',
             route_desc: 'Turistlərin əksəriyyəti səyahət rotasını əvvəlcədən planlayır.',
             language: 'Dil',
@@ -38,7 +38,7 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
             cuisine_desc: 'Yerli təamları dadmaq səyahət təcrübəsini zənginləşdirir.',
         },
         en: {
-            section_title: 'Traveler Interests',
+            section_title: 'Problems Faced by Travelers',
             route: 'Travel Route',
             route_desc: 'Most tourists plan their travel route in advance.',
             language: 'Language',
@@ -51,7 +51,7 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
             cuisine_desc: 'Tasting local dishes enriches the travel experience.',
         },
         ru: {
-            section_title: 'Интересы путешественников',
+            section_title: 'Проблемы, с которыми сталкиваются путешественники',
             route: 'Маршрут путешествия',
             route_desc: 'Большинство туристов планируют свой маршрут заранее.',
             language: 'Язык',
