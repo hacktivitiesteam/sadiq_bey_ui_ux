@@ -1,18 +1,21 @@
-# **App Name**: QurAI
+# **App Name**: Travel Companion
 
 ## Core Features:
 
-- Chat Interface: Provide a clean and intuitive chat interface for users to interact with the Qur'an-based AI.
-- AI-Powered Responses: Generate responses to user queries based on the teachings and verses of the Qur'an. This may involve interpretation, summarization, and providing relevant verses or guidance. Make the LLM act as a reasoning tool to determine whether or not outside data is necessary to generate a sufficient answer to the prompt.
-- Verse Retrieval: Enable users to quickly search and retrieve specific verses from the Qur'an.
-- Topic Exploration: Offer the ability to explore specific topics within the Qur'an. This could include summaries of key themes.
+- Country Information: Display detailed information about various countries, including general information, attractions, cuisine, hotels, visa requirements, and more, fetched from Firestore.
+- Admin Panel: Simple admin panel for managing country information and other data. Authenticated using password-based login with Next.js Server Actions and cookies.
+- Currency Converter: Real-time currency conversion tool for travelers to quickly calculate exchange rates.
+- Admin Login: Secure login using Next.js server actions and cookies.
+- Firestore Integration: 100% Client-Side Firebase Architecture, enabling direct data operations (read, write, delete) from the user's browser. Password for the admin login is Admin Admin2025.
+- Country List Carousel: Display a list of countries in a carousel format on the homepage for easy navigation.
+- Reservation Form: Form for submitting reservation requests, includes appropriate field validation. Success page redirects for feedback after submission
 
 ## Style Guidelines:
 
-- Primary color: Deep indigo (#3F51B5) evoking spirituality and knowledge.
-- Background color: Very light gray (#F0F2F5), almost white, for clean readability and a serene feel.
-- Accent color: Warm gold (#FFC107) for highlighting important verses, calls to action, and interactive elements.
-- Headline font: 'Alegreya', a humanist serif font, bringing an elegant, intellectual, contemporary feel.
-- Body font: 'Inter', a grotesque-style sans-serif, for its modern, objective, and neutral look.
-- Use clear, minimalist icons to represent topics, chapters, and navigation elements, focused on comprehension over ornate design.
-- Maintain a clean, uncluttered layout to promote ease of reading and focus on the Qur'anic content, in the style of an award-winning digital agency's portfolio piece.
+- Primary color: Deep blue (#3B82F6), evoking trust and a sense of exploration.
+- Background color: Very light blue (#F0F9FF), providing a clean and calm backdrop.
+- Accent color: Purple (#8B5CF6), to highlight interactive elements, and subtly complement the blue.
+- Body font: 'Inter', sans-serif, chosen for its modern and neutral appearance suitable for both headlines and body text.
+- Clean and intuitive layout with a focus on easy navigation and clear presentation of information. Incorporate components from ShadCN UI.
+- Use clear, simple icons to represent different categories of information, enhancing usability.
+- Subtle animations for page transitions and loading states to improve user experience.

@@ -1,6 +1,13 @@
-import { config } from 'dotenv';
-config();
+/**
+ * @fileoverview This file is used to start the Genkit development server.
+ *
+ * It imports all the flows that are defined in the `src/ai` directory and makes them available to the server.
+ */
+import { ai } from './genkit';
 
-import '@/ai/flows/summarize-topic.ts';
-import '@/ai/flows/interpret-verse.ts';
-import '@/ai/flows/answer-query-with-quran.ts';
+// Import all flows
+import './chat/chat-flow';
+
+export const config = {
+  flows: [...ai.registry.listFlows()],
+};
