@@ -25,17 +25,17 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
     const { isReadingMode, speakText } = useReadingMode();
     const content = {
         az: {
-            section_title: 'Səyahətçilərin üzləşdiyi problemlər',
+            section_title: 'Turistlərin Üzləşdiyi Əsas Problemlər',
             route: 'Səyahət rotası',
-            route_desc: 'Turistlərin əksəriyyəti səyahət rotasını əvvəlcədən planlayır.',
+            route_desc: 'Turistlərin əksəriyyəti gedəcəyi ölkə haqqında yetərli məlumata sahib deyil.',
             language: 'Dil',
-            language_desc: 'Səyahətçilər yeni dillər öyrənməyə və yerli ünsiyyətə önəm verir.',
+            language_desc: 'Səyahətçilər ünsiyyət qurmaqda çətinlik çəkir, əsas yerli ifadələr təcrübəni yaxşılaşdırır.',
             culture: 'Mədəniyyət',
             culture_desc: 'Mədəniyyətlə tanışlıq səyahətin ayrılmaz hissəsidir.',
             attractions: 'Görməli yerlər',
-            attractions_desc: 'Yeni məkanlar kəşf etmək əsas motivasiyalardan biridir.',
+            attractions_desc: 'Gəzməli yerlər və onlara yaxın olan digər maraqlı nöqtələr haqqında məlumatları yoxdur.',
             cuisine: 'Milli Mətbəx',
-            cuisine_desc: 'Yerli təamları dadmaq səyahət təcrübəsini zənginləşdirir.',
+            cuisine_desc: 'Turistlər ölkənin milli mətbəxini və yaxşı restoranlarını tanımır.',
         },
         en: {
             section_title: 'Problems Faced by Travelers',
@@ -287,6 +287,12 @@ function CurrencyConverter({ lang }: { lang: 'az' | 'en' | 'ru' }) {
   const handleConversion = useCallback(() => {
     const numericAmount = parseFloat(amount);
     
+    if (isNaN(numericAmount)) {
+        setError(null);
+        setResult(null);
+        return;
+    }
+    
     if (numericAmount < 0) {
         setError(t.negative_error);
         setResult(null);
@@ -297,7 +303,7 @@ function CurrencyConverter({ lang }: { lang: 'az' | 'en' | 'ru' }) {
     const fromRate = rates[fromCurrency];
     const toRate = rates[toCurrency];
 
-    if (fromRate && toRate && !isNaN(numericAmount)) {
+    if (fromRate && toRate) {
         const amountInAzn = numericAmount / fromRate;
         const convertedAmount = amountInAzn * toRate;
         setResult(`${numericAmount.toFixed(2)} ${fromCurrency} = ${convertedAmount.toFixed(2)} ${toCurrency}`);
