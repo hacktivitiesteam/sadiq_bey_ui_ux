@@ -18,8 +18,11 @@ import { useFirestore, useAuth } from '@/firebase';
 import { signInAnonymously } from 'firebase/auth';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import PaperPlaneAnimation from '@/components/app/paper-plane-animation';
+import { useReadingMode } from '@/components/app/reading-mode-provider';
+import { cn } from '@/lib/utils';
 
 function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
+    const { isReadingMode, speakText } = useReadingMode();
     const content = {
         az: {
             section_title: 'Turistlərin Üzləşdiyi Əsas Problemlər',
@@ -55,6 +58,10 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
             attractions_desc: 'У них нет информации о местах для посещения и других интересных точках поблизости.',
         }
     };
+
+    const handleSpeak = (text: string) => {
+        speakText(text, lang === 'az' ? 'tr-TR' : `${lang}-${lang.toUpperCase()}`);
+    }
     
   const stats = [
     { icon: Globe, percentage: '35%', title: content[lang].info_gap, description: content[lang].info_gap_desc },
@@ -65,10 +72,10 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
 
   return (
     <div>
-        <h2 className="text-2xl font-bold mb-6 text-center">{content[lang].section_title}</h2>
+        <h2 className={cn("text-2xl font-bold mb-6 text-center", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(content[lang].section_title)}>{content[lang].section_title}</h2>
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, index) => (
-            <Card key={index} className="flex flex-col items-center p-6 text-center bg-card/50 border-border/50 transition-transform duration-300 hover:-translate-y-1">
+            <Card key={index} className="flex flex-col items-center p-6 text-center bg-card/50 border-border/50 transition-transform duration-300 hover:-translate-y-1" onClick={() => handleSpeak(`${stat.title}. ${stat.description}`)}>
               <stat.icon className="mb-4 h-10 w-10 text-primary" />
               <p className="text-4xl font-bold text-primary">{stat.percentage}</p>
               <h3 className="mt-2 text-lg font-semibold">{stat.title}</h3>
@@ -81,6 +88,8 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
 }
 
 function AvailableCountries({ countries, loading, lang, onCountryClick }: { countries: Country[], loading: boolean, lang: 'az' | 'en' | 'ru', onCountryClick: (href: string) => void }) {
+  const { isReadingMode, speakText } = useReadingMode();
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -101,6 +110,10 @@ function AvailableCountries({ countries, loading, lang, onCountryClick }: { coun
       ru: 'Доступные страны',
   };
 
+  const handleSpeak = (text: string) => {
+    speakText(text, lang === 'az' ? 'tr-TR' : `${lang}-${lang.toUpperCase()}`);
+  }
+
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     onCountryClick(href);
@@ -109,7 +122,7 @@ function AvailableCountries({ countries, loading, lang, onCountryClick }: { coun
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6 text-center">{t[lang]}</h2>
+      <h2 className={cn("text-2xl font-bold mb-6 text-center", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(t[lang])}>{t[lang]}</h2>
        <Carousel
         opts={{
           align: "start",
@@ -150,6 +163,7 @@ function AvailableCountries({ countries, loading, lang, onCountryClick }: { coun
 
 function TravelSection({ countries, loading, lang, onCountryClick }: { countries: Country[], loading: boolean, lang: 'az' | 'en' | 'ru', onCountryClick: (href: string) => void }) {
   const router = useRouter();
+  const { isReadingMode, speakText } = useReadingMode();
   const [selectedCountry, setSelectedCountry] = useState('');
   const [error, setError] = useState('');
 
@@ -188,6 +202,9 @@ function TravelSection({ countries, loading, lang, onCountryClick }: { countries
     }
   }[lang];
 
+  const handleSpeak = (text: string) => {
+    speakText(text, lang === 'az' ? 'tr-TR' : `${lang}-${lang.toUpperCase()}`);
+  }
 
   if (loading) {
     return (
@@ -200,7 +217,7 @@ function TravelSection({ countries, loading, lang, onCountryClick }: { countries
 
   if (countries.length === 0) {
     return (
-      <Card className="p-8 text-center bg-card/50 border-border/50">
+      <Card className="p-8 text-center bg-card/50 border-border/50" onClick={() => handleSpeak(`${t.no_countries_title}. ${t.no_countries_desc}`)}>
           <Compass className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-xl font-bold">{t.no_countries_title}</h3>
           <p className="text-muted-foreground mt-2">{t.no_countries_desc}</p>
@@ -210,9 +227,9 @@ function TravelSection({ countries, loading, lang, onCountryClick }: { countries
 
   return (
     <Card className="p-8 bg-card/50 border-border/50">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-4 mb-4" onClick={() => handleSpeak(t.title)}>
              <Globe className="h-8 w-8 text-primary" />
-             <h3 className="text-2xl font-bold">{t.title}</h3>
+             <h3 className={cn("text-2xl font-bold", isReadingMode && 'cursor-pointer')}>{t.title}</h3>
         </div>
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <Select onValueChange={setSelectedCountry}>
@@ -349,6 +366,7 @@ export default function HomePage() {
   const auth = useAuth();
   const [lang, setLang] = useState<'az' | 'en' | 'ru'>('az');
   const router = useRouter();
+  const { isReadingMode, speakText } = useReadingMode();
 
   useEffect(() => {
     const savedLang = localStorage.getItem('app-lang') as 'az' | 'en' | 'ru' | null;
@@ -411,12 +429,16 @@ export default function HomePage() {
       ru: { title: 'Откройте для себя мир', subtitle: 'С Turism Helper вы найдете все о странах, в которые вы путешествуете, в одном месте.' },
   }[lang];
 
+  const handleSpeak = (text: string) => {
+    speakText(text, lang === 'az' ? 'tr-TR' : `${lang}-${lang.toUpperCase()}`);
+  }
+
   return (
     <>
       <AppHeader lang={lang} setLang={handleSetLang} />
       <PaperPlaneAnimation isAnimating={isAnimating} />
       <main className="container mx-auto px-4 py-12 space-y-16">
-        <div className="text-center max-w-3xl mx-auto">
+        <div className={cn("text-center max-w-3xl mx-auto", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(`${t.title}. ${t.subtitle}`)}>
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-6xl text-primary">
             {t.title}
           </h1>

@@ -14,6 +14,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useFirestore } from '@/firebase';
 import type { LucideIcon } from 'lucide-react';
 import { useAnimation } from '@/components/app/animation-provider';
+import { useReadingMode } from '@/components/app/reading-mode-provider';
+import { cn } from '@/lib/utils';
 
 export default function CountryPage() {
   const params = useParams();
@@ -21,6 +23,7 @@ export default function CountryPage() {
   const countrySlug = Array.isArray(params.country) ? params.country[0] : params.country;
   const firestore = useFirestore();
   const { triggerAnimation } = useAnimation();
+  const { isReadingMode, speakText } = useReadingMode();
   
   const [country, setCountry] = useState<Country | null>(null);
   const [items, setItems] = useState<InfoItem[]>([]);
@@ -86,6 +89,10 @@ export default function CountryPage() {
     });
   };
 
+  const handleSpeak = (text: string | undefined) => {
+    if (text) speakText(text, pageLang === 'az' ? 'tr-TR' : `${pageLang}-${pageLang.toUpperCase()}`);
+  }
+
   const renderContent = () => {
     if (loading) {
       return (
@@ -113,14 +120,14 @@ export default function CountryPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         </div>
         <div className="container mx-auto px-4 md:px-6 -mt-24 relative z-10">
-          <Card className="p-6 shadow-lg">
+          <Card className={cn("p-6 shadow-lg", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(`${countryName}. ${countryDescription}`)}>
             <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl font-headline text-primary">{countryName}</h1>
             <p className="mt-4 text-lg text-muted-foreground">{countryDescription}</p>
           </Card>
         </div>
 
         <div className="container mx-auto px-4 md:px-6 py-12">
-            <h2 className="text-2xl font-bold mb-6">{t.discover}</h2>
+            <h2 className={cn("text-2xl font-bold mb-6", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(t.discover)}>{t.discover}</h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {availableCategories.map(category => {
                     const CategoryIcon = category.icon;

@@ -6,6 +6,7 @@ import { FirebaseClientProvider } from '@/firebase';
 import ChatAssistant from '@/components/app/chat/chat-assistant';
 import { ThemeProvider } from '@/components/app/theme-provider';
 import { AnimationProvider } from '@/components/app/animation-provider';
+import { ReadingModeProvider } from '@/components/app/reading-mode-provider';
 
 export const metadata: Metadata = {
   title: 'Turism Helper',
@@ -36,12 +37,14 @@ export default function RootLayout({
         >
           <FirebaseClientProvider>
             <AnimationProvider>
-              <div className="flex-grow">
-                {children}
-              </div>
-              <ChatAssistant />
-              <Footer />
-              <Toaster />
+              <ReadingModeProvider>
+                <div className="flex-grow">
+                  {children}
+                </div>
+                <ChatAssistant />
+                <Footer />
+                <Toaster />
+              </ReadingModeProvider>
             </AnimationProvider>
           </FirebaseClientProvider>
         </ThemeProvider>

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { Globe, Languages, Check, ChevronDown } from 'lucide-react';
+import { Globe, Languages, Check, ChevronDown, Headset, Ear } from 'lucide-react';
 import ContactUs from './contact-us';
 import { ThemeToggle } from './theme-toggle';
 import {
@@ -12,6 +12,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useAnimation } from '../app/animation-provider';
 import React from 'react';
+import { useReadingMode } from './reading-mode-provider';
 
 interface LanguageSwitcherProps {
   currentLang: 'az' | 'en' | 'ru';
@@ -61,6 +62,31 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ currentLang, setLan
   );
 };
 
+const ReadingModeToggle = () => {
+    const { isReadingMode, toggleReadingMode } = useReadingMode();
+    const { triggerAnimation } = useAnimation();
+
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        triggerAnimation({
+            icon: Ear,
+            onAnimationEnd: toggleReadingMode
+        });
+    }
+
+    return (
+        <Button 
+            variant="ghost" 
+            size="icon" 
+            aria-label="Toggle Reading Mode"
+            onClick={handleClick}
+            className={cn(isReadingMode && 'bg-accent text-accent-foreground')}
+        >
+            <Ear className="h-6 w-6" />
+        </Button>
+    )
+}
+
 interface AppHeaderProps {
     isAdmin?: boolean;
     lang?: 'az' | 'en' | 'ru';
@@ -91,6 +117,7 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
             <div className='flex items-center gap-1'>
                 {lang && setLang && <LanguageSwitcher currentLang={lang} setLang={setLang} />}
                 {lang && <ContactUs lang={lang} />}
+                <ReadingModeToggle />
                 <ThemeToggle />
             </div>
           )}
