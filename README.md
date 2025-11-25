@@ -105,3 +105,4 @@ Layihənin hazırlanması zamanı müasir və effektiv veb texnologiyalardan ist
 # herseyibitiremreensonfunklar
 # herseyibitiremreensonfunklar
 # herseyibitiremreensonfunklar
+# yeni-super-muper
