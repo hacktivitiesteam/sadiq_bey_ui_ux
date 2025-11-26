@@ -16,8 +16,7 @@ export function ThemeToggle() {
   const { setTheme, theme } = useTheme();
   const { triggerAnimation } = useAnimation();
 
-  const handleThemeChange = (e: Event, newTheme: string) => {
-    e.preventDefault();
+  const handleThemeChange = (newTheme: string) => {
     let Icon;
     
     if (newTheme === 'light') {
@@ -44,15 +43,15 @@ export function ThemeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onSelect={(e) => handleThemeChange(e, 'light')}>
+        <DropdownMenuItem onClick={() => handleThemeChange('light')}>
           <Sun className="mr-2 h-4 w-4" />
           <span>Light</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={(e) => handleThemeChange(e, 'dark')}>
+        <DropdownMenuItem onClick={() => handleThemeChange('dark')}>
           <Moon className="mr-2 h-4 w-4" />
           <span>Dark</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={(e) => handleThemeChange(e, 'system')}>
+        <DropdownMenuItem onClick={() => handleThemeChange('system')}>
           <Laptop className="mr-2 h-4 w-4" />
           <span>System</span>
         </DropdownMenuItem>

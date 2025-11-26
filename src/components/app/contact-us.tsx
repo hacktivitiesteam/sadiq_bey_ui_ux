@@ -134,8 +134,7 @@ export default function ContactUs({ lang }: ContactUsProps) {
     }
   }
 
-  const handleTriggerClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const handleTriggerClick = () => {
     triggerAnimation({ 
         icon: Headset, 
         onAnimationEnd: () => setIsOpen(true)

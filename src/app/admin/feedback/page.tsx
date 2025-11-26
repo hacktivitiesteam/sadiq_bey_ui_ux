@@ -19,6 +19,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import AppHeader from '@/components/app/app-header';
 import { format } from 'date-fns';
 import { useFirestore } from '@/firebase';
+import { Download } from 'lucide-react';
+import Papa from 'papaparse';
 
 const columns: ColumnDef<Feedback>[] = [
   {
@@ -77,6 +79,20 @@ export default function FeedbackPage() {
     }
     loadFeedback();
   }, [firestore, toast]);
+  
+  const exportToCSV = () => {
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    const dateStr = format(new Date(), 'yyyy-MM-dd_HH-mm');
+    link.setAttribute('download', `Muracietler-${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
 
   const table = useReactTable({
     data,
@@ -165,7 +181,13 @@ export default function FeedbackPage() {
     <>
       <AppHeader isAdmin={true} />
       <main className="p-4 md:p-8">
-        <h1 className="text-3xl font-bold mb-6">Bütün Müraciətlər</h1>
+        <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold">Bütün Müraciətlər</h1>
+            <Button onClick={exportToCSV} disabled={data.length === 0}>
+                <Download className="mr-2 h-4 w-4" />
+                CSV olaraq xaric et
+            </Button>
+        </div>
         {renderContent()}
       </main>
     </>

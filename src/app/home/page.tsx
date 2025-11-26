@@ -20,6 +20,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import PaperPlaneAnimation from '@/components/app/paper-plane-animation';
 import { useReadingMode } from '@/components/app/reading-mode-provider';
 import { cn } from '@/lib/utils';
+import { useAnimation } from '@/components/app/animation-provider';
 
 function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
     const { isReadingMode, speakText } = useReadingMode();
@@ -31,7 +32,7 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
             language: 'Dil',
             language_desc: 'Səyahətçilər ünsiyyət qurmaqda çətinlik çəkir, əsas yerli ifadələr təcrübəni yaxşılaşdırır.',
             culture: 'Mədəniyyət',
-            culture_desc: 'Turistlərin ölkənin mədəniyyəti haqqında məlumatı olmur.',
+            culture_desc: 'Turistlər ölkənin mədəniyyəti haqqında məlumatı olmur.',
             attractions: 'Görməli yerlər',
             attractions_desc: 'Gəzməli yerlər və onlara yaxın olan digər maraqlı nöqtələr haqqında məlumatları yoxdur.',
             cuisine: 'Milli Mətbəx',
@@ -372,13 +373,13 @@ function CurrencyConverter({ lang }: { lang: 'az' | 'en' | 'ru' }) {
 export default function HomePage() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAnimating, setIsAnimating] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const auth = useAuth();
   const [lang, setLang] = useState<'az' | 'en' | 'ru'>('az');
   const router = useRouter();
   const { isReadingMode, speakText } = useReadingMode();
+  const { triggerAnimation } = useAnimation();
 
   useEffect(() => {
     const savedLang = localStorage.getItem('app-lang') as 'az' | 'en' | 'ru' | null;
@@ -427,12 +428,8 @@ export default function HomePage() {
   }, [firestore, toast]);
   
   const handleCountryClick = (href: string) => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      router.push(href);
-      // Reset animation state after a short delay to allow page transition
-      setTimeout(() => setIsAnimating(false), 500);
-    }, 1200); // Duration of the animation
+    triggerAnimation({ icon: Globe });
+    router.push(href);
   };
 
   const t = {
@@ -448,7 +445,7 @@ export default function HomePage() {
   return (
     <>
       <AppHeader lang={lang} setLang={handleSetLang} />
-      <PaperPlaneAnimation isAnimating={isAnimating} />
+      <PaperPlaneAnimation />
       <main className="container mx-auto px-4 py-12 space-y-16">
         <div className={cn("text-center max-w-3xl mx-auto", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(`${t.title}. ${t.subtitle}`)}>
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-6xl text-primary">

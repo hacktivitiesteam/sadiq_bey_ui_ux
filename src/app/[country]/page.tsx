@@ -83,10 +83,8 @@ export default function CountryPage() {
 
   const handleCategoryClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, Icon: LucideIcon) => {
     e.preventDefault();
-    triggerAnimation({ 
-      icon: Icon, 
-      onAnimationEnd: () => router.push(href)
-    });
+    triggerAnimation({ icon: Icon });
+    router.push(href);
   };
 
   const handleSpeak = (text: string | undefined) => {

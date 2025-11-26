@@ -20,6 +20,9 @@ import AppHeader from '@/components/app/app-header';
 import { format, isWithinInterval, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 import { useFirestore } from '@/firebase';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Download } from 'lucide-react';
+import Papa from 'papaparse';
+
 
 const columns: ColumnDef<Reservation>[] = [
   {
@@ -121,6 +124,19 @@ export default function ReservationsPage() {
     setFilteredData(filtered);
   }, [filter, allData]);
 
+  const exportToCSV = () => {
+    const csv = Papa.unparse(allData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    const dateStr = format(new Date(), 'yyyy-MM-dd_HH-mm');
+    link.setAttribute('download', `Rezervasiyalar-${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const table = useReactTable({
     data: filteredData,
     columns,
@@ -210,18 +226,24 @@ export default function ReservationsPage() {
       <main className="p-4 md:p-8">
         <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold">Bütün Rezervasiyalar</h1>
-             <Select value={filter} onValueChange={setFilter}>
-                <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filterlə" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">Hamısı</SelectItem>
-                    <SelectItem value="today">Bu gün</SelectItem>
-                    <SelectItem value="this_week">Bu həftə</SelectItem>
-                    <SelectItem value="this_month">Bu ay</SelectItem>
-                    <SelectItem value="this_year">Bu il</SelectItem>
-                </SelectContent>
-            </Select>
+            <div className='flex items-center gap-4'>
+                 <Select value={filter} onValueChange={setFilter}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filterlə" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Hamısı</SelectItem>
+                        <SelectItem value="today">Bu gün</SelectItem>
+                        <SelectItem value="this_week">Bu həftə</SelectItem>
+                        <SelectItem value="this_month">Bu ay</SelectItem>
+                        <SelectItem value="this_year">Bu il</SelectItem>
+                    </SelectContent>
+                </Select>
+                 <Button onClick={exportToCSV} disabled={allData.length === 0}>
+                    <Download className="mr-2 h-4 w-4" />
+                    CSV olaraq xaric et
+                </Button>
+            </div>
         </div>
         {renderContent()}
       </main>

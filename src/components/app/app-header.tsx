@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { useAnimation } from '../app/animation-provider';
 import React from 'react';
 import { useReadingMode } from './reading-mode-provider';
+import { useRouter } from 'next/navigation';
 
 interface LanguageSwitcherProps {
   currentLang: 'az' | 'en' | 'ru';
@@ -95,6 +96,15 @@ interface AppHeaderProps {
 
 
 const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
+  const router = useRouter();
+  const { triggerAnimation } = useAnimation();
+
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      e.preventDefault();
+      triggerAnimation({ icon: PenSquare });
+      router.push(href);
+  };
+  
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
@@ -117,11 +127,11 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
             <div className='flex items-center gap-1'>
                 {lang && setLang && <LanguageSwitcher currentLang={lang} setLang={setLang} />}
                 {lang && <ContactUs lang={lang} />}
-                <Button asChild variant="ghost" size="icon" aria-label="Communication Aid">
-                    <Link href="/communication-aid">
-                        <PenSquare className="h-6 w-6" />
-                    </Link>
-                </Button>
+                <a href="/communication-aid" onClick={(e) => handleLinkClick(e, "/communication-aid")}>
+                    <Button asChild variant="ghost" size="icon" aria-label="Communication Aid">
+                         <PenSquare className="h-6 w-6" />
+                    </Button>
+                </a>
                 <ReadingModeToggle />
                 <ThemeToggle />
             </div>

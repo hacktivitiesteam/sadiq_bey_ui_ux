@@ -1,13 +1,12 @@
 'use client';
 
-import { Send } from 'lucide-react';
+import { Send, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAnimation } from './animation-provider';
 
-interface PaperPlaneAnimationProps {
-  isAnimating: boolean;
-}
-
-export default function PaperPlaneAnimation({ isAnimating }: PaperPlaneAnimationProps) {
+export default function PaperPlaneAnimation() {
+  const { isAnimating } = useAnimation();
+  
   if (!isAnimating) {
     return null;
   }
@@ -19,7 +18,7 @@ export default function PaperPlaneAnimation({ isAnimating }: PaperPlaneAnimation
         isAnimating ? 'opacity-100 animate-fly' : 'opacity-0'
       )}
     >
-      <Send className="h-24 w-24" />
+      <Globe className="h-24 w-24" />
     </div>
   );
 }
