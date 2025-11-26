@@ -101,8 +101,7 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
       e.preventDefault();
-      triggerAnimation({ icon: PenSquare });
-      router.push(href);
+      triggerAnimation({ icon: PenSquare, onAnimationEnd: () => router.push(href) });
   };
   
   return (
@@ -129,7 +128,7 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
                 {lang && <ContactUs lang={lang} />}
                 <a href="/communication-aid" onClick={(e) => handleLinkClick(e, "/communication-aid")}>
                     <Button asChild variant="ghost" size="icon" aria-label="Communication Aid">
-                         <PenSquare />
+                         <PenSquare className="h-6 w-6" />
                     </Button>
                 </a>
                 <ReadingModeToggle />
