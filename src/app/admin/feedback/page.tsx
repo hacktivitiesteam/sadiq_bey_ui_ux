@@ -92,9 +92,8 @@ export default function FeedbackPage() {
     if (globalFilter) {
       const lowercasedFilter = globalFilter.toLowerCase();
       baseData = baseData.filter(item => {
-        return Object.values(item).some(val => 
-          String(val).toLowerCase().includes(lowercasedFilter)
-        );
+        const searchableString = Object.values(item).join(' ').toLowerCase();
+        return searchableString.includes(lowercasedFilter);
       });
     }
     
