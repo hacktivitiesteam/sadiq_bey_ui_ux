@@ -11,13 +11,14 @@ import {
   useReactTable,
   SortingState,
   ColumnFiltersState,
+  VisibilityState,
 } from '@tanstack/react-table';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Edit, Trash2, Filter } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 import { Country, InfoItem } from '@/lib/definitions';
@@ -36,6 +37,7 @@ export default function InfoDataTable() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = React.useState('');
   const [rowSelection, setRowSelection] = React.useState({});
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
 
   const [isFormSheetOpen, setIsFormSheetOpen] = React.useState(false);
   const [isAlertOpen, setIsAlertOpen] = React.useState(false);
@@ -153,22 +155,17 @@ export default function InfoDataTable() {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: (row, columnId, filterValue) => {
-        const name = row.original.name || row.original.phrase || '';
-        const country = countryMap.get(row.original.countryId) || '';
-        const category = categoryMap.get(row.original.category) || '';
-
-        return name.toLowerCase().includes(filterValue.toLowerCase()) ||
-               country.toLowerCase().includes(filterValue.toLowerCase()) ||
-               category.toLowerCase().includes(filterValue.toLowerCase());
-    },
+     onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
       columnFilters,
       rowSelection,
       globalFilter,
+      columnVisibility,
     },
   });
+
+  const isFiltered = table.getState().columnFilters.length > 0;
 
   if (loading) {
     return (
@@ -188,17 +185,72 @@ export default function InfoDataTable() {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between py-4">
+      <div className="flex items-center justify-between py-4 gap-2">
         <Input
-          placeholder="Axtar (Başlıq, Ölkə, Kateqoriya)..."
+          placeholder="Axtar (Başlıq)..."
           value={globalFilter ?? ''}
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
         <div className="flex items-center gap-2">
-          <Button onClick={handleAddItem}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Yeni Məlumat
-          </Button>
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                        <Filter className="mr-2 h-4 w-4" />
+                        Ölkə
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    {countries.map(country => (
+                        <DropdownMenuCheckboxItem
+                            key={country.id}
+                            checked={(table.getColumn('countryId')?.getFilterValue() as string[] || []).includes(country.id)}
+                            onCheckedChange={checked => {
+                                const currentFilter = (table.getColumn('countryId')?.getFilterValue() as string[] || []);
+                                const newFilter = checked 
+                                    ? [...currentFilter, country.id]
+                                    : currentFilter.filter(id => id !== country.id);
+                                table.getColumn('countryId')?.setFilterValue(newFilter.length ? newFilter : undefined);
+                            }}
+                        >
+                            {country.name}
+                        </DropdownMenuCheckboxItem>
+                    ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                        <Filter className="mr-2 h-4 w-4" />
+                        Kateqoriya
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    {CATEGORIES.map(category => (
+                         <DropdownMenuCheckboxItem
+                            key={category.id}
+                            checked={(table.getColumn('category')?.getFilterValue() as string[] || []).includes(category.id)}
+                            onCheckedChange={checked => {
+                                const currentFilter = (table.getColumn('category')?.getFilterValue() as string[] || []);
+                                const newFilter = checked
+                                    ? [...currentFilter, category.id]
+                                    : currentFilter.filter(id => id !== category.id);
+                                table.getColumn('category')?.setFilterValue(newFilter.length ? newFilter : undefined);
+                            }}
+                        >
+                            {category.name_az}
+                        </DropdownMenuCheckboxItem>
+                    ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+            {isFiltered && (
+                <Button variant="ghost" onClick={() => table.resetColumnFilters()}>
+                    Sıfırla
+                </Button>
+            )}
+            <Button onClick={handleAddItem}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Yeni Məlumat
+            </Button>
         </div>
       </div>
       <div className="rounded-md border">
