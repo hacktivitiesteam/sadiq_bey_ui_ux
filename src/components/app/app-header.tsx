@@ -129,7 +129,7 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
                 {lang && <ContactUs lang={lang} />}
                 <a href="/communication-aid" onClick={(e) => handleLinkClick(e, "/communication-aid")}>
                     <Button asChild variant="ghost" size="icon" aria-label="Communication Aid">
-                         <PenSquare className="h-6 w-6" />
+                         <PenSquare />
                     </Button>
                 </a>
                 <ReadingModeToggle />
