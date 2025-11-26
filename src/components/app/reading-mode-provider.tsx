@@ -54,11 +54,6 @@ export function ReadingModeProvider({ children }: { children: ReactNode }) {
     utterance.lang = lang;
     utterance.onerror = (event) => {
         console.error("SpeechSynthesisUtterance.onerror", event);
-        toast({
-            variant: "destructive",
-            title: "Səsləndirmə Xətası",
-            description: "Mətn səsləndirilərkən xəta baş verdi.",
-        });
     };
     window.speechSynthesis.speak(utterance);
   }, [isReadingMode, isSupported, toast]);

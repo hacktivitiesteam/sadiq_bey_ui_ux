@@ -232,11 +232,6 @@ function PhraseCard({ item, lang }: { item: InfoItem, lang: Lang }) {
         
         utterance.onerror = (event) => {
             console.error("SpeechSynthesisUtterance.onerror", event);
-            toast({
-                variant: "destructive",
-                title: trans.pronunciationError,
-                description: trans.pronunciationErrorGeneric,
-            });
         };
         
         window.speechSynthesis.speak(utterance);
