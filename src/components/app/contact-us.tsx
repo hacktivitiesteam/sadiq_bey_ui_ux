@@ -14,6 +14,7 @@ import { addFeedback } from '@/lib/firebase-actions';
 import { Loader2, Headset } from 'lucide-react';
 import { useFirestore } from '@/firebase';
 import { useAnimation } from '../app/animation-provider';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 type Lang = 'az' | 'en' | 'ru';
 
@@ -92,11 +93,12 @@ const createFormSchema = (lang: Lang) => z.object({
 
 interface ContactUsProps {
   lang: Lang;
+  translations: any;
 }
 
-export default function ContactUs({ lang }: ContactUsProps) {
+export default function ContactUs({ lang, translations }: ContactUsProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const t = translations[lang];
+  const t = translations;
   const formSchema = createFormSchema(lang);
   const { triggerAnimation } = useAnimation();
   
@@ -143,14 +145,23 @@ export default function ContactUs({ lang }: ContactUsProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={t.contact} onClick={handleTriggerClick}>
-            <Headset className="h-6 w-6" />
-        </Button>
-      </DialogTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={handleTriggerClick}>
+                  <Headset className="h-5 w-5" />
+              </Button>
+            </DialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{t.contact_us}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>{t.contact}</DialogTitle>
+          <DialogTitle>{t.contact_us}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -160,9 +171,9 @@ export default function ContactUs({ lang }: ContactUsProps) {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t.name}</FormLabel>
+                    <FormLabel>{translations.name}</FormLabel>
                     <FormControl>
-                      <Input placeholder={t.namePlaceholder} {...field} />
+                      <Input placeholder={translations.namePlaceholder} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -173,9 +184,9 @@ export default function ContactUs({ lang }: ContactUsProps) {
                 name="surname"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t.surname}</FormLabel>
+                    <FormLabel>{translations.surname}</FormLabel>
                     <FormControl>
-                      <Input placeholder={t.surnamePlaceholder} {...field} />
+                      <Input placeholder={translations.surnamePlaceholder} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -200,9 +211,9 @@ export default function ContactUs({ lang }: ContactUsProps) {
               name="message"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t.suggestions}</FormLabel>
+                  <FormLabel>{translations.suggestions}</FormLabel>
                   <FormControl>
-                    <Textarea rows={5} placeholder={t.messagePlaceholder} {...field} />
+                    <Textarea rows={5} placeholder={translations.messagePlaceholder} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -211,12 +222,12 @@ export default function ContactUs({ lang }: ContactUsProps) {
             <DialogFooter>
               <DialogClose asChild>
                 <Button type="button" variant="secondary">
-                  {t.cancel}
+                  {translations.cancel}
                 </Button>
               </DialogClose>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {t.send}
+                {translations.send}
               </Button>
             </DialogFooter>
           </form>
