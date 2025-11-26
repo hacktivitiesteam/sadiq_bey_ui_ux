@@ -136,6 +136,8 @@ export default function FeedbackPage() {
       columnFilters,
     },
   });
+
+  const isFiltered = table.getState().columnFilters.length > 0;
   
   const renderContent = () => {
     if (loading) {
@@ -160,22 +162,28 @@ export default function FeedbackPage() {
                         {headerGroup.headers.map((header) => (
                         <TableHead key={header.id}>
                             {flexRender(header.column.columnDef.header, header.getContext())}
-                             {header.column.getCanFilter() ? (
-                                <div className="mt-2">
-                                     <Input
+                        </TableHead>
+                        ))}
+                    </TableRow>
+                    ))}
+                    <TableRow className="bg-muted/50 hover:bg-muted/50">
+                       {table.getHeaderGroups().map(headerGroup => (
+                         headerGroup.headers.map(header => (
+                            <TableCell key={`${header.id}-filter`} className="p-2">
+                                {header.column.getCanFilter() ? (
+                                    <Input
                                         placeholder={`Axtar...`}
                                         value={(header.column.getFilterValue() as string) ?? ''}
                                         onChange={(event) =>
                                             header.column.setFilterValue(event.target.value)
                                         }
-                                        className="max-w-sm h-8"
+                                        className="h-8"
                                     />
-                                </div>
-                            ) : null}
-                        </TableHead>
-                        ))}
+                                ) : null}
+                            </TableCell>
+                         ))
+                       ))}
                     </TableRow>
-                    ))}
                 </TableHeader>
                 <TableBody>
                     {table.getRowModel().rows?.length ? (
@@ -239,6 +247,11 @@ export default function FeedbackPage() {
                         <SelectItem value="this_year">Bu il</SelectItem>
                     </SelectContent>
                 </Select>
+                 {isFiltered && (
+                  <Button variant="ghost" onClick={() => table.resetColumnFilters()}>
+                    Filtrləri Təmizlə
+                  </Button>
+                )}
                 <Button onClick={exportToCSV} disabled={table.getRowModel().rows.length === 0}>
                     <Download className="mr-2 h-4 w-4" />
                     CSV olaraq xaric et
