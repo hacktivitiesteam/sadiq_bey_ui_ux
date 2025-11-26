@@ -134,38 +134,38 @@ function ThemeToggle({ translations }: { translations: any }) {
   };
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span className="sr-only">{translations.toggle_theme}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleThemeChange('light')}>
-                <Sun className="mr-2 h-4 w-4" />
-                <span>{translations.light}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleThemeChange('dark')}>
-                <Moon className="mr-2 h-4 w-4" />
-                <span>{translations.dark}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleThemeChange('system')}>
-                <Laptop className="mr-2 h-4 w-4" />
-                <span>{translations.system}</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{translations.toggle_theme}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <DropdownMenu>
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                            <span className="sr-only">{translations.toggle_theme}</span>
+                        </Button>
+                    </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>{translations.toggle_theme}</p>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => handleThemeChange('light')}>
+          <Sun className="mr-2 h-4 w-4" />
+          <span>{translations.light}</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleThemeChange('dark')}>
+          <Moon className="mr-2 h-4 w-4" />
+          <span>{translations.dark}</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleThemeChange('system')}>
+          <Laptop className="mr-2 h-4 w-4" />
+          <span>{translations.system}</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -248,9 +248,9 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                       <Button asChild variant="ghost" size="icon">
-                            <a href="/communication-aid" onClick={(e) => handleLinkClick(e, "/communication-aid")}>
-                                 <PenSquare className="h-5 w-5" />
+                        <Button variant="ghost" size="icon" onClick={(e) => { e.preventDefault(); router.push('/communication-aid'); }}>
+                            <a href="/communication-aid">
+                                <PenSquare className="h-5 w-5" />
                             </a>
                         </Button>
                     </TooltipTrigger>
