@@ -48,7 +48,8 @@ export function ReadingModeProvider({ children }: { children: ReactNode }) {
   const speakText = useCallback((text: string, lang = 'az-AZ') => {
     if (!isReadingMode || !isSupported) return;
 
-    window.speechSynthesis.cancel(); // Stop any previous speech
+    window.speechSynthesis.cancel();
+    
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang;
     utterance.onerror = (event) => {
