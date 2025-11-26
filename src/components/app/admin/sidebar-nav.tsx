@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ListOrdered, Rocket, MessageSquareQuote } from 'lucide-react';
+import { Home, ListOrdered, Rocket, MessageSquareQuote, BarChart } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ const links = [
   { name: 'İdarə Paneli', href: '/admin', icon: Home },
   { name: 'Rezervasiyalar', href: '/admin/reservations', icon: ListOrdered },
   { name: 'Müraciətlər', href: '/admin/feedback', icon: MessageSquareQuote },
+  { name: 'Statistika', href: '/admin/statistics', icon: BarChart },
 ];
 
 export function SidebarNav() {

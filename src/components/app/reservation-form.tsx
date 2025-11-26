@@ -128,6 +128,7 @@ export default function ReservationForm({ item, lang }: ReservationFormProps) {
       const reservationData = {
         itemId: item.id,
         itemName: item.name,
+        countrySlug: item.countrySlug,
         ...values,
         date: format(values.date, 'yyyy-MM-dd'),
       };

@@ -58,6 +58,7 @@ export type Reservation = {
   id: string;
   itemId: string;
   itemName: string;
+  countrySlug?: string;
   userName: string;
   email: string;
   date: string;
