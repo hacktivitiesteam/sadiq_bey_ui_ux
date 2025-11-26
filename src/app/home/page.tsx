@@ -57,7 +57,7 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
             language: 'Язык',
             language_desc: 'Путешественники испытывают трудности в общении; знание основных местных фраз улучшает опыт.',
             culture: 'Культура',
-            culture_desc: 'Туристы не имеют информации о культуре страны.',
+            culture_desc: 'У туристов нет информации о культуре страны.',
             attractions: 'Достопримечательности',
             attractions_desc: 'У них нет информации о местах для посещения и других интересных точках поблизости.',
             cuisine: 'Национальная кухня',
@@ -79,10 +79,10 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
 
   return (
     <div>
-        <h2 className={cn("text-2xl font-bold mb-6 text-center", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(content[lang].section_title)}>{content[lang].section_title}</h2>
+        <h2 className={cn("text-2xl font-bold mb-6 text-center", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(content[lang].section_title)}>{content[lang].section_title}</h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
           {stats.map((stat, index) => (
-            <Card key={index} className="flex flex-col items-center p-6 text-center bg-card/50 border-border/50 transition-transform duration-300 hover:-translate-y-1" onClick={() => handleSpeak(`${stat.title}. ${stat.description}`)}>
+            <Card key={index} className="flex flex-col items-center p-6 text-center bg-card/50 border-border/50 transition-transform duration-300 hover:-translate-y-1" onMouseEnter={() => handleSpeak(`${stat.title}. ${stat.description}`)}>
               <stat.icon className="mb-4 h-10 w-10 text-primary" />
               <p className="text-4xl font-bold text-primary">{stat.percentage}</p>
               <h3 className="mt-2 text-lg font-semibold">{stat.title}</h3>
@@ -129,7 +129,7 @@ function AvailableCountries({ countries, loading, lang, onCountryClick }: { coun
 
   return (
     <div>
-      <h2 className={cn("text-2xl font-bold mb-6 text-center", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(t[lang])}>{t[lang]}</h2>
+      <h2 className={cn("text-2xl font-bold mb-6 text-center", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(t[lang])}>{t[lang]}</h2>
        <Carousel
         opts={{
           align: "start",
@@ -224,7 +224,7 @@ function TravelSection({ countries, loading, lang, onCountryClick }: { countries
 
   if (countries.length === 0) {
     return (
-      <Card className="p-8 text-center bg-card/50 border-border/50" onClick={() => handleSpeak(`${t.no_countries_title}. ${t.no_countries_desc}`)}>
+      <Card className="p-8 text-center bg-card/50 border-border/50" onMouseEnter={() => handleSpeak(`${t.no_countries_title}. ${t.no_countries_desc}`)}>
           <Compass className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-xl font-bold">{t.no_countries_title}</h3>
           <p className="text-muted-foreground mt-2">{t.no_countries_desc}</p>
@@ -234,7 +234,7 @@ function TravelSection({ countries, loading, lang, onCountryClick }: { countries
 
   return (
     <Card className="p-8 bg-card/50 border-border/50">
-        <div className="flex items-center gap-4 mb-4" onClick={() => handleSpeak(t.title)}>
+        <div className="flex items-center gap-4 mb-4" onMouseEnter={() => handleSpeak(t.title)}>
              <Globe className="h-8 w-8 text-primary" />
              <h3 className={cn("text-2xl font-bold", isReadingMode && 'cursor-pointer')}>{t.title}</h3>
         </div>
@@ -450,7 +450,7 @@ export default function HomePage() {
       <AppHeader lang={lang} setLang={handleSetLang} />
       <PaperPlaneAnimation isAnimating={isAnimating} />
       <main className="container mx-auto px-4 py-12 space-y-16">
-        <div className={cn("text-center max-w-3xl mx-auto", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(`${t.title}. ${t.subtitle}`)}>
+        <div className={cn("text-center max-w-3xl mx-auto", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(`${t.title}. ${t.subtitle}`)}>
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-6xl text-primary">
             {t.title}
           </h1>

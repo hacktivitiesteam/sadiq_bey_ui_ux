@@ -120,14 +120,14 @@ export default function CountryPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         </div>
         <div className="container mx-auto px-4 md:px-6 -mt-24 relative z-10">
-          <Card className={cn("p-6 shadow-lg", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(`${countryName}. ${countryDescription}`)}>
+          <Card className={cn("p-6 shadow-lg", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(`${countryName}. ${countryDescription}`)}>
             <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl font-headline text-primary">{countryName}</h1>
             <p className="mt-4 text-lg text-muted-foreground">{countryDescription}</p>
           </Card>
         </div>
 
         <div className="container mx-auto px-4 md:px-6 py-12">
-            <h2 className={cn("text-2xl font-bold mb-6", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(t.discover)}>{t.discover}</h2>
+            <h2 className={cn("text-2xl font-bold mb-6", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(t.discover)}>{t.discover}</h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {availableCategories.map(category => {
                     const CategoryIcon = category.icon;
@@ -135,7 +135,7 @@ export default function CountryPage() {
                     const href = `/${country.slug}/${category.id}`;
                     return (
                         <a key={category.id} href={href} onClick={(e) => handleCategoryClick(e, href, CategoryIcon)}>
-                            <Card className={cn("p-4 hover:bg-muted transition-all duration-300 group hover:-translate-y-1", isReadingMode && 'cursor-pointer')} onClick={() => handleSpeak(categoryName)}>
+                            <Card className={cn("p-4 hover:bg-muted transition-all duration-300 group hover:-translate-y-1", isReadingMode && 'cursor-pointer')} onMouseEnter={() => handleSpeak(categoryName)}>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         <CategoryIcon className="h-8 w-8 text-primary" />

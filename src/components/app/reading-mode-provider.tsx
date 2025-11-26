@@ -39,7 +39,7 @@ export function ReadingModeProvider({ children }: { children: ReactNode }) {
         }
         toast({
             title: `Oxuma Modu ${newState ? 'Aktiv Edildi' : 'Deaktiv Edildi'}`,
-            description: newState ? 'Məzmunu dinləmək üçün mətnlərin üzərinə klikləyin.' : '',
+            description: newState ? 'Məzmunu dinləmək üçün siçan göstəricisini mətnlərin üzərinə gətirin.' : '',
         });
         return newState;
     });

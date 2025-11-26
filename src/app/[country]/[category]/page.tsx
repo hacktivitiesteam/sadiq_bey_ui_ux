@@ -112,7 +112,7 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
                     className="object-cover"
                 />
             </div>}
-            <CardHeader onClick={() => handleSpeak(name)} className={cn(isReadingMode && 'cursor-pointer hover:bg-muted/50')}>
+            <CardHeader onMouseEnter={() => handleSpeak(name)} className={cn(isReadingMode && 'cursor-pointer hover:bg-muted/50')}>
                 <CardTitle>{name}</CardTitle>
                 <div className="flex items-center justify-between pt-2">
                     {item.rating != null && (
@@ -125,30 +125,30 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
                 </div>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
-                <CardDescription className={cn("line-clamp-3", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(description)}>
+                <CardDescription className={cn("line-clamp-3", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(description)}>
                     {description}
                 </CardDescription>
                 {item.address && (
-                    <div className={cn("flex items-start gap-2 text-sm text-muted-foreground", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(item.address)}>
+                    <div className={cn("flex items-start gap-2 text-sm text-muted-foreground", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(item.address)}>
                         <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
                         <span>{item.address}</span>
                     </div>
                 )}
                 {item.phone && (
-                    <div className={cn("flex items-center gap-2 text-sm text-muted-foreground", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(item.phone)}>
+                    <div className={cn("flex items-center gap-2 text-sm text-muted-foreground", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(item.phone)}>
                         <Phone className="h-4 w-4 shrink-0" />
                         <span>{item.phone}</span>
                     </div>
                 )}
                  {showEntranceFee && (
-                     <div className={cn("pt-2 flex items-center gap-2 text-sm text-muted-foreground", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(`${trans.entranceFee} ${item.entranceFee}`)}>
+                     <div className={cn("pt-2 flex items-center gap-2 text-sm text-muted-foreground", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(`${trans.entranceFee} ${item.entranceFee}`)}>
                         <Ticket className="h-4 w-4" />
                         <span className="font-semibold">{trans.entranceFee}</span>
                         <span>{item.entranceFee}</span>
                     </div>
                 )}
                 {ingredients && (
-                     <div className={cn("pt-2", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(`${trans.ingredients} ${ingredients}`)}>
+                     <div className={cn("pt-2", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(`${trans.ingredients} ${ingredients}`)}>
                         <h4 className="font-semibold text-sm mb-1">{trans.ingredients}</h4>
                         <p className="text-sm text-muted-foreground">{ingredients}</p>
                     </div>
@@ -180,7 +180,7 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
                                         <Image src={item.menu.trim()} alt={`${name || 'Restaurant'} menu`} fill className="object-contain" />
                                     </div>
                                 ) : (
-                                    <p className={cn("text-sm text-muted-foreground whitespace-pre-wrap", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(item.menu)}>
+                                    <p className={cn("text-sm text-muted-foreground whitespace-pre-wrap", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(item.menu)}>
                                         {item.menu}
                                     </p>
                                 )}
@@ -243,14 +243,14 @@ function PhraseCard({ item, lang }: { item: InfoItem, lang: Lang }) {
     };
 
     return (
-        <Card className={cn("p-4 transition-transform duration-300 hover:-translate-y-1", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(bottomPhrase, item.language)}>
+        <Card className={cn("p-4 transition-transform duration-300 hover:-translate-y-1", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(bottomPhrase, item.language)}>
             <CardContent className="p-0 flex items-center justify-between">
                 <div className="space-y-1">
                     <p className="text-lg font-semibold">{topPhrase}</p>
                     <p className="text-muted-foreground">{bottomPhrase}</p>
                 </div>
                 {item.translation && item.language && (
-                  <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleSpeak(bottomPhrase, item.language); }}>
+                  <Button variant="ghost" size="icon" onMouseEnter={(e) => { e.stopPropagation(); handleSpeak(bottomPhrase, item.language); }}>
                       <Volume2 className="h-6 w-6" />
                   </Button>
                 )}
@@ -276,10 +276,10 @@ function ItemDetails({ item, lang }: { item: InfoItem, lang: Lang }) {
                     <Image src={item.imageUrl} alt={name || 'Image'} fill className="object-cover" />
                 </div>
              )}
-            <CardHeader onClick={() => handleSpeak(name)} className={cn(isReadingMode && 'cursor-pointer hover:bg-muted/50')}>
+            <CardHeader onMouseEnter={() => handleSpeak(name)} className={cn(isReadingMode && 'cursor-pointer hover:bg-muted/50')}>
                 <CardTitle className="text-3xl font-bold">{name}</CardTitle>
             </CardHeader>
-            <CardContent className={cn("space-y-6", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(description?.replace(/<[^>]+>/g, ''))}>
+            <CardContent className={cn("space-y-6", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(description?.replace(/<[^>]+>/g, ''))}>
                 <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: description?.replace(/\n/g, '<br />') || '' }} />
             </CardContent>
         </Card>
@@ -359,7 +359,7 @@ export default function CategoryPage() {
     
     if (items.length === 0) {
         return (
-            <div className={cn("text-center py-20 bg-muted rounded-lg", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(`${trans.noInfo}. ${trans.noInfoDesc}`)}>
+            <div className={cn("text-center py-20 bg-muted rounded-lg", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(`${trans.noInfo}. ${trans.noInfoDesc}`)}>
                 <h2 className="text-2xl font-bold">{trans.noInfo}</h2>
                 <p className="text-muted-foreground mt-2">{trans.noInfoDesc}</p>
             </div>
@@ -407,7 +407,7 @@ export default function CategoryPage() {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {countryName || trans.back}
             </Button>
-            <h1 className={cn("text-4xl font-extrabold tracking-tight lg:text-5xl font-headline", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onClick={() => handleSpeak(categoryName)}>
+            <h1 className={cn("text-4xl font-extrabold tracking-tight lg:text-5xl font-headline", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(categoryName)}>
                 {categoryName}
             </h1>
         </div>
