@@ -232,6 +232,7 @@ export async function getReservations(db: Firestore): Promise<Reservation[]> {
       return {
         id: doc.id,
         ...data,
+        countrySlug: data.countrySlug,
         // Convert Firestore Timestamp to a serializable format (e.g., ISO string)
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : null,
       } as Reservation;

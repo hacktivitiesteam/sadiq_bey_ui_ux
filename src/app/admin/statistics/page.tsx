@@ -23,22 +23,30 @@ function ReservationChart() {
           fetchCountries(firestore)
         ]);
         
-        const counts: { [key: string]: { name: string, reservations: number } } = {};
+        const countryMap = new Map(countries.map(c => [c.slug, c.name]));
+        const counts: { [key: string]: number } = {};
 
         countries.forEach(country => {
-            counts[country.name] = { name: country.name, reservations: 0 };
+            counts[country.name] = 0;
         });
 
         reservations.forEach(reservation => {
-          const country = countries.find(c => c.slug === reservation.countrySlug);
-          const countryName = country ? country.name : 'Bilinmir';
-          if (!counts[countryName]) {
-            counts[countryName] = { name: countryName, reservations: 0 };
+          if (reservation.countrySlug) {
+              const countryName = countryMap.get(reservation.countrySlug);
+              if (countryName) {
+                if (!counts[countryName]) {
+                  counts[countryName] = 0;
+                }
+                counts[countryName]++;
+              }
           }
-          counts[countryName].reservations++;
         });
 
-        const chartData = Object.values(counts);
+        const chartData = Object.keys(counts).map(countryName => ({
+            name: countryName,
+            reservations: counts[countryName]
+        }));
+        
         setData(chartData);
       } catch (error) {
         console.error("Failed to load chart data:", error);
