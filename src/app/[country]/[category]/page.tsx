@@ -243,14 +243,14 @@ function PhraseCard({ item, lang }: { item: InfoItem, lang: Lang }) {
     };
 
     return (
-        <Card className={cn("p-4 transition-transform duration-300 hover:-translate-y-1", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(bottomPhrase, item.language)}>
+        <Card className="p-4 transition-transform duration-300 hover:-translate-y-1">
             <CardContent className="p-0 flex items-center justify-between">
                 <div className="space-y-1">
                     <p className="text-lg font-semibold">{topPhrase}</p>
                     <p className="text-muted-foreground">{bottomPhrase}</p>
                 </div>
                 {item.translation && item.language && (
-                  <Button variant="ghost" size="icon" onMouseEnter={(e) => { e.stopPropagation(); handleSpeak(bottomPhrase, item.language); }}>
+                  <Button variant="ghost" size="icon" onClick={() => handleSpeak(bottomPhrase, item.language)}>
                       <Volume2 className="h-6 w-6" />
                   </Button>
                 )}
