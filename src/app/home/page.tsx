@@ -17,7 +17,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useAuth } from '@/firebase';
 import { signInAnonymously } from 'firebase/auth';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import PaperPlaneAnimation from '@/components/app/paper-plane-animation';
 import { useReadingMode } from '@/components/app/reading-mode-provider';
 import { cn } from '@/lib/utils';
 import { useAnimation } from '@/components/app/animation-provider';
@@ -428,8 +427,7 @@ export default function HomePage() {
   }, [firestore, toast]);
   
   const handleCountryClick = (href: string) => {
-    triggerAnimation({ icon: Globe });
-    router.push(href);
+    triggerAnimation({ icon: Globe, onAnimationEnd: () => router.push(href) });
   };
 
   const t = {
@@ -445,7 +443,6 @@ export default function HomePage() {
   return (
     <>
       <AppHeader lang={lang} setLang={handleSetLang} />
-      <PaperPlaneAnimation />
       <main className="container mx-auto px-4 py-12 space-y-16">
         <div className={cn("text-center max-w-3xl mx-auto", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(`${t.title}. ${t.subtitle}`)}>
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-6xl text-primary">
