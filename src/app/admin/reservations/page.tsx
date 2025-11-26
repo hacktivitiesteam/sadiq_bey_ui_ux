@@ -12,6 +12,8 @@ import {
   getSortedRowModel,
   useReactTable,
   SortingState,
+  getFilteredRowModel,
+  ColumnFiltersState,
 } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -80,7 +82,7 @@ export default function ReservationsPage() {
   const { toast } = useToast();
   const [sorting, setSorting] = React.useState<SortingState>([{ id: 'createdAt', desc: true }]);
   const [filter, setFilter] = React.useState('all');
-  const [globalFilter, setGlobalFilter] = React.useState('');
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const firestore = useFirestore();
 
   React.useEffect(() => {
@@ -90,6 +92,7 @@ export default function ReservationsPage() {
       try {
         const reservations = await getReservations(firestore);
         setAllData(reservations);
+        setFilteredData(reservations);
       } catch (error) {
         toast({
           variant: 'destructive',
@@ -104,40 +107,28 @@ export default function ReservationsPage() {
   }, [firestore, toast]);
   
   React.useEffect(() => {
-    let baseData = allData;
-    
-    // Global search filter
-    if (globalFilter) {
-      const lowercasedFilter = globalFilter.toLowerCase();
-      baseData = baseData.filter(item => {
-        const searchableString = Object.values(item).join(' ').toLowerCase();
-        return searchableString.includes(lowercasedFilter);
-      });
-    }
-    
-    // Date range filter
+    let dateFilteredData = allData;
     const now = new Date();
-    let dateFilteredData = baseData;
 
     if (filter === 'today') {
       const interval = { start: startOfDay(now), end: endOfDay(now) };
-      dateFilteredData = baseData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
+      dateFilteredData = allData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
     } else if (filter === 'this_week') {
       const interval = { start: startOfWeek(now, { weekStartsOn: 1 }), end: endOfWeek(now, { weekStartsOn: 1 }) };
-      dateFilteredData = baseData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
+      dateFilteredData = allData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
     } else if (filter === 'this_month') {
       const interval = { start: startOfMonth(now), end: endOfMonth(now) };
-      dateFilteredData = baseData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
+      dateFilteredData = allData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
     } else if (filter === 'this_year') {
       const interval = { start: startOfYear(now), end: endOfYear(now) };
-      dateFilteredData = baseData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
+      dateFilteredData = allData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
     }
     
     setFilteredData(dateFilteredData);
-  }, [filter, allData, globalFilter]);
+  }, [filter, allData]);
 
   const exportToCSV = () => {
-    const csv = Papa.unparse(allData);
+    const csv = Papa.unparse(table.getRowModel().rows.map(row => row.original));
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -156,8 +147,11 @@ export default function ReservationsPage() {
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
+      columnFilters,
     },
   });
   
@@ -184,6 +178,18 @@ export default function ReservationsPage() {
                         {headerGroup.headers.map((header) => (
                         <TableHead key={header.id}>
                             {flexRender(header.column.columnDef.header, header.getContext())}
+                            {header.column.getCanFilter() ? (
+                                <div className="mt-2">
+                                     <Input
+                                        placeholder={`Axtar...`}
+                                        value={(header.column.getFilterValue() as string) ?? ''}
+                                        onChange={(event) =>
+                                            header.column.setFilterValue(event.target.value)
+                                        }
+                                        className="max-w-sm h-8"
+                                    />
+                                </div>
+                            ) : null}
                         </TableHead>
                         ))}
                     </TableRow>
@@ -251,19 +257,11 @@ export default function ReservationsPage() {
                         <SelectItem value="this_year">Bu il</SelectItem>
                     </SelectContent>
                 </Select>
-                 <Button onClick={exportToCSV} disabled={allData.length === 0}>
+                 <Button onClick={exportToCSV} disabled={table.getRowModel().rows.length === 0}>
                     <Download className="mr-2 h-4 w-4" />
                     CSV olaraq xaric et
                 </Button>
             </div>
-        </div>
-        <div className="py-4">
-            <Input
-            placeholder="Axtarış..."
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="max-w-sm"
-            />
         </div>
         {renderContent()}
       </main>
