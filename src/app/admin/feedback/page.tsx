@@ -12,6 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
   SortingState,
+  ColumnFiltersState,
 } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ import { format } from 'date-fns';
 import { useFirestore } from '@/firebase';
 import { Download } from 'lucide-react';
 import Papa from 'papaparse';
+import { Input } from '@/components/ui/input';
 
 const columns: ColumnDef<Feedback>[] = [
   {
@@ -58,6 +60,7 @@ export default function FeedbackPage() {
   const [loading, setLoading] = React.useState(true);
   const { toast } = useToast();
   const [sorting, setSorting] = React.useState<SortingState>([{ id: 'createdAt', desc: true }]);
+  const [globalFilter, setGlobalFilter] = React.useState('');
   const firestore = useFirestore();
 
   React.useEffect(() => {
@@ -93,7 +96,6 @@ export default function FeedbackPage() {
     document.body.removeChild(link);
   };
 
-
   const table = useReactTable({
     data,
     columns,
@@ -101,8 +103,19 @@ export default function FeedbackPage() {
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, columnId, filterValue) => {
+        const item = row.original;
+        const search = filterValue.toLowerCase();
+        
+        return item.name?.toLowerCase().includes(search) ||
+               item.surname?.toLowerCase().includes(search) ||
+               item.email?.toLowerCase().includes(search) ||
+               item.message?.toLowerCase().includes(search);
+    },
     state: {
       sorting,
+      globalFilter,
     },
   });
   
@@ -187,6 +200,14 @@ export default function FeedbackPage() {
                 <Download className="mr-2 h-4 w-4" />
                 CSV olaraq xaric et
             </Button>
+        </div>
+         <div className="py-4">
+            <Input
+            placeholder="Axtarış..."
+            value={globalFilter ?? ''}
+            onChange={(event) => setGlobalFilter(event.target.value)}
+            className="max-w-sm"
+            />
         </div>
         {renderContent()}
       </main>

@@ -22,7 +22,7 @@ import { useFirestore } from '@/firebase';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Download } from 'lucide-react';
 import Papa from 'papaparse';
-
+import { Input } from '@/components/ui/input';
 
 const columns: ColumnDef<Reservation>[] = [
   {
@@ -80,6 +80,7 @@ export default function ReservationsPage() {
   const { toast } = useToast();
   const [sorting, setSorting] = React.useState<SortingState>([{ id: 'createdAt', desc: true }]);
   const [filter, setFilter] = React.useState('all');
+  const [globalFilter, setGlobalFilter] = React.useState('');
   const firestore = useFirestore();
 
   React.useEffect(() => {
@@ -89,7 +90,6 @@ export default function ReservationsPage() {
       try {
         const reservations = await getReservations(firestore);
         setAllData(reservations);
-        setFilteredData(reservations);
       } catch (error) {
         toast({
           variant: 'destructive',
@@ -104,25 +104,38 @@ export default function ReservationsPage() {
   }, [firestore, toast]);
   
   React.useEffect(() => {
+    let baseData = allData;
+    
+    // Global search filter
+    if (globalFilter) {
+      const lowercasedFilter = globalFilter.toLowerCase();
+      baseData = baseData.filter(item => {
+        return Object.values(item).some(val => 
+          String(val).toLowerCase().includes(lowercasedFilter)
+        );
+      });
+    }
+    
+    // Date range filter
     const now = new Date();
-    let filtered = allData;
+    let dateFilteredData = baseData;
 
     if (filter === 'today') {
       const interval = { start: startOfDay(now), end: endOfDay(now) };
-      filtered = allData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
+      dateFilteredData = baseData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
     } else if (filter === 'this_week') {
       const interval = { start: startOfWeek(now, { weekStartsOn: 1 }), end: endOfWeek(now, { weekStartsOn: 1 }) };
-      filtered = allData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
+      dateFilteredData = baseData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
     } else if (filter === 'this_month') {
       const interval = { start: startOfMonth(now), end: endOfMonth(now) };
-      filtered = allData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
+      dateFilteredData = baseData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
     } else if (filter === 'this_year') {
       const interval = { start: startOfYear(now), end: endOfYear(now) };
-      filtered = allData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
+      dateFilteredData = baseData.filter(r => isWithinInterval(new Date(r.createdAt), interval));
     }
     
-    setFilteredData(filtered);
-  }, [filter, allData]);
+    setFilteredData(dateFilteredData);
+  }, [filter, allData, globalFilter]);
 
   const exportToCSV = () => {
     const csv = Papa.unparse(allData);
@@ -244,6 +257,14 @@ export default function ReservationsPage() {
                     CSV olaraq xaric et
                 </Button>
             </div>
+        </div>
+        <div className="py-4">
+            <Input
+            placeholder="Axtarış..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="max-w-sm"
+            />
         </div>
         {renderContent()}
       </main>
