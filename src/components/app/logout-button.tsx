@@ -1,29 +1,54 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { LogOut, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { signOut } from 'firebase/auth';
-import { useAuth } from '@/firebase';
-import { DropdownMenuItem } from '../ui/dropdown-menu';
+import { logout } from '@/lib/actions';
+import { useTransition } from 'react';
 
-export function LogoutButton() {
-  const { pending } = useFormStatus();
-  const auth = useAuth();
+export function LogoutButton({ isDropdownItem = false }: { isDropdownItem?: boolean }) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
-  const handleLogout = async () => {
-    await signOut(auth);
-    router.push('/login');
+  const handleLogout = () => {
+    startTransition(async () => {
+      await logout();
+      router.push('/admin/login');
+      router.refresh();
+    });
   };
 
-  return (
-    <DropdownMenuItem onClick={handleLogout} className="text-red-500 focus:bg-red-500/10 focus:text-red-500">
+  const content = (
+    <>
+      {isPending ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
         <LogOut className="mr-2 h-4 w-4" />
-        <span>Çıxış</span>
-    </DropdownMenuItem>
+      )}
+      <span>Çıxış</span>
+    </>
+  );
+
+  if (isDropdownItem) {
+    return (
+      <button
+        onClick={handleLogout}
+        disabled={isPending}
+        className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full text-red-500 focus:bg-red-500/10 focus:text-red-500"
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      onClick={handleLogout}
+      disabled={isPending}
+      className="w-full justify-start text-red-500 hover:bg-red-500/10 hover:text-red-500"
+    >
+      {content}
+    </Button>
   );
 }

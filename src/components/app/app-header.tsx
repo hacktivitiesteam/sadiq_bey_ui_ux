@@ -79,7 +79,7 @@ const ReadingModeToggle = ({ translations }: { translations: any }) => {
     }
 
     return (
-        <DropdownMenuItem onSelect={handleClick} className={cn(isReadingMode && 'bg-accent')}>
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()} onClick={handleClick} className={cn(isReadingMode && 'bg-accent')}>
              <Ear className="mr-2 h-4 w-4" />
              <span>{translations.reading_mode}</span>
         </DropdownMenuItem>
@@ -203,7 +203,7 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
                         {translations.coupons}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <LogoutButton />
+                    <LogoutButton isDropdownItem={true} />
                 </DropdownMenuContent>
             </DropdownMenu>
         );
@@ -271,7 +271,7 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
                                         {translations.coupons}
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <LogoutButton />
+                                    <LogoutButton isDropdownItem={true} />
                                 </>
                             ) : (
                                 <>
