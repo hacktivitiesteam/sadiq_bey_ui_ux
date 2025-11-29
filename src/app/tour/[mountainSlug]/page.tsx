@@ -206,17 +206,54 @@ export default function TourPage() {
 
   // --- Handlers ---
   const handleStart = async () => {
-    // Show popup/toast if permissions are not granted on click
-    if (!hasCameraPermission || !hasLocationPermission) {
+    if (tourStatus === 'starting') return;
+
+    let cameraOk = hasCameraPermission;
+    let locationOk = hasLocationPermission;
+
+    // Re-check permissions on click, in case they were granted after page load
+    if (cameraOk === null || locationOk === null || !cameraOk || !locationOk) {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            if (videoRef.current) videoRef.current.srcObject = stream;
+            cameraOk = true;
+            setHasCameraPermission(true);
+        } catch {
+            cameraOk = false;
+            setHasCameraPermission(false);
+            toast({
+                variant: "destructive",
+                title: t.error_title,
+                description: t.camera_access_desc
+            });
+            return;
+        }
+
+        try {
+            await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 }));
+            locationOk = true;
+            setHasLocationPermission(true);
+        } catch {
+            locationOk = false;
+            setHasLocationPermission(false);
+            toast({
+                variant: "destructive",
+                title: t.error_title,
+                description: t.location_access_desc
+            });
+            return;
+        }
+    }
+    
+    if (!firestore || !user || !mountain) {
         toast({
             variant: "destructive",
             title: t.error_title,
-            description: t.error_permissions_missing
+            description: "Essential application data is missing. Please refresh."
         });
         return;
     }
 
-    if (!firestore || !user || !mountain) return;
     setTourStatus('starting');
     try {
         const newTourId = await startTour(firestore, user.uid, mountain.id, mountain.name, user.displayName);
@@ -225,6 +262,10 @@ export default function TourPage() {
         lastPosition.current = null;
         setDistance(0);
         setDuration(0);
+        toast({
+          title: "Tur Başladı!",
+          description: "Məsafəniz hesablanır. Uğurlar!",
+        });
     } catch (error: any) {
         toast({ 
             variant: 'destructive', 
@@ -250,8 +291,6 @@ export default function TourPage() {
     setTourStatus('completed');
   };
   
-  const permissionsLoading = hasCameraPermission === null || hasLocationPermission === null;
-  const permissionsGranted = hasCameraPermission && hasLocationPermission;
 
   // --- Render Logic ---
   
@@ -346,12 +385,7 @@ export default function TourPage() {
                           </Alert>
                         )}
                         <Button onClick={handleStart} className="w-full" size="lg" disabled={tourStatus === 'starting'}>
-                           {permissionsLoading ? (
-                              <>
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                  {t.checking_permissions}
-                              </>
-                           ) : tourStatus === 'starting' ? (
+                           {tourStatus === 'starting' ? (
                               <>
                                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                   {t.starting_tour}
