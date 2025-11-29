@@ -156,7 +156,7 @@ function AvailableMountains({ mountains, loading, lang, onMountainClick }: { mou
 function TravelSection({ mountains, loading, lang, onMountainClick }: { mountains: Mountain[], loading: boolean, lang: 'az' | 'en', onMountainClick: (href: string) => void }) {
   const router = useRouter();
   const { isReadingMode, speakText } = useReadingMode();
-  const [selectedMountain, setSelectedMountain] = useState('');
+  const [selectedMountain, setSelectedMountain] = useState<string | undefined>(undefined);
   const [error, setError] = useState('');
 
   const handleGo = () => {
@@ -216,7 +216,7 @@ function TravelSection({ mountains, loading, lang, onMountainClick }: { mountain
              <h3 className={cn("text-2xl font-bold", isReadingMode && 'cursor-pointer')}>{t.title}</h3>
         </div>
       <div className="flex flex-col sm:flex-row items-center gap-4">
-        <Select onValueChange={setSelectedMountain}>
+        <Select value={selectedMountain} onValueChange={setSelectedMountain}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder={t.placeholder} />
           </SelectTrigger>

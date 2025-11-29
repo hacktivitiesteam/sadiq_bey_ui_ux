@@ -123,16 +123,26 @@ export default function TourPage() {
   
   // Permission check effect
   useEffect(() => {
-    const checkPermissions = async () => {
-        // Camera
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            if (videoRef.current) videoRef.current.srcObject = stream;
-            setHasCameraPermission(true);
-        } catch {
-            setHasCameraPermission(false);
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({video: true});
+        setHasCameraPermission(true);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
         }
-        // Location
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: t.camera_access_required,
+          description: t.camera_access_desc,
+        });
+      }
+    };
+    
+    const getLocationPermission = async () => {
         try {
             await new Promise((resolve, reject) => 
                 navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
@@ -140,10 +150,18 @@ export default function TourPage() {
             setHasLocationPermission(true);
         } catch {
             setHasLocationPermission(false);
+             toast({
+              variant: 'destructive',
+              title: t.location_access_required,
+              description: t.location_access_desc,
+            });
         }
-    };
-    checkPermissions();
-  }, []);
+    }
+    
+    getCameraPermission();
+    getLocationPermission();
+
+  }, [t.camera_access_desc, t.camera_access_required, t.location_access_desc, t.location_access_required, toast]);
 
   // Timer effect
   useEffect(() => {
@@ -206,22 +224,19 @@ export default function TourPage() {
 
   // --- Handlers ---
   const handleStart = async () => {
-    // This check now prevents the function from running if data is missing.
+    if (!hasCameraPermission || !hasLocationPermission) {
+        toast({
+            variant: "destructive",
+            title: t.error_permissions_missing,
+        });
+        return;
+    }
+    
     if (!firestore || !user || !mountain) {
         toast({
             variant: "destructive",
             title: t.error_title,
             description: "Essential application data is missing. Please refresh."
-        });
-        return;
-    }
-    
-    // Additional check for permissions
-    if (!hasCameraPermission || !hasLocationPermission) {
-        toast({
-            variant: "destructive",
-            title: t.error_permissions_missing,
-            description: "Please grant camera and location permissions to start the tour."
         });
         return;
     }
@@ -337,9 +352,13 @@ export default function TourPage() {
                     <CardHeader><CardTitle>{t.camera_access_required}</CardTitle></CardHeader>
                     <CardContent>
                         <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                            <video ref={videoRef} className={cn("w-full h-full object-cover", !hasCameraPermission && "hidden")} autoPlay muted playsInline />
-                            {hasCameraPermission === false && <div className="text-center text-muted-foreground p-4"><Camera className="h-12 w-12 mx-auto"/><p className='mt-2'>{t.camera_access_required}</p></div>}
-                            {hasCameraPermission === null && <Skeleton className="h-full w-full" />}
+                            <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                            {hasCameraPermission === false && (
+                                <div className="text-center text-muted-foreground p-4">
+                                <Camera className="h-12 w-12 mx-auto"/>
+                                <p className='mt-2'>{t.camera_access_required}</p>
+                                </div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -368,8 +387,8 @@ export default function TourPage() {
                             <AlertDescription>{t.location_access_desc}</AlertDescription>
                           </Alert>
                         )}
-                        <Button onClick={handleStart} className="w-full" size="lg" disabled={!canStartTour || tourStatus === 'starting'}>
-                           {tourStatus === 'starting' || !arePermissionsReady || !isDataReady ? (
+                        <Button onClick={handleStart} className="w-full" size="lg" disabled={!isDataReady || tourStatus === 'starting'}>
+                           {tourStatus === 'starting' || !arePermissionsReady ? (
                               <>
                                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                   {tourStatus === 'starting' ? t.starting_tour : t.checking_permissions}
