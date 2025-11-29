@@ -14,7 +14,7 @@ import { addFeedback } from '@/lib/firebase-actions';
 import { Loader2, Headset } from 'lucide-react';
 import { useFirestore } from '@/firebase';
 import { useAnimation } from '../app/animation-provider';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { DropdownMenuItem } from '../ui/dropdown-menu';
 
 type Lang = 'az' | 'en';
 
@@ -79,7 +79,6 @@ export default function ContactUs({ lang, translations }: ContactUsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const t = translations;
   const formSchema = createFormSchema(lang);
-  const { triggerAnimation } = useAnimation();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -115,29 +114,17 @@ export default function ContactUs({ lang, translations }: ContactUsProps) {
     }
   }
 
-  const handleTriggerClick = () => {
-    triggerAnimation({ 
-        icon: Headset, 
-        onAnimationEnd: () => setIsOpen(true)
-    });
-  }
+  const handleSelect = (event: Event) => {
+    event.preventDefault();
+    setIsOpen(true);
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={handleTriggerClick}>
-                  <Headset className="h-5 w-5" />
-              </Button>
-            </DialogTrigger>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{t.contact_us}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <DropdownMenuItem onSelect={handleSelect}>
+        <Headset className="mr-2 h-4 w-4" />
+        <span>{t.contact_us}</span>
+      </DropdownMenuItem>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>{t.contact_us}</DialogTitle>

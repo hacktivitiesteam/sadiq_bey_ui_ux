@@ -1,12 +1,17 @@
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { Globe, Languages, Check, ChevronDown, Headset, Ear, PenSquare, Moon, Sun, Laptop } from 'lucide-react';
+import { Globe, Languages, Check, ChevronDown, Headset, Ear, PenSquare, Moon, Sun, Laptop, Menu } from 'lucide-react';
 import ContactUs from './contact-us';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
 import {
     Tooltip,
@@ -47,34 +52,24 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ currentLang, setLan
   }
 
   return (
-     <TooltipProvider>
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost">
-                            {selectedLanguage && <span className="mr-2">{selectedLanguage.flag}</span>}
-                            {selectedLanguage?.name}
-                            <ChevronDown className="ml-1 h-4 w-4 opacity-70" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {languages.map((lang) => (
-                        <DropdownMenuItem key={lang.code} onSelect={(e) => handleLanguageChange(e, lang.code)}>
-                            <span className={cn("flex w-full items-center justify-between", currentLang === lang.code && "font-bold")}>
-                                <span>{lang.flag} {lang.name === 'AZ' ? 'Azərbaycanca' : 'English'}</span>
-                                {currentLang === lang.code && <Check className="h-4 w-4" />}
-                            </span>
-                        </DropdownMenuItem>
-                        ))}
-                </DropdownMenuContent>
-                </DropdownMenu>
-            </TooltipTrigger>
-            <TooltipContent>
-                <p>{translations.change_language}</p>
-            </TooltipContent>
-        </Tooltip>
-    </TooltipProvider>
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger>
+            <Languages className="mr-2 h-4 w-4" />
+            <span>{translations.change_language}</span>
+        </DropdownMenuSubTrigger>
+        <DropdownMenuPortal>
+            <DropdownMenuSubContent>
+                {languages.map((lang) => (
+                    <DropdownMenuItem key={lang.code} onSelect={(e) => handleLanguageChange(e, lang.code)}>
+                        <span className={cn("flex w-full items-center justify-between", currentLang === lang.code && "font-bold")}>
+                            <span>{lang.flag} {lang.name === 'AZ' ? 'Azərbaycanca' : 'English'}</span>
+                            {currentLang === lang.code && <Check className="h-4 w-4" />}
+                        </span>
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuSubContent>
+        </DropdownMenuPortal>
+    </DropdownMenuSub>
   );
 };
 
@@ -82,7 +77,7 @@ const ReadingModeToggle = ({ translations }: { translations: any }) => {
     const { isReadingMode, toggleReadingMode } = useReadingMode();
     const { triggerAnimation } = useAnimation();
 
-    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
         triggerAnimation({
             icon: Ear,
@@ -91,23 +86,10 @@ const ReadingModeToggle = ({ translations }: { translations: any }) => {
     }
 
     return (
-        <TooltipProvider>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={handleClick}
-                        className={cn(isReadingMode && 'bg-accent text-accent-foreground')}
-                    >
-                        <Ear className="h-5 w-5" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>{translations.reading_mode}</p>
-                </TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
+        <DropdownMenuItem onSelect={handleClick} className={cn(isReadingMode && 'bg-accent')}>
+             <Ear className="mr-2 h-4 w-4" />
+             <span>{translations.reading_mode}</span>
+        </DropdownMenuItem>
     )
 }
 
@@ -133,38 +115,29 @@ function ThemeToggle({ translations }: { translations: any }) {
   };
 
   return (
-    <DropdownMenu>
-        <TooltipProvider>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                            <span className="sr-only">{translations.toggle_theme}</span>
-                        </Button>
-                    </DropdownMenuTrigger>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>{translations.toggle_theme}</p>
-                </TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => handleThemeChange('light')}>
-          <Sun className="mr-2 h-4 w-4" />
-          <span>{translations.light}</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleThemeChange('dark')}>
-          <Moon className="mr-2 h-4 w-4" />
-          <span>{translations.dark}</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleThemeChange('system')}>
-          <Laptop className="mr-2 h-4 w-4" />
-          <span>{translations.system}</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <DropdownMenuSub>
+        <DropdownMenuSubTrigger>
+            <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+             <span>{translations.toggle_theme}</span>
+        </DropdownMenuSubTrigger>
+        <DropdownMenuPortal>
+            <DropdownMenuSubContent>
+                <DropdownMenuItem onClick={() => handleThemeChange('light')}>
+                  <Sun className="mr-2 h-4 w-4" />
+                  <span>{translations.light}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleThemeChange('dark')}>
+                  <Moon className="mr-2 h-4 w-4" />
+                  <span>{translations.dark}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleThemeChange('system')}>
+                  <Laptop className="mr-2 h-4 w-4" />
+                  <span>{translations.system}</span>
+                </DropdownMenuItem>
+            </DropdownMenuSubContent>
+        </DropdownMenuPortal>
+    </DropdownMenuSub>
   );
 }
 
@@ -227,29 +200,47 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
                 <Link href="/home" passHref>
                    <Button variant="ghost">{translations.user_panel}</Button>
                 </Link>
-                <ThemeToggle translations={translations} />
+                {/* Admin does not need a sub-menu for theme */}
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                        <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                        <span className="sr-only">Toggle theme</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => useTheme().setTheme("light")}>
+                        {translations.light}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => useTheme().setTheme("dark")}>
+                        {translations.dark}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => useTheme().setTheme("system")}>
+                        {translations.system}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
             </div>
           ) : (
-            <div className='flex items-center gap-1'>
-                {lang && setLang && <LanguageSwitcher currentLang={lang} setLang={setLang} translations={translations} />}
-                {lang && <ContactUs lang={lang} translations={translations} />}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={(e) => { e.preventDefault(); router.push('/communication-aid'); }}>
-                            <a href="/communication-aid">
-                                <PenSquare className="h-5 w-5" />
-                            </a>
-                        </Button>
-                    </TooltipTrigger>
-                     <TooltipContent>
-                        <p>{translations.communication_aid}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <ReadingModeToggle translations={translations} />
-                <ThemeToggle translations={translations} />
-            </div>
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <Menu className="h-5 w-5" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                     {lang && setLang && <LanguageSwitcher currentLang={lang} setLang={setLang} translations={translations} />}
+                     {lang && <ContactUs lang={lang} translations={translations} />}
+                     <DropdownMenuItem onSelect={() => router.push('/communication-aid')}>
+                        <PenSquare className="mr-2 h-4 w-4" />
+                        <span>{translations.communication_aid}</span>
+                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <ReadingModeToggle translations={translations} />
+                    <ThemeToggle translations={translations} />
+                </DropdownMenuContent>
+             </DropdownMenu>
           )}
         </nav>
       </div>
