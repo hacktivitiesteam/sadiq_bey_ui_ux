@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import AppHeader from '@/components/app/app-header';
-import { Map, Camera, TrendingUp, Timer, Route, CheckCircle, AlertTriangle, XCircle, Play, Pause, StopCircle } from 'lucide-react';
+import { Map, Camera, TrendingUp, Timer, Route, CheckCircle, AlertTriangle, XCircle, Play, Pause, StopCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getDistance } from 'geolib';
 
@@ -41,6 +41,7 @@ const translations = {
     error_start_tour: 'Turu başlada bilmədik. İcazələri yoxlayın.',
     error_location: 'Məkan məlumatı əldə edilə bilmədi.',
     back_to_mountain: 'Dağ Səhifəsinə Qayıt',
+    checking_permissions: 'İcazələr yoxlanılır...',
   },
   en: {
     tour_with: 'Tour',
@@ -64,6 +65,7 @@ const translations = {
     error_start_tour: 'Could not start tour. Check permissions.',
     error_location: 'Could not get location data.',
     back_to_mountain: 'Back to Mountain Page',
+    checking_permissions: 'Checking permissions...',
   },
 };
 
@@ -172,14 +174,16 @@ export default function TourPage() {
                   setSpeed(position.coords.speed ? position.coords.speed * 3.6 : 0); // m/s to km/h
                   
                   // Non-blocking Firestore update
-                  updateTour(firestore, tourId, { 
-                      distance: distance + newDistance,
-                      lastPosition: {
-                          latitude: position.coords.latitude,
-                          longitude: position.coords.longitude,
-                          timestamp: position.timestamp,
-                      }
-                  });
+                  if(firestore && tourId) {
+                    updateTour(firestore, tourId, { 
+                        distance: distance + newDistance,
+                        lastPosition: {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            timestamp: position.timestamp,
+                        }
+                    });
+                  }
               }
               lastPosition.current = position.coords;
           },
@@ -213,11 +217,11 @@ export default function TourPage() {
 
   const handlePause = () => {
       setTourStatus('paused');
-      if (tourId) updateTour(firestore, tourId, { status: 'paused' });
+      if (tourId && firestore) updateTour(firestore, tourId, { status: 'paused' });
   };
   const handleResume = () => {
       setTourStatus('active');
-      if (tourId) updateTour(firestore, tourId, { status: 'active' });
+      if (tourId && firestore) updateTour(firestore, tourId, { status: 'active' });
   };
   
   const handleEnd = async () => {
@@ -225,6 +229,9 @@ export default function TourPage() {
     await endTour(firestore, tourId);
     setTourStatus('completed');
   };
+  
+  const permissionsLoading = hasCameraPermission === null || hasLocationPermission === null;
+  const permissionsGranted = hasCameraPermission && hasLocationPermission;
 
   // --- Render Logic ---
   const renderPermissions = () => (
@@ -248,10 +255,19 @@ export default function TourPage() {
             <AlertDescription>{t.location_access_desc}</AlertDescription>
           </Alert>
         )}
-        {(hasCameraPermission === null || hasLocationPermission === null) && <Skeleton className="h-20 w-full" />}
-        {hasCameraPermission && hasLocationPermission && tourStatus === 'pending' && (
-          <Button onClick={handleStart} className="w-full" size="lg">
-            <Play className="mr-2" /> {t.start_tour}
+        
+        {tourStatus === 'pending' && (
+          <Button onClick={handleStart} className="w-full" size="lg" disabled={!permissionsGranted || permissionsLoading}>
+             {permissionsLoading ? (
+                <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t.checking_permissions}
+                </>
+             ) : (
+                <>
+                    <Play className="mr-2" /> {t.start_tour}
+                </>
+             )}
           </Button>
         )}
       </CardContent>
@@ -318,7 +334,8 @@ export default function TourPage() {
                     <CardContent>
                         <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
                             <video ref={videoRef} className={cn("w-full h-full object-cover", !hasCameraPermission && "hidden")} autoPlay muted playsInline />
-                            {!hasCameraPermission && <div className="text-center text-muted-foreground p-4"><Camera className="h-12 w-12 mx-auto"/><p className='mt-2'>{t.camera_access_required}</p></div>}
+                            {hasCameraPermission === false && <div className="text-center text-muted-foreground p-4"><Camera className="h-12 w-12 mx-auto"/><p className='mt-2'>{t.camera_access_required}</p></div>}
+                            {hasCameraPermission === null && <Skeleton className="h-full w-full" />}
                         </div>
                     </CardContent>
                 </Card>
