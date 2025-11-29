@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSearchParams } from 'next/navigation';
@@ -143,10 +143,10 @@ function CouponsTab() {
 }
 
 
-export default function ProfilePage() {
+function ProfilePageContents() {
     const searchParams = useSearchParams();
     const tab = searchParams.get('tab') || 'profile';
-    const [lang, setLang] = useState<'az' | 'en'>('az');
+    const [lang, setLang] = useState&lt;'az' | 'en'&gt;('az');
 
     useEffect(() => {
         const savedLang = localStorage.getItem('app-lang') as 'az' | 'en' | null;
@@ -156,28 +156,47 @@ export default function ProfilePage() {
     }, []);
 
     return (
-        <>
-            <AppHeader lang={lang} setLang={setLang} />
-            <main className="container mx-auto px-4 py-8">
-                <div className="max-w-4xl mx-auto">
-                    <Tabs defaultValue={tab} className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="profile">
-                                <UserIcon className="mr-2 h-4 w-4" /> Profil
-                            </TabsTrigger>
-                            <TabsTrigger value="coupons">
-                                <Ticket className="mr-2 h-4 w-4" /> Kuponlar
-                            </TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="profile" className="mt-6">
-                            <ProfileForm />
-                        </TabsContent>
-                        <TabsContent value="coupons" className="mt-6">
-                            <CouponsTab />
-                        </TabsContent>
-                    </Tabs>
-                </div>
-            </main>
-        </>
+        &lt;&gt;
+            &lt;AppHeader lang={lang} setLang={setLang} /&gt;
+            &lt;main className="container mx-auto px-4 py-8"&gt;
+                &lt;div className="max-w-4xl mx-auto"&gt;
+                    &lt;Tabs defaultValue={tab} className="w-full"&gt;
+                        &lt;TabsList className="grid w-full grid-cols-2"&gt;
+                            &lt;TabsTrigger value="profile"&gt;
+                                &lt;UserIcon className="mr-2 h-4 w-4" /&gt; Profil
+                            &lt;/TabsTrigger&gt;
+                            &lt;TabsTrigger value="coupons"&gt;
+                                &lt;Ticket className="mr-2 h-4 w-4" /&gt; Kuponlar
+                            &lt;/TabsTrigger&gt;
+                        &lt;/TabsList&gt;
+                        &lt;TabsContent value="profile" className="mt-6"&gt;
+                            &lt;ProfileForm /&gt;
+                        &lt;/TabsContent&gt;
+                        &lt;TabsContent value="coupons" className="mt-6"&gt;
+                            &lt;CouponsTab /&gt;
+                        &lt;/TabsContent&gt;
+                    &lt;/Tabs&gt;
+                &lt;/div&gt;
+            &lt;/main&gt;
+        &lt;/&gt;
     );
+}
+
+function ProfilePageFallback() {
+    return (
+        &lt;div className="container mx-auto px-4 py-8"&gt;
+             &lt;div className="max-w-4xl mx-auto space-y-8"&gt;
+                &lt;Skeleton className="h-10 w-full" /&gt;
+                &lt;Skeleton className="h-96 w-full" /&gt;
+             &lt;/div&gt;
+        &lt;/div&gt;
+    )
+}
+
+export default function ProfilePage() {
+    return (
+        &lt;Suspense fallback=&lt;ProfilePageFallback/&gt;&gt;
+            &lt;ProfilePageContents /&gt;
+        &lt;/Suspense&gt;
+    )
 }
