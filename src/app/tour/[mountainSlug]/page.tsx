@@ -7,7 +7,7 @@ import { getMountainData, startTour, updateTour, endTour } from '@/lib/firebase-
 import { useToast } from '@/hooks/use-toast';
 import { Mountain, Tour } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import AppHeader from '@/components/app/app-header';
