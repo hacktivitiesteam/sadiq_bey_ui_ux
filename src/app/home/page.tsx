@@ -447,14 +447,10 @@ export default function HomePage() {
       az: { 
           title: 'Zirvələri Kəşf Edin', 
           subtitle: 'Dağ Bələdçisi ilə səyahət etdiyiniz dağlar haqqında hər şeyi bir yerdə tapın.',
-          scoreboard_title: 'Reytinq Cədvəli',
-          scoreboard_desc: 'Alpinistlərin qət etdiyi məsafəyə görə sıralamasını izləyin.'
       },
       en: { 
           title: 'Discover the Summits', 
           subtitle: 'Find everything about the mountains you travel to with the Mountain Guide, all in one place.',
-          scoreboard_title: 'Scoreboard',
-          scoreboard_desc: 'Track the rankings of climbers by the distance they have covered.'
        },
   }[lang];
 
@@ -475,16 +471,6 @@ export default function HomePage() {
             {t.subtitle}
           </p>
         </div>
-
-        <Link href="/scoreboard">
-            <Card className="p-8 bg-card/50 border-border/50 hover:bg-muted transition-colors cursor-pointer">
-                <div className="flex flex-col items-center text-center">
-                    <Trophy className="h-12 w-12 text-yellow-500 mb-4" />
-                    <h3 className="text-2xl font-bold">{t.scoreboard_title}</h3>
-                    <p className="text-muted-foreground">{t.scoreboard_desc}</p>
-                </div>
-            </Card>
-        </Link>
         
         <Stats lang={lang} />
         

@@ -56,24 +56,6 @@
       },
       "required": ["id", "infoItemId", "customerName", "customerEmail", "reservationDate", "numberOfPeople"]
     },
-    "Tour": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "Tour",
-        "type": "object",
-        "description": "Represents an active or completed tour by a user.",
-        "properties": {
-            "id": { "type": "string", "description": "Unique identifier for the tour session." },
-            "userId": { "type": "string", "description": "The ID of the user on the tour." },
-            "mountainId": { "type": "string", "description": "The ID of the mountain being toured." },
-            "mountainName": { "type": "string", "description": "The name of the mountain." },
-            "userName": { "type": "string", "description": "The display name of the user for the scoreboard." },
-            "distance": { "type": "number", "description": "Total distance covered in kilometers." },
-            "status": { "type": "string", "description": "The current status of the tour.", "enum": ["active", "completed", "paused"]},
-            "startTime": { "type": "string", "format": "date-time", "description": "The start time of the tour." },
-            "endTime": { "type": "string", "format": "date-time", "description": "The end time of the tour." }
-        },
-        "required": ["id", "userId", "mountainId", "mountainName", "distance", "status", "startTime"]
-    },
     "UserProfile": {
         "title": "User Profile",
         "description": "Represents a user's profile with personal and travel information.",
@@ -125,14 +107,6 @@
           "entityName": "Reservation",
           "schema": { "$ref": "#/backend/entities/Reservation" },
           "description": "Stores reservation data."
-        }
-      },
-      {
-        "path": "/tours/{tourId}",
-        "definition": {
-            "entityName": "Tour",
-            "schema": { "$ref": "#/backend/entities/Tour"},
-            "description": "Stores live and completed tour data for the scoreboard."
         }
       },
       {

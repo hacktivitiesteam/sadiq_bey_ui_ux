@@ -85,23 +85,6 @@ export const TtsOutputSchema = z.object({
 
 export type TtsOutput = z.infer<typeof TtsOutputSchema>;
 
-export type Tour = {
-    id: string;
-    userId: string;
-    mountainId: string;
-    mountainName: string;
-    distance: number; // in kilometers
-    status: 'active' | 'completed' | 'paused';
-    startTime: any; // serverTimestamp
-    endTime?: any; // serverTimestamp
-    lastPosition?: {
-        latitude: number;
-        longitude: number;
-        timestamp: number;
-    };
-    userName?: string; // Optional user name for scoreboard
-};
-
 export const UserProfileSchema = z.object({
   email: z.string().email(),
   emergencyContactName: z.string(),
