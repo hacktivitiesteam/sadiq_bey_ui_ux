@@ -206,45 +206,7 @@ export default function TourPage() {
 
   // --- Handlers ---
   const handleStart = async () => {
-    if (tourStatus === 'starting') return;
-
-    let cameraOk = hasCameraPermission;
-    let locationOk = hasLocationPermission;
-
-    // Re-check permissions on click, in case they were granted after page load
-    if (cameraOk === null || locationOk === null || !cameraOk || !locationOk) {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            if (videoRef.current) videoRef.current.srcObject = stream;
-            cameraOk = true;
-            setHasCameraPermission(true);
-        } catch {
-            cameraOk = false;
-            setHasCameraPermission(false);
-            toast({
-                variant: "destructive",
-                title: t.error_title,
-                description: t.camera_access_desc
-            });
-            return;
-        }
-
-        try {
-            await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 }));
-            locationOk = true;
-            setHasLocationPermission(true);
-        } catch {
-            locationOk = false;
-            setHasLocationPermission(false);
-            toast({
-                variant: "destructive",
-                title: t.error_title,
-                description: t.location_access_desc
-            });
-            return;
-        }
-    }
-    
+    // This check now prevents the function from running if data is missing.
     if (!firestore || !user || !mountain) {
         toast({
             variant: "destructive",
@@ -253,6 +215,18 @@ export default function TourPage() {
         });
         return;
     }
+    
+    // Additional check for permissions
+    if (!hasCameraPermission || !hasLocationPermission) {
+        toast({
+            variant: "destructive",
+            title: t.error_permissions_missing,
+            description: "Please grant camera and location permissions to start the tour."
+        });
+        return;
+    }
+
+    if (tourStatus === 'starting') return;
 
     setTourStatus('starting');
     try {
@@ -272,7 +246,7 @@ export default function TourPage() {
             title: t.error_title, 
             description: `${t.error_start_tour} (${error.message || 'Unknown error'})`
         });
-        setTourStatus('pending'); // Reset status on failure
+        setTourStatus('pending');
     }
   };
 
@@ -338,13 +312,23 @@ export default function TourPage() {
   };
 
   const mountainName = (lang === 'en' && mountain?.name_en) ? mountain.name_en : mountain?.name;
-
+  
+  const isDataReady = firestore && user && mountain;
+  const arePermissionsReady = hasCameraPermission !== null && hasLocationPermission !== null;
+  const canStartTour = isDataReady && hasCameraPermission && hasLocationPermission;
+  
   return (
     <>
       <AppHeader lang={lang} setLang={handleSetLang} />
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-8">
-          {mountainName} <span className="font-light text-muted-foreground">{t.tour_with}</span>
+          {mountainName ? (
+            <>
+              {mountainName} <span className="font-light text-muted-foreground">{t.tour_with}</span>
+            </>
+          ) : (
+            <Skeleton className="h-12 w-3/4" />
+          )}
         </h1>
         
         <div className="grid md:grid-cols-2 gap-8">
@@ -384,11 +368,11 @@ export default function TourPage() {
                             <AlertDescription>{t.location_access_desc}</AlertDescription>
                           </Alert>
                         )}
-                        <Button onClick={handleStart} className="w-full" size="lg" disabled={tourStatus === 'starting'}>
-                           {tourStatus === 'starting' ? (
+                        <Button onClick={handleStart} className="w-full" size="lg" disabled={!canStartTour || tourStatus === 'starting'}>
+                           {tourStatus === 'starting' || !arePermissionsReady || !isDataReady ? (
                               <>
                                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                  {t.starting_tour}
+                                  {tourStatus === 'starting' ? t.starting_tour : t.checking_permissions}
                               </>
                            ) : (
                               <>
