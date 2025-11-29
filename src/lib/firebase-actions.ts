@@ -14,7 +14,7 @@ import {
   serverTimestamp,
   Firestore,
 } from 'firebase/firestore';
-import type { Mountain, InfoItem, Reservation, InfoCategory, Feedback } from './definitions';
+import type { Mountain, InfoItem, Reservation, InfoCategory, Feedback, Tour } from './definitions';
 import { slugify } from './utils';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -230,4 +230,73 @@ export async function getFeedback(db: Firestore): Promise<Feedback[]> {
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : null,
       } as Feedback;
     });
+}
+
+
+// --- Tour Actions ---
+
+export async function startTour(db: Firestore, userId: string, mountainId: string, mountainName: string, userName: string | null): Promise<string> {
+    const tourData: Omit<Tour, 'id'> = {
+        userId,
+        mountainId,
+        mountainName,
+        distance: 0,
+        status: 'active',
+        startTime: serverTimestamp(),
+        userName: userName || `User ${userId.substring(0, 6)}`,
+    };
+    const toursCol = collection(db, 'tours');
+    const docRef = await addDoc(toursCol, tourData).catch(error => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: toursCol.path,
+            operation: 'create',
+            requestResourceData: tourData,
+        }));
+        throw error;
+    });
+    return docRef.id;
+}
+
+
+export async function updateTour(db: Firestore, tourId: string, data: Partial<Tour>): Promise<void> {
+    const tourDoc = doc(db, 'tours', tourId);
+    await updateDoc(tourDoc, data).catch(error => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: tourDoc.path,
+            operation: 'update',
+            requestResourceData: data,
+        }));
+        throw error;
+    });
+}
+
+export async function endTour(db: Firestore, tourId: string): Promise<void> {
+    await updateTour(db, tourId, {
+        status: 'completed',
+        endTime: serverTimestamp(),
+    });
+}
+
+
+export async function fetchTours(db: Firestore): Promise<Tour[]> {
+  const toursCol = collection(db, 'tours');
+  const q = query(toursCol, where('status', '==', 'completed'), orderBy('distance', 'desc'));
+  const tourSnapshot = await getDocs(q);
+  const tourList = tourSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return { 
+          id: doc.id, 
+          ...data,
+          startTime: data.startTime?.toDate ? data.startTime.toDate().toISOString() : null,
+          endTime: data.endTime?.toDate ? data.endTime.toDate().toISOString() : null,
+      } as Tour;
+  });
+  return tourList;
+}
+
+export async function fetchActiveTours(db: Firestore): Promise<Tour[]> {
+    const toursCol = collection(db, 'tours');
+    const q = query(toursCol, where('status', '==', 'active'), orderBy('startTime', 'desc'));
+    const tourSnapshot = await getDocs(q);
+    return tourSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Tour));
 }

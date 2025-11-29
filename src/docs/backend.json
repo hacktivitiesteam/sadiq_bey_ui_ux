@@ -55,6 +55,24 @@
         "numberOfPeople": { "type": "number", "description": "The number of people in the reservation." }
       },
       "required": ["id", "infoItemId", "customerName", "customerEmail", "reservationDate", "numberOfPeople"]
+    },
+    "Tour": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Tour",
+        "type": "object",
+        "description": "Represents an active or completed tour by a user.",
+        "properties": {
+            "id": { "type": "string", "description": "Unique identifier for the tour session." },
+            "userId": { "type": "string", "description": "The ID of the user on the tour." },
+            "mountainId": { "type": "string", "description": "The ID of the mountain being toured." },
+            "mountainName": { "type": "string", "description": "The name of the mountain." },
+            "userName": { "type": "string", "description": "The display name of the user for the scoreboard." },
+            "distance": { "type": "number", "description": "Total distance covered in kilometers." },
+            "status": { "type": "string", "description": "The current status of the tour.", "enum": ["active", "completed", "paused"]},
+            "startTime": { "type": "string", "format": "date-time", "description": "The start time of the tour." },
+            "endTime": { "type": "string", "format": "date-time", "description": "The end time of the tour." }
+        },
+        "required": ["id", "userId", "mountainId", "mountainName", "distance", "status", "startTime"]
     }
   },
   "auth": {
@@ -98,8 +116,19 @@
             { "name": "reservationId", "description": "The unique ID of the reservation." }
           ]
         }
+      },
+      {
+          "path": "/tours/{tourId}",
+          "definition": {
+              "entityName": "Tour",
+              "schema": { "$ref": "#/backend/entities/Tour"},
+              "description": "Stores live and completed tour data for the scoreboard.",
+              "params": [
+                  {"name": "tourId", "description": "The unique ID of the tour session."}
+              ]
+          }
       }
     ],
-    "reasoning": "The Firestore structure is designed to store mountain information, related info items, and reservations. It prioritizes authorization independence by not requiring `get()` calls in security rules. Since there are no explicit roles or user-specific data besides reservations, the structure focuses on organizing the data in a way that's easily queryable and maintainable, with a clear separation of concerns.\n\n1.  Mountains: Stores basic information about mountains.\n2.  InfoItems: Stores information about specific places or items near a mountain. Mountain ID is denormalized to each InfoItem to allow for easy querying of all InfoItems for a specific mountain.\n3.  Reservations: Stores reservation data related to each info item.\n\nThis structure enables secure `list` operations because the security rules can be applied at the collection level without needing to check parent documents. Since there are no user-based roles or access control requirements described in the document, the security rules will focus on data validation and preventing unauthorized modifications.\n\nAdmin access is managed via cookies and Next.js server actions so it won't be a part of the firestore rules."
+    "reasoning": "The Firestore structure is designed to store mountain information, related info items, and reservations. It prioritizes authorization independence by not requiring `get()` calls in security rules. Since there are no explicit roles or user-specific data besides reservations, the structure focuses on organizing the data in a way that's easily queryable and maintainable, with a clear separation of concerns.\n\n1.  Mountains: Stores basic information about mountains.\n2.  InfoItems: Stores information about specific places or items near a mountain. Mountain ID is denormalized to each InfoItem to allow for easy querying of all InfoItems for a specific mountain.\n3.  Reservations: Stores reservation data related to each info item.\n4.  Tours: A new top-level collection to store data from active and completed tours. This allows for easy querying for the public scoreboard and for admins to monitor active tours without complex sub-collection queries. User-specific data is linked by `userId`.\n\nThis structure enables secure `list` operations because the security rules can be applied at the collection level without needing to check parent documents. Since there are no user-based roles or access control requirements described in the document, the security rules will focus on data validation and preventing unauthorized modifications.\n\nAdmin access is managed via cookies and Next.js server actions so it won't be a part of the firestore rules."
   }
 }

@@ -9,13 +9,14 @@ import type { Mountain, InfoItem } from '@/lib/definitions';
 import { CATEGORIES } from '@/lib/constants';
 import AppHeader from '@/components/app/app-header';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronRight, PlayCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFirestore } from '@/firebase';
 import type { LucideIcon } from 'lucide-react';
 import { useAnimation } from '@/components/app/animation-provider';
 import { useReadingMode } from '@/components/app/reading-mode-provider';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 export default function MountainPage() {
   const params = useParams();
@@ -76,8 +77,8 @@ export default function MountainPage() {
 
 
     const t = {
-        az: { discover: 'Kəşf edin', all_mountains: 'Bütün dağlar', not_found: 'Dağ tapılmadı.' },
-        en: { discover: 'Discover', all_mountains: 'All Mountains', not_found: 'Mountain not found.' },
+        az: { discover: 'Kəşf edin', all_mountains: 'Bütün dağlar', not_found: 'Dağ tapılmadı.', start_tour: 'Tura Başla' },
+        en: { discover: 'Discover', all_mountains: 'All Mountains', not_found: 'Mountain not found.', start_tour: 'Start Tour' },
     }[pageLang];
 
   const handleCategoryClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, Icon: LucideIcon) => {
@@ -115,6 +116,14 @@ export default function MountainPage() {
         <div className="relative h-96 w-full">
           <Image src={mountain.imageUrl} alt={mountainName || ''} fill objectFit="cover" className="brightness-75" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+              <Button size="lg" asChild>
+                  <Link href={`/tour/${mountain.slug}`}>
+                      <PlayCircle className="mr-2 h-5 w-5" />
+                      {t.start_tour}
+                  </Link>
+              </Button>
+          </div>
         </div>
         <div className="container mx-auto px-4 md:px-6 -mt-24 relative z-10">
           <Card className={cn("p-6 shadow-lg", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(`${mountainName}. ${mountainDescription}`)}>

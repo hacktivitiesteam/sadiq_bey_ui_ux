@@ -72,7 +72,6 @@ export type Feedback = {
   createdAt: any;
 };
 
-
 export const TtsInputSchema = z.object({
   text: z.string().describe('The text to be converted to speech.'),
   languageCode: z.string().describe('The language of the text (e.g., "az-AZ", "en-US").'),
@@ -85,3 +84,20 @@ export const TtsOutputSchema = z.object({
 });
 
 export type TtsOutput = z.infer<typeof TtsOutputSchema>;
+
+export type Tour = {
+    id: string;
+    userId: string;
+    mountainId: string;
+    mountainName: string;
+    distance: number; // in kilometers
+    status: 'active' | 'completed' | 'paused';
+    startTime: any; // serverTimestamp
+    endTime?: any; // serverTimestamp
+    lastPosition?: {
+        latitude: number;
+        longitude: number;
+        timestamp: number;
+    };
+    userName?: string; // Optional user name for scoreboard
+};
