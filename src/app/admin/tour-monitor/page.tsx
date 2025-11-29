@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchActiveTours } from '@/lib/firebase-actions';
 import { useFirestore, useCollection } from '@/firebase';
+import { collection } from 'firebase/firestore';
 import type { Tour } from '@/lib/definitions';
 import { User, Flag, TrendingUp, RadioTower, Video, VideoOff } from 'lucide-react';
 
