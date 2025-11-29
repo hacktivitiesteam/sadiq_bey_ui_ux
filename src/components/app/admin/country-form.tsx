@@ -46,7 +46,11 @@ export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, count
       description: '',
       description_en: '',
       imageUrl: '',
+      height: undefined,
       bestSeason: '',
+      difficulty: undefined,
+      latitude: undefined,
+      longitude: undefined,
       temperature: '',
     },
   });
@@ -58,17 +62,17 @@ export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, count
   useEffect(() => {
     if (mountain) {
       form.reset({
-        name: mountain.name,
+        name: mountain.name || '',
         name_en: mountain.name_en || '',
-        description: mountain.description,
+        description: mountain.description || '',
         description_en: mountain.description_en || '',
-        imageUrl: mountain.imageUrl,
-        height: mountain.height,
-        bestSeason: mountain.bestSeason,
-        difficulty: mountain.difficulty,
-        latitude: mountain.latitude,
-        longitude: mountain.longitude,
-        temperature: mountain.temperature,
+        imageUrl: mountain.imageUrl || '',
+        height: mountain.height || undefined,
+        bestSeason: mountain.bestSeason || '',
+        difficulty: mountain.difficulty || undefined,
+        latitude: mountain.latitude || undefined,
+        longitude: mountain.longitude || undefined,
+        temperature: mountain.temperature || '',
       });
     } else {
       form.reset({
@@ -121,14 +125,14 @@ export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, count
                 <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Dağ Adı (AZ)</FormLabel>
-                        <FormControl><Input placeholder="Məsələn: Şahdağ" {...field} /></FormControl>
+                        <FormControl><Input placeholder="Məsələn: Şahdağ" {...field} value={field.value || ''} /></FormControl>
                         <FormMessage />
                     </FormItem>
                 )} />
                 <FormField control={form.control} name="name_en" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Dağ Adı (EN)</FormLabel>
-                        <FormControl><Input placeholder="E.g.: Shahdag" {...field} /></FormControl>
+                        <FormControl><Input placeholder="E.g.: Shahdag" {...field} value={field.value || ''} /></FormControl>
                         <FormMessage />
                     </FormItem>
                 )} />
@@ -139,14 +143,14 @@ export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, count
                 <FormField control={form.control} name="description" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Təsvir (AZ)</FormLabel>
-                        <FormControl><Textarea placeholder="Dağ haqqında qısa məlumat..." {...field} /></FormControl>
+                        <FormControl><Textarea placeholder="Dağ haqqında qısa məlumat..." {...field} value={field.value || ''} /></FormControl>
                         <FormMessage />
                     </FormItem>
                 )} />
                 <FormField control={form.control} name="description_en" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Təsvir (EN)</FormLabel>
-                        <FormControl><Textarea placeholder="Brief information about the mountain..." {...field} /></FormControl>
+                        <FormControl><Textarea placeholder="Brief information about the mountain..." {...field} value={field.value || ''} /></FormControl>
                         <FormMessage />
                     </FormItem>
                 )} />
@@ -156,7 +160,7 @@ export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, count
             <FormField control={form.control} name="imageUrl" render={({ field }) => (
                 <FormItem>
                     <FormLabel>Şəkil URL</FormLabel>
-                    <FormControl><Input placeholder="https://example.com/image.jpg" {...field} /></FormControl>
+                    <FormControl><Input placeholder="https://example.com/image.jpg" {...field} value={field.value || ''} /></FormControl>
                     <FormMessage />
                 </FormItem>
             )} />
@@ -167,14 +171,14 @@ export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, count
                     <FormField control={form.control} name="height" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Hündürlük (m)</FormLabel>
-                            <FormControl><Input type="number" placeholder="4243" {...field} /></FormControl>
+                            <FormControl><Input type="number" placeholder="4243" {...field} value={field.value || ''} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
                     <FormField control={form.control} name="difficulty" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Çətinlik Səviyyəsi</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value || ''}>
                                 <FormControl><SelectTrigger><SelectValue placeholder="Səviyyə seçin" /></SelectTrigger></FormControl>
                                 <SelectContent>
                                     <SelectItem value="Asan">Asan</SelectItem>
@@ -191,14 +195,14 @@ export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, count
                     <FormField control={form.control} name="bestSeason" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Ən Yaxşı Mövsüm</FormLabel>
-                            <FormControl><Input placeholder="İyun-Avqust" {...field} /></FormControl>
+                            <FormControl><Input placeholder="İyun-Avqust" {...field} value={field.value || ''} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
                     <FormField control={form.control} name="temperature" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Ortalama Temperatur (°C)</FormLabel>
-                            <FormControl><Input placeholder="5°C - 15°C" {...field} /></FormControl>
+                            <FormControl><Input placeholder="5°C - 15°C" {...field} value={field.value || ''} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
@@ -207,14 +211,14 @@ export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, count
                     <FormField control={form.control} name="latitude" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Enlik (Latitude)</FormLabel>
-                            <FormControl><Input type="number" step="any" placeholder="41.032" {...field} /></FormControl>
+                            <FormControl><Input type="number" step="any" placeholder="41.032" {...field} value={field.value || ''} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
                     <FormField control={form.control} name="longitude" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Uzunluq (Longitude)</FormLabel>
-                            <FormControl><Input type="number" step="any" placeholder="48.271" {...field} /></FormControl>
+                            <FormControl><Input type="number" step="any" placeholder="48.271" {...field} value={field.value || ''} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />

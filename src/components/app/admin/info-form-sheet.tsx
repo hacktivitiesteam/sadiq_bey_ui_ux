@@ -68,6 +68,7 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
       entranceFee: '',
       nearbyRestaurants: '',
       nearbyRestaurantImageUrl: '',
+      rating: undefined,
     }
   });
   const firestore = useFirestore();
@@ -275,7 +276,7 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
 
                     {showRatingField && (
                         <FormField control={form.control} name="rating" render={({ field }) => (
-                            <FormItem><FormLabel>Reytinq (0-5)</FormLabel><FormControl><Input type="number" step="0.1" min="0" max="5" placeholder="4.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Reytinq (0-5)</FormLabel><FormControl><Input type="number" step="0.1" min="0" max="5" placeholder="4.5" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                         )} />
                     )}
 
