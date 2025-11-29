@@ -242,51 +242,7 @@ export default function TourPage() {
   const permissionsGranted = hasCameraPermission && hasLocationPermission;
 
   // --- Render Logic ---
-  const renderPermissions = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t.permissions}</CardTitle>
-        <CardDescription>{t.permissions_desc}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {hasCameraPermission === false && (
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>{t.camera_access_required}</AlertTitle>
-            <AlertDescription>{t.camera_access_desc}</AlertDescription>
-          </Alert>
-        )}
-        {hasLocationPermission === false && (
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>{t.location_access_required}</AlertTitle>
-            <AlertDescription>{t.location_access_desc}</AlertDescription>
-          </Alert>
-        )}
-        
-        {tourStatus === 'pending' || tourStatus === 'starting' ? (
-          <Button onClick={handleStart} className="w-full" size="lg" disabled={!permissionsGranted || permissionsLoading || tourStatus === 'starting'}>
-             {permissionsLoading ? (
-                <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t.checking_permissions}
-                </>
-             ) : tourStatus === 'starting' ? (
-                <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t.starting_tour}
-                </>
-             ) : (
-                <>
-                    <Play className="mr-2" /> {t.start_tour}
-                </>
-             )}
-          </Button>
-        ) : null}
-      </CardContent>
-    </Card>
-  );
-
+  
   const renderDashboard = () => (
     <Card>
         <CardHeader>
@@ -354,8 +310,50 @@ export default function TourPage() {
                 </Card>
             </div>
             <div className="space-y-8">
-                {tourStatus === 'completed' ? renderCompleted() : renderPermissions()}
-                {['active', 'paused'].includes(tourStatus) && renderDashboard()}
+                {tourStatus === 'completed' ? renderCompleted() 
+                  : ['active', 'paused'].includes(tourStatus) ? renderDashboard()
+                  : (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>{t.permissions}</CardTitle>
+                        <CardDescription>{t.permissions_desc}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {hasCameraPermission === false && (
+                          <Alert variant="destructive">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>{t.camera_access_required}</AlertTitle>
+                            <AlertDescription>{t.camera_access_desc}</AlertDescription>
+                          </Alert>
+                        )}
+                        {hasLocationPermission === false && (
+                          <Alert variant="destructive">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>{t.location_access_required}</AlertTitle>
+                            <AlertDescription>{t.location_access_desc}</AlertDescription>
+                          </Alert>
+                        )}
+                        <Button onClick={handleStart} className="w-full" size="lg" disabled={!permissionsGranted || permissionsLoading || tourStatus === 'starting'}>
+                           {permissionsLoading ? (
+                              <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  {t.checking_permissions}
+                              </>
+                           ) : tourStatus === 'starting' ? (
+                              <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  {t.starting_tour}
+                              </>
+                           ) : (
+                              <>
+                                  <Play className="mr-2" /> {t.start_tour}
+                              </>
+                           )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )
+                }
             </div>
         </div>
       </main>
