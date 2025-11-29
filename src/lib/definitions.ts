@@ -1,7 +1,7 @@
 'use client';
 import { z } from 'zod';
 
-export type Country = {
+export type Mountain = {
   id: string;
   name: string;
   name_en?: string;
@@ -13,12 +13,12 @@ export type Country = {
   description_ru?: string;
 };
 
-export type InfoCategory = 'hotels' | 'restaurants' | 'attractions' | 'essentials' | 'culture' | 'useful_words' | 'cuisine' | 'hospitals';
+export type InfoCategory = 'hotels' | 'restaurants' | 'attractions' | 'cuisine';
 
 export type InfoItem = {
   id: string;
-  countryId: string;
-  countrySlug: string;
+  mountainId: string;
+  mountainSlug: string;
   category: InfoCategory;
   
   name: string; 
@@ -32,12 +32,6 @@ export type InfoItem = {
   imageUrl?: string;
   rating?: number;
   price?: string;
-
-  phrase?: string; 
-  phrase_en?: string;
-  phrase_ru?: string;
-  translation?: string; 
-  language?: string; 
   
   googleMapsUrl?: string;
   
@@ -58,7 +52,7 @@ export type Reservation = {
   id: string;
   itemId: string;
   itemName: string;
-  countrySlug?: string;
+  mountainSlug?: string;
   userName: string;
   email: string;
   date: string;

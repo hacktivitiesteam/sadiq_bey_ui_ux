@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppHeader from '@/components/app/app-header';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { getReservations, fetchCountries } from '@/lib/firebase-actions';
+import { getReservations, fetchMountains } from '@/lib/firebase-actions';
 import { useFirestore } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -18,33 +18,33 @@ function ReservationChart() {
     async function loadData() {
       setLoading(true);
       try {
-        const [reservations, countries] = await Promise.all([
+        const [reservations, mountains] = await Promise.all([
           getReservations(firestore),
-          fetchCountries(firestore)
+          fetchMountains(firestore)
         ]);
         
-        const countryMap = new Map(countries.map(c => [c.slug, c.name]));
+        const mountainMap = new Map(mountains.map(c => [c.slug, c.name]));
         const counts: { [key: string]: number } = {};
 
-        countries.forEach(country => {
-            counts[country.name] = 0;
+        mountains.forEach(mountain => {
+            counts[mountain.name] = 0;
         });
 
         reservations.forEach(reservation => {
-          if (reservation.countrySlug) {
-              const countryName = countryMap.get(reservation.countrySlug);
-              if (countryName) {
-                if (!counts[countryName]) {
-                  counts[countryName] = 0;
+          if (reservation.mountainSlug) {
+              const mountainName = mountainMap.get(reservation.mountainSlug);
+              if (mountainName) {
+                if (!counts[mountainName]) {
+                  counts[mountainName] = 0;
                 }
-                counts[countryName]++;
+                counts[mountainName]++;
               }
           }
         });
 
-        const chartData = Object.keys(counts).map(countryName => ({
-            name: countryName,
-            reservations: counts[countryName]
+        const chartData = Object.keys(counts).map(mountainName => ({
+            name: mountainName,
+            reservations: counts[mountainName]
         }));
         
         setData(chartData);
@@ -93,8 +93,8 @@ export default function StatisticsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Ölkələr üzrə Rezervasiya Statistikası</CardTitle>
-          <CardDescription>Hər bir ölkə üçün edilən ümumi rezervasiyaların sayı.</CardDescription>
+          <CardTitle>Dağlar üzrə Rezervasiya Statistikası</CardTitle>
+          <CardDescription>Hər bir dağ üçün edilən ümumi rezervasiyaların sayı.</CardDescription>
         </CardHeader>
         <CardContent>
           <ReservationChart />

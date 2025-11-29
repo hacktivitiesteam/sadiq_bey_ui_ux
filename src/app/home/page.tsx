@@ -4,13 +4,13 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { fetchCountries } from '@/lib/firebase-actions';
-import type { Country } from '@/lib/definitions';
+import { fetchMountains } from '@/lib/firebase-actions';
+import type { Mountain } from '@/lib/definitions';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Languages, UtensilsCrossed, MapPinned, Globe, Repeat, ArrowRight, Compass, BookOpen, Route } from 'lucide-react';
+import { Mountain as MountainIcon, UtensilsCrossed, MapPinned, Globe, Repeat, ArrowRight, Compass, BookOpen, Route, Tent } from 'lucide-react';
 import AppHeader from '@/components/app/app-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -25,43 +25,43 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
     const { isReadingMode, speakText } = useReadingMode();
     const content = {
         az: {
-            section_title: 'Turistlərin Üzləşdiyi Əsas Problemlər',
-            route: 'Səyahət rotası',
-            route_desc: 'Turistlərin əksəriyyəti gedəcəyi ölkə haqqında yetərli məlumata sahib deyil.',
-            language: 'Dil',
-            language_desc: 'Səyahətçilər ünsiyyət qurmaqda çətinlik çəkir, əsas yerli ifadələr təcrübəni yaxşılaşdırır.',
-            culture: 'Mədəniyyət',
-            culture_desc: 'Turistlər ölkənin mədəniyyəti haqqında məlumatı olmur.',
-            attractions: 'Görməli yerlər',
-            attractions_desc: 'Gəzməli yerlər və onlara yaxın olan digər maraqlı nöqtələr haqqında məlumatları yoxdur.',
-            cuisine: 'Milli Mətbəx',
-            cuisine_desc: 'Turistlər ölkənin milli mətbəxini və yaxşı restoranlarını tanımır.',
+            section_title: 'Alpinistlərin Üzləşdiyi Əsas Problemlər',
+            route: 'Marşrut Planlaması',
+            route_desc: 'Alpinistlərin çoxu gedəcəyi dağ marşrutu haqqında yetərli məlumata sahib deyil.',
+            shelter: 'Sığınacaq və Gecələmə',
+            shelter_desc: 'Marşrut üzərində təhlükəsiz otel və ya düşərgə yerlərini tapmaqda çətinlik çəkirlər.',
+            food: 'Qida və Su',
+            food_desc: 'Yaxınlıqdakı etibarlı restoran və ya su mənbələrini bilmirlər.',
+            attractions: 'Maraqlı Nöqtələr',
+            attractions_desc: 'Zirvəyə gedən yolda və ya ətrafda olan görməli yerlər haqqında məlumatları yoxdur.',
+            safety: 'Təhlükəsizlik',
+            safety_desc: 'Hava şəraiti, marşrutun çətinliyi və təcili yardım məntəqələri barədə məlumatsız olurlar.',
         },
         en: {
-            section_title: 'Problems Faced by Travelers',
-            route: 'Travel Route',
-            route_desc: 'Most tourists do not have enough information about the country they are visiting.',
-            language: 'Language',
-            language_desc: 'Travelers have difficulty communicating; basic local phrases improve the experience.',
-            culture: 'Culture',
-            culture_desc: 'Tourists do not have information about the country\'s culture.',
-            attractions: 'Attractions',
-            attractions_desc: 'They lack information about places to visit and other interesting points nearby.',
-            cuisine: 'National Cuisine',
-            cuisine_desc: 'Tourists are unfamiliar with the national cuisine and good restaurants of the country.',
+            section_title: 'Key Challenges Faced by Climbers',
+            route: 'Route Planning',
+            route_desc: 'Most climbers lack sufficient information about their intended mountain route.',
+            shelter: 'Shelter and Accommodation',
+            shelter_desc: 'They face difficulties in finding safe hotels or campsites along the route.',
+            food: 'Food and Water',
+            food_desc: 'They are unaware of reliable nearby restaurants or water sources.',
+            attractions: 'Points of Interest',
+            attractions_desc: 'They lack information about attractions on the way to the summit or in the vicinity.',
+            safety: 'Safety',
+            safety_desc: 'They are often uninformed about weather conditions, route difficulty, and emergency points.',
         },
         ru: {
-            section_title: 'Проблемы, с которыми сталкиваются путешественники',
-            route: 'Маршрут путешествия',
-            route_desc: 'Большинство туристов не имеют достаточной информации о стране, которую собираются посетить.',
-            language: 'Язык',
-            language_desc: 'Путешественники испытывают трудности в общении; знание основных местных фраз улучшает опыт.',
-            culture: 'Культура',
-            culture_desc: 'У туристов нет информации о культуре страны.',
-            attractions: 'Достопримечательности',
-            attractions_desc: 'У них нет информации о местах для посещения и других интересных точках поблизости.',
-            cuisine: 'Национальная кухня',
-            cuisine_desc: 'Туристы не знакомы с национальной кухней и хорошими ресторанами страны.',
+            section_title: 'Основные проблемы, с которыми сталкиваются альпинисты',
+            route: 'Планирование маршрута',
+            route_desc: 'Большинство альпинистов не имеют достаточной информации о предстоящем горном маршруте.',
+            shelter: 'Приют и ночлег',
+            shelter_desc: 'Они сталкиваются с трудностями в поиске безопасных отелей или кемпингов на маршруте.',
+            food: 'Еда и вода',
+            food_desc: 'Они не знают о надежных близлежащих ресторанах или источниках воды.',
+            attractions: 'Интересные места',
+            attractions_desc: 'У них нет информации о достопримечательностях на пути к вершине или в окрестностях.',
+            safety: 'Безопасность',
+            safety_desc: 'Они часто не информированы о погодных условиях, сложности маршрута и пунктах экстренной помощи.',
         }
     };
 
@@ -70,11 +70,11 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
     }
     
   const stats = [
-    { icon: Route, percentage: '33.29%', title: content[lang].route, description: content[lang].route_desc },
-    { icon: Languages, percentage: '31.25%', title: content[lang].language, description: content[lang].language_desc },
-    { icon: BookOpen, percentage: '28.67%', title: content[lang].culture, description: content[lang].culture_desc },
-    { icon: MapPinned, percentage: '19.89%', title: content[lang].attractions, description: content[lang].attractions_desc },
-    { icon: UtensilsCrossed, percentage: '14.81%', title: content[lang].cuisine, description: content[lang].cuisine_desc },
+    { icon: Route, percentage: '33%', title: content[lang].route, description: content[lang].route_desc },
+    { icon: Tent, percentage: '28%', title: content[lang].shelter, description: content[lang].shelter_desc },
+    { icon: UtensilsCrossed, percentage: '19%', title: content[lang].food, description: content[lang].food_desc },
+    { icon: MapPinned, percentage: '15%', title: content[lang].attractions, description: content[lang].attractions_desc },
+    { icon: Compass, percentage: '5%', title: content[lang].safety, description: content[lang].safety_desc },
   ];
 
   return (
@@ -94,7 +94,7 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
   );
 }
 
-function AvailableCountries({ countries, loading, lang, onCountryClick }: { countries: Country[], loading: boolean, lang: 'az' | 'en' | 'ru', onCountryClick: (href: string) => void }) {
+function AvailableMountains({ mountains, loading, lang, onMountainClick }: { mountains: Mountain[], loading: boolean, lang: 'az' | 'en' | 'ru', onMountainClick: (href: string) => void }) {
   const { isReadingMode, speakText } = useReadingMode();
 
   if (loading) {
@@ -107,14 +107,14 @@ function AvailableCountries({ countries, loading, lang, onCountryClick }: { coun
     );
   }
 
-  if (countries.length === 0) {
-    return null; // Don't show the section if there are no countries
+  if (mountains.length === 0) {
+    return null; 
   }
   
   const t = {
-      az: 'Mövcud Ölkələr',
-      en: 'Available Countries',
-      ru: 'Доступные страны',
+      az: 'Mövcud Dağlar',
+      en: 'Available Mountains',
+      ru: 'Доступные горы',
   };
 
   const handleSpeak = (text: string) => {
@@ -123,9 +123,8 @@ function AvailableCountries({ countries, loading, lang, onCountryClick }: { coun
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
-    onCountryClick(href);
+    onMountainClick(href);
   };
-
 
   return (
     <div>
@@ -133,27 +132,27 @@ function AvailableCountries({ countries, loading, lang, onCountryClick }: { coun
        <Carousel
         opts={{
           align: "start",
-          loop: countries.length > 3,
+          loop: mountains.length > 3,
         }}
         className="w-full max-w-5xl mx-auto"
       >
         <CarouselContent>
-          {countries.map((country) => {
-            const countryName = (lang === 'en' && country.name_en) ? country.name_en : (lang === 'ru' && country.name_ru) ? country.name_ru : country.name;
-            const href = `/${country.slug}`;
+          {mountains.map((mountain) => {
+            const mountainName = (lang === 'en' && mountain.name_en) ? mountain.name_en : (lang === 'ru' && mountain.name_ru) ? mountain.name_ru : mountain.name;
+            const href = `/${mountain.slug}`;
             return (
-            <CarouselItem key={country.id} className="md:basis-1/2 lg:basis-1/3">
+            <CarouselItem key={mountain.id} className="md:basis-1/2 lg:basis-1/3">
               <div className="p-1 h-full">
                 <a href={href} onClick={(e) => handleClick(e, href)}>
                     <Card className="h-48 overflow-hidden relative group transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]">
                         <Image
-                            src={country.imageUrl}
-                            alt={countryName}
+                            src={mountain.imageUrl}
+                            alt={mountainName}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-2">
-                            <h3 className="font-semibold text-center text-2xl text-white">{countryName}</h3>
+                            <h3 className="font-semibold text-center text-2xl text-white">{mountainName}</h3>
                         </div>
                     </Card>
                 </a>
@@ -168,15 +167,15 @@ function AvailableCountries({ countries, loading, lang, onCountryClick }: { coun
   );
 }
 
-function TravelSection({ countries, loading, lang, onCountryClick }: { countries: Country[], loading: boolean, lang: 'az' | 'en' | 'ru', onCountryClick: (href: string) => void }) {
+function TravelSection({ mountains, loading, lang, onMountainClick }: { mountains: Mountain[], loading: boolean, lang: 'az' | 'en' | 'ru', onMountainClick: (href: string) => void }) {
   const router = useRouter();
   const { isReadingMode, speakText } = useReadingMode();
-  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedMountain, setSelectedMountain] = useState('');
   const [error, setError] = useState('');
 
   const handleGo = () => {
-    if (selectedCountry) {
-      onCountryClick(`/${selectedCountry}`);
+    if (selectedMountain) {
+      onMountainClick(`/${selectedMountain}`);
     } else {
       setError(t.error);
     }
@@ -184,28 +183,28 @@ function TravelSection({ countries, loading, lang, onCountryClick }: { countries
 
   const t = {
     az: {
-        title: 'Səyahətə Başla',
-        placeholder: 'Getmək istədiyiniz ölkəni seçin...',
+        title: 'Zirvəyə Səyahətə Başla',
+        placeholder: 'Fəth etmək istədiyiniz dağı seçin...',
         go: 'Get',
-        error: 'Zəhmət olmasa, getmək istədiyiniz ölkəni seçin.',
-        no_countries_title: 'Hələ Heç Bir Ölkə Əlavə Edilməyib',
-        no_countries_desc: 'Səyahət məlumatlarını görmək üçün admin panelindən yeni bir ölkə əlavə edin.'
+        error: 'Zəhmət olmasa, getmək istədiyiniz dağı seçin.',
+        no_mountains_title: 'Hələ Heç Bir Dağ Əlavə Edilməyib',
+        no_mountains_desc: 'Səyahət məlumatlarını görmək üçün admin panelindən yeni bir dağ əlavə edin.'
     },
     en: {
-        title: 'Start Your Journey',
-        placeholder: 'Select a country to visit...',
+        title: 'Start Your Summit Journey',
+        placeholder: 'Select a mountain to conquer...',
         go: 'Go',
-        error: 'Please select a country you want to visit.',
-        no_countries_title: 'No Countries Added Yet',
-        no_countries_desc: 'Add a new country from the admin panel to see travel information.'
+        error: 'Please select a mountain you want to visit.',
+        no_mountains_title: 'No Mountains Added Yet',
+        no_mountains_desc: 'Add a new mountain from the admin panel to see travel information.'
     },
     ru: {
-        title: 'Начните свое путешествие',
-        placeholder: 'Выберите страну для посещения...',
+        title: 'Начните свое восхождение',
+        placeholder: 'Выберите гору для покорения...',
         go: 'Перейти',
-        error: 'Пожалуйста, выберите страну, которую вы хотите посетить.',
-        no_countries_title: 'Страны еще не добавлены',
-        no_countries_desc: 'Добавьте новую страну в админ-панели, чтобы увидеть туристическую информацию.'
+        error: 'Пожалуйста, выберите гору, которую вы хотите посетить.',
+        no_mountains_title: 'Горы еще не добавлены',
+        no_mountains_desc: 'Добавьте новую гору в админ-панели, чтобы увидеть туристическую информацию.'
     }
   }[lang];
 
@@ -222,12 +221,12 @@ function TravelSection({ countries, loading, lang, onCountryClick }: { countries
     );
   }
 
-  if (countries.length === 0) {
+  if (mountains.length === 0) {
     return (
-      <Card className="p-8 text-center bg-card/50 border-border/50" onMouseEnter={() => handleSpeak(`${t.no_countries_title}. ${t.no_countries_desc}`)}>
+      <Card className="p-8 text-center bg-card/50 border-border/50" onMouseEnter={() => handleSpeak(`${t.no_mountains_title}. ${t.no_mountains_desc}`)}>
           <Compass className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-xl font-bold">{t.no_countries_title}</h3>
-          <p className="text-muted-foreground mt-2">{t.no_countries_desc}</p>
+          <h3 className="text-xl font-bold">{t.no_mountains_title}</h3>
+          <p className="text-muted-foreground mt-2">{t.no_mountains_desc}</p>
       </Card>
     );
   }
@@ -235,20 +234,20 @@ function TravelSection({ countries, loading, lang, onCountryClick }: { countries
   return (
     <Card className="p-8 bg-card/50 border-border/50">
         <div className="flex items-center gap-4 mb-4" onMouseEnter={() => handleSpeak(t.title)}>
-             <Globe className="h-8 w-8 text-primary" />
+             <MountainIcon className="h-8 w-8 text-primary" />
              <h3 className={cn("text-2xl font-bold", isReadingMode && 'cursor-pointer')}>{t.title}</h3>
         </div>
       <div className="flex flex-col sm:flex-row items-center gap-4">
-        <Select onValueChange={setSelectedCountry}>
+        <Select onValueChange={setSelectedMountain}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder={t.placeholder} />
           </SelectTrigger>
           <SelectContent>
-            {countries.map((country) => {
-              const countryName = (lang === 'en' && country.name_en) ? country.name_en : (lang === 'ru' && country.name_ru) ? country.name_ru : country.name;
+            {mountains.map((mountain) => {
+              const mountainName = (lang === 'en' && mountain.name_en) ? mountain.name_en : (lang === 'ru' && mountain.name_ru) ? mountain.name_ru : mountain.name;
               return (
-              <SelectItem key={country.id} value={country.slug}>
-                {countryName}
+              <SelectItem key={mountain.id} value={mountain.slug}>
+                {mountainName}
               </SelectItem>
             )})}
           </SelectContent>
@@ -370,7 +369,7 @@ function CurrencyConverter({ lang }: { lang: 'az' | 'en' | 'ru' }) {
 }
 
 export default function HomePage() {
-  const [countries, setCountries] = useState<Country[]>([]);
+  const [mountains, setMountains] = useState<Mountain[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -406,34 +405,34 @@ export default function HomePage() {
   }, [auth, toast]);
 
   useEffect(() => {
-    async function getCountries() {
+    async function getMountains() {
       if(!firestore) return;
       setLoading(true);
       try {
-        const countryList = await fetchCountries(firestore);
-        setCountries(countryList);
+        const mountainList = await fetchMountains(firestore);
+        setMountains(mountainList);
       } catch (error) {
-        console.error("Failed to fetch countries:", error);
+        console.error("Failed to fetch mountains:", error);
         toast({
           variant: "destructive",
-          title: "Error fetching countries",
-          description: "Could not load the list of countries.",
+          title: "Error fetching mountains",
+          description: "Could not load the list of mountains.",
         });
       } finally {
         setLoading(false);
       }
     }
-    getCountries();
+    getMountains();
   }, [firestore, toast]);
   
-  const handleCountryClick = (href: string) => {
-    triggerAnimation({ icon: Globe, onAnimationEnd: () => router.push(href) });
+  const handleMountainClick = (href: string) => {
+    triggerAnimation({ icon: MountainIcon, onAnimationEnd: () => router.push(href) });
   };
 
   const t = {
-      az: { title: 'Dünyanı Kəşf Edin', subtitle: 'Turism Helper ilə səyahət etdiyiniz ölkələr haqqında hər şeyi bir yerdə tapın.' },
-      en: { title: 'Discover the World', subtitle: 'Find everything about the countries you travel to with Turism Helper, all in one place.' },
-      ru: { title: 'Откройте для себя мир', subtitle: 'С Turism Helper вы найдете все о странах, в которые вы путешествуете, в одном месте.' },
+      az: { title: 'Zirvələri Kəşf Edin', subtitle: 'Dağ Bələdçisi ilə səyahət etdiyiniz dağlar haqqında hər şeyi bir yerdə tapın.' },
+      en: { title: 'Discover the Summits', subtitle: 'Find everything about the mountains you travel to with the Mountain Guide, all in one place.' },
+      ru: { title: 'Откройте для себя вершины', subtitle: 'С Путеводителем по горам вы найдете все о горах, в которые вы путешествуете, в одном месте.' },
   }[lang];
 
   const handleSpeak = (text: string) => {
@@ -455,9 +454,9 @@ export default function HomePage() {
         
         <Stats lang={lang} />
         
-        <AvailableCountries countries={countries} loading={loading} lang={lang} onCountryClick={handleCountryClick} />
+        <AvailableMountains mountains={mountains} loading={loading} lang={lang} onMountainClick={handleMountainClick} />
 
-        <TravelSection countries={countries} loading={loading} lang={lang} onCountryClick={handleCountryClick} />
+        <TravelSection mountains={mountains} loading={loading} lang={lang} onMountainClick={handleMountainClick} />
 
         <CurrencyConverter lang={lang} />
       </main>

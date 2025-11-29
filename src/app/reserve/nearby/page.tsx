@@ -19,7 +19,7 @@ function ReservationContent() {
 
   const name = searchParams.get('name') || 'Restaurant';
   const imageUrl = searchParams.get('image');
-  const countrySlug = searchParams.get('countrySlug') || '';
+  const mountainSlug = searchParams.get('mountainSlug') || '';
   
   const [lang, setLang] = useState<Lang>('az');
 
@@ -43,14 +43,11 @@ function ReservationContent() {
     ru: { back: 'Назад', not_available: 'Изображение недоступно', nearby_restaurant: 'Ближайший ресторан', description: 'Пожалуйста, заполните форму ниже, чтобы сделать бронирование.', details: 'Детали бронирования' },
   }[pageLang];
 
-
-  // Create a mock InfoItem for the reservation form
   const mockItem: InfoItem = {
     id: `nearby-${name.replace(/\s+/g, '-').toLowerCase()}`,
     name: name,
-    countrySlug: countrySlug,
-    // Add other required fields with default/mock values
-    countryId: '',
+    mountainSlug: mountainSlug,
+    mountainId: '',
     category: 'restaurants',
     description: `Reservation for ${name}`,
   };

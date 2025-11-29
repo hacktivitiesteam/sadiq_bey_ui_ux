@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from '@/components/ui/sheet';
-import { Country, InfoItem, InfoCategory } from '@/lib/definitions';
+import { Mountain, InfoItem, InfoCategory } from '@/lib/definitions';
 import { CATEGORIES } from '@/lib/constants';
 import { createOrUpdateInfoItem } from '@/lib/firebase-actions';
 import { useToast } from '@/hooks/use-toast';
@@ -18,7 +18,7 @@ import { useEffect } from 'react';
 import { useFirestore } from '@/firebase';
 
 const formSchema = z.object({
-  countryId: z.string().min(1, 'Ölkə seçmək məcburidir.'),
+  mountainId: z.string().min(1, 'Dağ seçmək məcburidir.'),
   category: z.string().min(1, 'Kateqoriya seçmək məcburidir.'),
   name: z.string().optional(),
   name_en: z.string().optional(),
@@ -29,11 +29,6 @@ const formSchema = z.object({
   imageUrl: z.string().optional(),
   rating: z.any().optional(),
   price: z.string().optional(),
-  phrase: z.string().optional(),
-  phrase_en: z.string().optional(),
-  phrase_ru: z.string().optional(),
-  translation: z.string().optional(),
-  language: z.string().optional(),
   googleMapsUrl: z.string().url({ message: 'Düzgün bir URL daxil edin.' }).optional().or(z.literal('')),
   ingredients: z.string().optional(),
   ingredients_en: z.string().optional(),
@@ -52,21 +47,14 @@ interface InfoFormSheetProps {
   onOpenChange: (isOpen: boolean) => void;
   onFormSubmit: () => void;
   item?: InfoItem | null;
-  countries: Country[];
+  countries: Mountain[]; // Changed from Country to Mountain
 }
 
-const pronunciationLanguages = [
-    { value: 'az-AZ', label: 'Azərbaycanca' },
-    { value: 'tr-TR', label: 'Türkcə' },
-    { value: 'en-US', label: 'İngiliscə' },
-    { value: 'ru-RU', label: 'Rusca' },
-]
-
-export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item, countries }: InfoFormSheetProps) {
+export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item, countries: mountains }: InfoFormSheetProps) { // Renamed countries to mountains
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      countryId: '',
+      mountainId: '',
       category: '',
       name: '',
       name_en: '',
@@ -76,11 +64,6 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
       description_ru: '',
       imageUrl: '',
       price: '',
-      phrase: '',
-      phrase_en: '',
-      phrase_ru: '',
-      translation: '',
-      language: '',
       googleMapsUrl: '',
       ingredients: '',
       ingredients_en: '',
@@ -104,16 +87,11 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
         description: item?.description || '',
         description_en: item?.description_en || '',
         description_ru: item?.description_ru || '',
-        countryId: item?.countryId || '',
+        mountainId: item?.mountainId || '',
         category: item?.category || '',
         imageUrl: item?.imageUrl || '',
         rating: item?.rating || undefined,
         price: item?.price || '',
-        phrase: item?.phrase || '',
-        phrase_en: item?.phrase_en || '',
-        phrase_ru: item?.phrase_ru || '',
-        translation: item?.translation || '',
-        language: item?.language || '',
         googleMapsUrl: item?.googleMapsUrl || '',
         ingredients: item?.ingredients || '',
         ingredients_en: item?.ingredients_en || '',
@@ -137,14 +115,14 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
     if (!firestore) return;
     
     try {
-      const selectedCountry = countries.find(c => c.id === values.countryId);
-      if (!selectedCountry) {
-        throw new Error("Seçilmiş ölkə tapılmadı.");
+      const selectedMountain = mountains.find(c => c.id === values.mountainId);
+      if (!selectedMountain) {
+        throw new Error("Seçilmiş dağ tapılmadı.");
       }
 
       let itemData: Partial<InfoItem> = {
-        countryId: values.countryId,
-        countrySlug: selectedCountry.slug,
+        mountainId: values.mountainId,
+        mountainSlug: selectedMountain.slug,
         category: values.category as InfoCategory,
         name: values.name || '',
         name_en: values.name_en || '',
@@ -155,11 +133,6 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
         imageUrl: values.imageUrl || '',
         rating: values.rating ? Number(values.rating) : undefined,
         price: values.price || '',
-        phrase: values.phrase || '',
-        phrase_en: values.phrase_en || '',
-        phrase_ru: values.phrase_ru || '',
-        translation: values.translation || '',
-        language: values.language || '',
         googleMapsUrl: values.googleMapsUrl || '',
         ingredients: values.ingredients || '',
         ingredients_en: values.ingredients_en || '',
@@ -197,12 +170,9 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
     }
   }
 
-  const showNameField = !['useful_words'].includes(selectedCategory || '');
-  const showDescriptionField = !['useful_words'].includes(selectedCategory || '');
-
-  const showImageField = ['hotels', 'restaurants', 'attractions', 'cuisine', 'hospitals'].includes(selectedCategory || '');
-  const showLocationFields = ['hotels', 'restaurants', 'attractions', 'hospitals'].includes(selectedCategory || '');
-  const showPhoneField = ['hospitals', 'hotels', 'restaurants'].includes(selectedCategory || '');
+  const showImageField = ['hotels', 'restaurants', 'attractions', 'cuisine'].includes(selectedCategory || '');
+  const showLocationFields = ['hotels', 'restaurants', 'attractions'].includes(selectedCategory || '');
+  const showPhoneField = ['hotels', 'restaurants'].includes(selectedCategory || '');
   const showPriceField = ['cuisine', 'restaurants', 'hotels'].includes(selectedCategory || '');
   const showRatingField = ['hotels', 'restaurants', 'attractions'].includes(selectedCategory || '');
   
@@ -210,9 +180,6 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
   const showRestaurantFields = selectedCategory === 'restaurants';
   const showHotelFields = selectedCategory === 'hotels';
   const showAttractionFields = selectedCategory === 'attractions';
-
-  const showUsefulWordsFields = selectedCategory === 'useful_words';
-
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -224,19 +191,19 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
             <FormField
               control={form.control}
-              name="countryId"
+              name="mountainId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ölkə</FormLabel>
+                  <FormLabel>Dağ</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Ölkə seçin" />
+                        <SelectValue placeholder="Dağ seçin" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {countries.map(country => (
-                        <SelectItem key={country.id} value={country.id}>{country.name}</SelectItem>
+                      {mountains.map(mountain => (
+                        <SelectItem key={mountain.id} value={mountain.id}>{mountain.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -270,33 +237,29 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
             
             {selectedCategory && (
                 <>
-                    {showNameField && (
-                        <div className="p-4 border rounded-lg space-y-4">
-                            <FormField control={form.control} name="name" render={({ field }) => (
-                                <FormItem><FormLabel>Başlıq (AZ)</FormLabel><FormControl><Input placeholder="Məkanın və ya məlumatın adı" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
-                            )} />
-                             <FormField control={form.control} name="name_en" render={({ field }) => (
-                                <FormItem><FormLabel>Başlıq (EN)</FormLabel><FormControl><Input placeholder="Title in English" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
-                            )} />
-                             <FormField control={form.control} name="name_ru" render={({ field }) => (
-                                <FormItem><FormLabel>Başlıq (RU)</FormLabel><FormControl><Input placeholder="Название на русском" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
-                            )} />
-                        </div>
-                    )}
+                    <div className="p-4 border rounded-lg space-y-4">
+                        <FormField control={form.control} name="name" render={({ field }) => (
+                            <FormItem><FormLabel>Başlıq (AZ)</FormLabel><FormControl><Input placeholder="Məkanın və ya məlumatın adı" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
+                        )} />
+                         <FormField control={form.control} name="name_en" render={({ field }) => (
+                            <FormItem><FormLabel>Başlıq (EN)</FormLabel><FormControl><Input placeholder="Title in English" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
+                        )} />
+                         <FormField control={form.control} name="name_ru" render={({ field }) => (
+                            <FormItem><FormLabel>Başlıq (RU)</FormLabel><FormControl><Input placeholder="Название на русском" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
+                        )} />
+                    </div>
 
-                    {showDescriptionField && (
-                        <div className="p-4 border rounded-lg space-y-4">
-                            <FormField control={form.control} name="description" render={({ field }) => (
-                                <FormItem><FormLabel>Məzmun (AZ)</FormLabel><FormControl><Textarea placeholder="Ətraflı məlumat..." {...field} value={field.value || ''} rows={10} /></FormControl><FormMessage /></FormItem>
-                            )} />
-                            <FormField control={form.control} name="description_en" render={({ field }) => (
-                                <FormItem><FormLabel>Məzmun (EN)</FormLabel><FormControl><Textarea placeholder="Content in English..." {...field} value={field.value || ''} rows={10} /></FormControl><FormMessage /></FormItem>
-                            )} />
-                            <FormField control={form.control} name="description_ru" render={({ field }) => (
-                                <FormItem><FormLabel>Məzmun (RU)</FormLabel><FormControl><Textarea placeholder="Содержимое на русском..." {...field} value={field.value || ''} rows={10} /></FormControl><FormMessage /></FormItem>
-                            )} />
-                        </div>
-                    )}
+                    <div className="p-4 border rounded-lg space-y-4">
+                        <FormField control={form.control} name="description" render={({ field }) => (
+                            <FormItem><FormLabel>Məzmun (AZ)</FormLabel><FormControl><Textarea placeholder="Ətraflı məlumat..." {...field} value={field.value || ''} rows={10} /></FormControl><FormMessage /></FormItem>
+                        )} />
+                        <FormField control={form.control} name="description_en" render={({ field }) => (
+                            <FormItem><FormLabel>Məzmun (EN)</FormLabel><FormControl><Textarea placeholder="Content in English..." {...field} value={field.value || ''} rows={10} /></FormControl><FormMessage /></FormItem>
+                        )} />
+                        <FormField control={form.control} name="description_ru" render={({ field }) => (
+                            <FormItem><FormLabel>Məzmun (RU)</FormLabel><FormControl><Textarea placeholder="Содержимое на русском..." {...field} value={field.value || ''} rows={10} /></FormControl><FormMessage /></FormItem>
+                        )} />
+                    </div>
                     
                     {showImageField && (
                         <FormField control={form.control} name="imageUrl" render={({ field }) => (
@@ -368,46 +331,6 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
                             )} />
                         </div>
                     )}
-
-                    {showUsefulWordsFields && (
-                         <div className="p-4 border rounded-lg space-y-4">
-                            <FormField control={form.control} name="phrase" render={({ field }) => (
-                                <FormItem><FormLabel>İfadə (AZ)</FormLabel><FormControl><Input placeholder="Məs: Salam" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
-                            )} />
-                             <FormField control={form.control} name="phrase_en" render={({ field }) => (
-                                <FormItem><FormLabel>İfadə (EN)</FormLabel><FormControl><Input placeholder="Məs: Hello" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
-                            )} />
-                              <FormField control={form.control} name="phrase_ru" render={({ field }) => (
-                                <FormItem><FormLabel>İfadə (RU)</FormLabel><FormControl><Input placeholder="Məs: Привет" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
-                            )} />
-                            <FormField control={form.control} name="translation" render={({ field }) => (
-                                <FormItem><FormLabel>Tələffüz Ediləcək Söz</FormLabel><FormControl><Input placeholder="Tələffüz üçün söz (məs: Privet)" {...field} value={field.value || ''} /></FormControl><FormMessage><FormDescription>Buraya daxil etdiyiniz söz seçilmiş tələffüz dilində səsləndiriləcək.</FormDescription></FormMessage></FormItem>
-                            )} />
-                            <FormField
-                              control={form.control}
-                              name="language"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Tələffüz dili</FormLabel>
-                                  <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Dil seçin" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {pronunciationLanguages.map(lang => (
-                                        <SelectItem key={lang.value} value={lang.value}>{lang.label}</SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                        </div>
-                    )}
-                    
                 </>
             )}
 

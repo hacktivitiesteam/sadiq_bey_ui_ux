@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { getInfoItemById, getCountryData } from '@/lib/firebase-actions';
-import { InfoItem, Country } from '@/lib/definitions';
+import { getInfoItemById, getMountainData } from '@/lib/firebase-actions';
+import { InfoItem, Mountain } from '@/lib/definitions';
 import AppHeader from '@/components/app/app-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ReservationForm from '@/components/app/reservation-form';
@@ -22,7 +22,7 @@ export default function ReservationPage() {
   const firestore = useFirestore();
   
   const [item, setItem] = useState<InfoItem | null>(null);
-  const [country, setCountry] = useState<Country | null>(null);
+  const [mountain, setMountain] = useState<Mountain | null>(null);
   const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState<Lang>('az');
 
@@ -48,8 +48,8 @@ export default function ReservationPage() {
         const itemData = await getInfoItemById(firestore, itemId);
         setItem(itemData);
         if (itemData) {
-            const countryData = await getCountryData(firestore, itemData.countrySlug);
-            setCountry(countryData);
+            const mountainData = await getMountainData(firestore, itemData.mountainSlug);
+            setMountain(mountainData);
         }
       } catch (error) {
         console.error("Failed to load item data:", error);

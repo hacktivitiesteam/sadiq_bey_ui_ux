@@ -128,7 +128,7 @@ export default function ReservationForm({ item, lang }: ReservationFormProps) {
       const reservationData = {
         itemId: item.id,
         itemName: item.name,
-        countrySlug: item.countrySlug,
+        mountainSlug: item.mountainSlug,
         ...values,
         date: format(values.date, 'yyyy-MM-dd'),
       };
@@ -137,7 +137,7 @@ export default function ReservationForm({ item, lang }: ReservationFormProps) {
         title: t.successTitle,
         description: t.successDesc,
       });
-      router.push(`/reserve/success?country=${item.countrySlug}&lang=${lang}`);
+      router.push(`/reserve/success?mountain=${item.mountainSlug}&lang=${lang}`);
     } catch (error) {
       toast({
         variant: 'destructive',

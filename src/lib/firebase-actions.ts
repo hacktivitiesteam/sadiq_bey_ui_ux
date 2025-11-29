@@ -14,113 +14,75 @@ import {
   serverTimestamp,
   Firestore,
 } from 'firebase/firestore';
-import type { Country, InfoItem, Reservation, InfoCategory, Feedback } from './definitions';
+import type { Mountain, InfoItem, Reservation, InfoCategory, Feedback } from './definitions';
 import { slugify } from './utils';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
-// --- Test Action ---
+// --- Mountain Actions ---
 
-export function testFirestoreWrite(db: Firestore): Promise<any> {
-  const testCol = collection(db, 'test');
-  const testData = {
-    message: 'Hello from the app!',
-    createdAt: serverTimestamp(),
-  };
-  
-  // Return the promise chain
-  return addDoc(testCol, testData).catch(error => {
-    // On failure, create and emit the contextual permission error
-    const permissionError = new FirestorePermissionError({
-      path: testCol.path,
-      operation: 'create',
-      requestResourceData: testData,
-    });
-    errorEmitter.emit('permission-error', permissionError);
-    // It's important to re-throw the error to allow for local error handling if needed,
-    // and to ensure the promise chain remains in a rejected state.
-    throw error;
-  });
+export async function fetchMountains(db: Firestore): Promise<Mountain[]> {
+  const mountainsCol = collection(db, 'mountains');
+  const mountainSnapshot = await getDocs(query(mountainsCol, orderBy('name', 'asc')));
+  const mountainList = mountainSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Mountain));
+  return mountainList;
 }
 
-
-// --- Country Actions ---
-
-export async function fetchCountries(db: Firestore): Promise<Country[]> {
-  const countriesCol = collection(db, 'countries');
-  const countrySnapshot = await getDocs(query(countriesCol, orderBy('name', 'asc')));
-  const countryList = countrySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Country));
-  return countryList;
-}
-
-export async function getCountryData(db: Firestore, countrySlug: string): Promise<Country | null> {
-    const q = query(collection(db, "countries"), where("slug", "==", countrySlug));
+export async function getMountainData(db: Firestore, mountainSlug: string): Promise<Mountain | null> {
+    const q = query(collection(db, "mountains"), where("slug", "==", mountainSlug));
     const querySnapshot = await getDocs(q);
     if (querySnapshot.empty) {
         return null;
     }
     const doc = querySnapshot.docs[0];
-    return { id: doc.id, ...doc.data() } as Country;
+    return { id: doc.id, ...doc.data() } as Mountain;
 }
 
-export async function getCountryBySlug(db: Firestore, slug: string): Promise<Country | null> {
-    const q = query(collection(db, "countries"), where("slug", "==", slug));
-    const querySnapshot = await getDocs(q);
-    if (querySnapshot.empty) {
-        return null;
-    }
-    const countryDoc = querySnapshot.docs[0];
-    return { id: countryDoc.id, ...countryDoc.data() } as Country;
-}
-
-
-export async function createOrUpdateCountry(db: Firestore, country: Omit<Country, 'id' | 'slug'>, id?: string): Promise<void> {
-  const countrySlug = slugify(country.name);
-  const countryData: Partial<Country> = { 
-      ...country, 
-      slug: countrySlug,
+export async function createOrUpdateMountain(db: Firestore, mountain: Omit<Mountain, 'id' | 'slug'>, id?: string): Promise<void> {
+  const mountainSlug = slugify(mountain.name);
+  const mountainData: Partial<Mountain> = { 
+      ...mountain, 
+      slug: mountainSlug,
   };
   
-  Object.keys(countryData).forEach(key => {
-      const itemKey = key as keyof typeof countryData;
-      if (countryData[itemKey] === '' || countryData[itemKey] === undefined || countryData[itemKey] === null) {
-          delete countryData[itemKey];
+  Object.keys(mountainData).forEach(key => {
+      const itemKey = key as keyof typeof mountainData;
+      if (mountainData[itemKey] === '' || mountainData[itemKey] === undefined || mountainData[itemKey] === null) {
+          delete mountainData[itemKey];
       }
   });
 
-
   if (id) {
-    const countryDoc = doc(db, 'countries', id);
-    updateDoc(countryDoc, countryData).catch(error => {
+    const mountainDoc = doc(db, 'mountains', id);
+    updateDoc(mountainDoc, mountainData).catch(error => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({
-            path: countryDoc.path,
+            path: mountainDoc.path,
             operation: 'update',
-            requestResourceData: countryData
+            requestResourceData: mountainData
         }))
     });
   } else {
-    const countriesCol = collection(db, 'countries');
-    addDoc(countriesCol, countryData).catch(error => {
+    const mountainsCol = collection(db, 'mountains');
+    addDoc(mountainsCol, mountainData).catch(error => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({
-            path: countriesCol.path,
+            path: mountainsCol.path,
             operation: 'create',
-            requestResourceData: countryData
+            requestResourceData: mountainData
         }))
     });
   }
 }
 
-export async function deleteCountry(db: Firestore, id: string): Promise<void> {
-  const countryDoc = doc(db, 'countries', id);
-  deleteDoc(countryDoc).catch(error => {
+export async function deleteMountain(db: Firestore, id: string): Promise<void> {
+  const mountainDoc = doc(db, 'mountains', id);
+  deleteDoc(mountainDoc).catch(error => {
     errorEmitter.emit('permission-error', new FirestorePermissionError({
-        path: countryDoc.path,
+        path: mountainDoc.path,
         operation: 'delete'
     }))
   });
-  // Note: Deleting subcollections this way from the client is not recommended for large collections.
-  // A batched write or a cloud function would be better.
-  const infoItemsSnapshot = await getDocs(query(collection(db, 'infoItems'), where('countryId', '==', id)));
+
+  const infoItemsSnapshot = await getDocs(query(collection(db, 'infoItems'), where('mountainId', '==', id)));
   const deletePromises = infoItemsSnapshot.docs.map(doc => deleteDoc(doc.ref));
   await Promise.all(deletePromises);
 }
@@ -134,14 +96,14 @@ export async function fetchAllInfoItems(db: Firestore): Promise<InfoItem[]> {
   return infoItemList;
 }
 
-export async function getItemsForCountry(db: Firestore, countrySlug: string): Promise<InfoItem[]> {
-  const q = query(collection(db, 'infoItems'), where('countrySlug', '==', countrySlug));
+export async function getItemsForMountain(db: Firestore, mountainSlug: string): Promise<InfoItem[]> {
+  const q = query(collection(db, 'infoItems'), where('mountainSlug', '==', mountainSlug));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as InfoItem));
 }
 
-export async function getInfoItems(db: Firestore, countrySlug: string, category: InfoCategory): Promise<InfoItem[]> {
-  const q = query(collection(db, 'infoItems'), where('countrySlug', '==', countrySlug), where('category', '==', category));
+export async function getInfoItems(db: Firestore, mountainSlug: string, category: InfoCategory): Promise<InfoItem[]> {
+  const q = query(collection(db, 'infoItems'), where('mountainSlug', '==', mountainSlug), where('category', '==', category));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as InfoItem));
 }
@@ -194,7 +156,7 @@ export async function createOrUpdateInfoItem(db: Firestore, item: Partial<InfoIt
 
 export async function deleteInfoItem(db: Firestore, id: string): Promise<void> {
   const itemDoc = doc(db, 'infoItems', id);
-deleteDoc(itemDoc).catch(error => {
+  deleteDoc(itemDoc).catch(error => {
     errorEmitter.emit('permission-error', new FirestorePermissionError({
         path: itemDoc.path,
         operation: 'delete'
@@ -207,7 +169,6 @@ deleteDoc(itemDoc).catch(error => {
 
 export async function addReservation(db: Firestore, reservation: Omit<Reservation, 'id' | 'createdAt'>): Promise<void> {
   const reservationsCol = collection(db, 'reservations');
-  // No await here, let it run in the background
   addDoc(reservationsCol, {
     ...reservation,
     createdAt: serverTimestamp()
@@ -232,8 +193,7 @@ export async function getReservations(db: Firestore): Promise<Reservation[]> {
       return {
         id: doc.id,
         ...data,
-        countrySlug: data.countrySlug,
-        // Convert Firestore Timestamp to a serializable format (e.g., ISO string)
+        mountainSlug: data.mountainSlug,
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : null,
       } as Reservation;
     });

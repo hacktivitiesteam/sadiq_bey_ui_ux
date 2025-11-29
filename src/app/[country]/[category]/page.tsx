@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getCountryData, getInfoItems } from '@/lib/firebase-actions';
-import type { Country, InfoItem, InfoCategory } from '@/lib/definitions';
+import { getMountainData, getInfoItems } from '@/lib/firebase-actions';
+import type { Mountain, InfoItem, InfoCategory } from '@/lib/definitions';
 import { CATEGORIES } from '@/lib/constants';
 import AppHeader from '@/components/app/app-header';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, MapPin, Phone, Star, Ticket, Volume2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Phone, Star, Ticket } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,9 +33,6 @@ const t = (lang: Lang) => ({
         back: 'Geri',
         noInfo: 'Məlumat Tapılmadı',
         noInfoDesc: 'Bu kateqoriya üçün hələ heç bir məlumat əlavə edilməyib.',
-        pronunciationError: 'Tələffüz Xətası',
-        pronunciationErrorDesc: 'Tələffüz üçün mətn və ya dil təyin edilməyib.',
-        pronunciationErrorGeneric: 'Tələffüz zamanı xəta baş verdi.',
     },
     en: {
         location: 'Location',
@@ -48,9 +45,6 @@ const t = (lang: Lang) => ({
         back: 'Back',
         noInfo: 'No Information Found',
         noInfoDesc: 'No information has been added for this category yet.',
-        pronunciationError: 'Pronunciation Error',
-        pronunciationErrorDesc: 'Missing text or language for pronunciation.',
-        pronunciationErrorGeneric: 'An error occurred during pronunciation.',
     },
     ru: {
         location: 'Местоположение',
@@ -63,9 +57,6 @@ const t = (lang: Lang) => ({
         back: 'Назад',
         noInfo: 'Информация не найдена',
         noInfoDesc: 'Для этой категории еще не добавлена информация.',
-        pronunciationError: 'Ошибка произношения',
-        pronunciationErrorDesc: 'Отсутствует текст или язык для произношения.',
-        pronunciationErrorGeneric: 'Произошла ошибка при произношении.',
     }
 }[lang]);
 
@@ -86,7 +77,7 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
         const params = new URLSearchParams({
             name: item.nearbyRestaurants,
             image: item.nearbyRestaurantImageUrl || '',
-            countrySlug: item.countrySlug,
+            mountainSlug: item.mountainSlug,
             lang: lang,
         });
         return `/reserve/nearby?${params.toString()}`;
@@ -198,97 +189,14 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
     );
 }
 
-function PhraseCard({ item, lang }: { item: InfoItem, lang: Lang }) {
-    const { toast } = useToast();
-    const { isReadingMode, speakText } = useReadingMode();
-    const trans = t(lang);
-    
-    const topPhrase = lang === 'en' ? item.phrase_en : lang === 'ru' ? item.phrase_ru : item.phrase;
-    const bottomPhrase = item.translation;
-
-    const handleSpeak = (textToSpeak: string | undefined, speechLang: string | undefined) => {
-        if (typeof window === 'undefined' || !window.speechSynthesis) {
-            toast({
-                variant: "destructive",
-                title: "Unsupported Browser",
-                description: "Your browser does not support text-to-speech.",
-            });
-            return;
-        }
-
-        if (!textToSpeak || !speechLang) {
-            toast({
-                variant: "destructive",
-                title: trans.pronunciationError,
-                description: trans.pronunciationErrorDesc,
-            });
-            return;
-        }
-
-        window.speechSynthesis.cancel();
-        
-        const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        utterance.lang = speechLang;
-        
-        utterance.onerror = (event) => {
-            console.error("SpeechSynthesisUtterance.onerror", event);
-        };
-        
-        window.speechSynthesis.speak(utterance);
-    };
-
-    return (
-        <Card className="p-4 transition-transform duration-300 hover:-translate-y-1">
-            <CardContent className="p-0 flex items-center justify-between">
-                <div className="space-y-1">
-                    <p className="text-lg font-semibold">{topPhrase}</p>
-                    <p className="text-muted-foreground">{bottomPhrase}</p>
-                </div>
-                {item.translation && item.language && (
-                  <Button variant="ghost" size="icon" onClick={() => handleSpeak(bottomPhrase, item.language)}>
-                      <Volume2 className="h-6 w-6" />
-                  </Button>
-                )}
-            </CardContent>
-        </Card>
-    );
-}
-
-
-function ItemDetails({ item, lang }: { item: InfoItem, lang: Lang }) {
-    const { isReadingMode, speakText } = useReadingMode();
-    const name = (lang === 'en' && item.name_en) ? item.name_en : (lang === 'ru' && item.name_ru) ? item.name_ru : item.name;
-    const description = (lang === 'en' && item.description_en) ? item.description_en : (lang === 'ru' && item.description_ru) ? item.description_ru : item.description;
-
-    const handleSpeak = (text: string | undefined) => {
-        if (text) speakText(text, lang === 'az' ? 'tr-TR' : `${lang}-${lang.toUpperCase()}`);
-    }
-
-    return (
-        <Card className="w-full max-w-4xl mx-auto overflow-hidden shadow-lg rounded-xl transition-transform duration-300 hover:-translate-y-1">
-             {item.imageUrl && (
-                <div className="relative h-64 w-full">
-                    <Image src={item.imageUrl} alt={name || 'Image'} fill className="object-cover" />
-                </div>
-             )}
-            <CardHeader onMouseEnter={() => handleSpeak(name)} className={cn(isReadingMode && 'cursor-pointer hover:bg-muted/50')}>
-                <CardTitle className="text-3xl font-bold">{name}</CardTitle>
-            </CardHeader>
-            <CardContent className={cn("space-y-6", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(description?.replace(/<[^>]+>/g, ''))}>
-                <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: description?.replace(/\n/g, '<br />') || '' }} />
-            </CardContent>
-        </Card>
-    );
-}
-
 export default function CategoryPage() {
   const params = useParams();
   const router = useRouter();
-  const countrySlug = Array.isArray(params.country) ? params.country[0] : params.country;
+  const mountainSlug = Array.isArray(params.country) ? params.country[0] : params.country;
   const categoryId = Array.isArray(params.category) ? params.category[0] : params.category as InfoCategory;
   const firestore = useFirestore();
 
-  const [country, setCountry] = useState<Country | null>(null);
+  const [mountain, setMountain] = useState<Mountain | null>(null);
   const [items, setItems] = useState<InfoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [globalLang, setGlobalLang] = useState<Lang>('az');
@@ -312,16 +220,16 @@ export default function CategoryPage() {
   const categoryDetails = CATEGORIES.find(c => c.id === categoryId);
 
   useEffect(() => {
-    if (!countrySlug || !categoryId || !firestore) return;
+    if (!mountainSlug || !categoryId || !firestore) return;
 
     async function loadData() {
       setLoading(true);
       try {
-        const countryData = await getCountryData(firestore, countrySlug);
-        setCountry(countryData);
+        const mountainData = await getMountainData(firestore, mountainSlug);
+        setMountain(mountainData);
         
-        if (countryData) {
-            const itemsData = await getInfoItems(firestore, countrySlug, categoryId);
+        if (mountainData) {
+            const itemsData = await getInfoItems(firestore, mountainSlug, categoryId);
             setItems(itemsData);
         }
 
@@ -332,7 +240,7 @@ export default function CategoryPage() {
       }
     }
     loadData();
-  }, [countrySlug, categoryId, firestore]);
+  }, [mountainSlug, categoryId, firestore]);
   
 
   const handleSpeak = (text: string | undefined) => {
@@ -342,7 +250,7 @@ export default function CategoryPage() {
   const renderContent = () => {
     if (loading) {
       const gridCols = 'md:grid-cols-2 lg:grid-cols-3';
-      const cardHeight = categoryId === 'useful_words' ? 'h-24' : 'h-96';
+      const cardHeight = 'h-96';
       return (
         <div className={`grid gap-6 ${gridCols}`}>
           {[...Array(6)].map((_, i) => (
@@ -361,26 +269,6 @@ export default function CategoryPage() {
         )
     }
 
-    if (categoryId === 'useful_words') {
-      return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {items.map(item => (
-            <PhraseCard key={item.id} item={item} lang={pageLang} />
-          ))}
-        </div>
-      );
-    }
-    
-    if (['essentials', 'culture'].includes(categoryId)) {
-      return (
-        <div className="space-y-8">
-          {items.map(item => (
-            <ItemDetails key={item.id} item={item} lang={pageLang} />
-          ))}
-        </div>
-      );
-    }
-
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {items.map(item => (
@@ -390,7 +278,7 @@ export default function CategoryPage() {
     );
   };
   
-  const countryName = (pageLang === 'en' && country?.name_en) ? country.name_en : (pageLang === 'ru' && country?.name_ru) ? country.name_ru : country?.name;
+  const mountainName = (pageLang === 'en' && mountain?.name_en) ? mountain.name_en : (pageLang === 'ru' && mountain?.name_ru) ? mountain.name_ru : mountain?.name;
   const categoryName = (pageLang === 'en' ? categoryDetails?.name : (pageLang === 'ru' && categoryDetails?.name_ru) ? categoryDetails?.name_ru : categoryDetails?.name_az);
 
   return (
@@ -400,7 +288,7 @@ export default function CategoryPage() {
         <div className="mb-8 space-y-2">
              <Button variant="ghost" onClick={() => router.back()} className="pl-0">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                {countryName || trans.back}
+                {mountainName || trans.back}
             </Button>
             <h1 className={cn("text-4xl font-extrabold tracking-tight lg:text-5xl font-headline", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(categoryName)}>
                 {categoryName}

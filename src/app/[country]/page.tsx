@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getCountryData, getItemsForCountry } from '@/lib/firebase-actions';
-import type { Country, InfoItem } from '@/lib/definitions';
+import { getMountainData, getItemsForMountain } from '@/lib/firebase-actions';
+import type { Mountain, InfoItem } from '@/lib/definitions';
 import { CATEGORIES } from '@/lib/constants';
 import AppHeader from '@/components/app/app-header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,15 +17,15 @@ import { useAnimation } from '@/components/app/animation-provider';
 import { useReadingMode } from '@/components/app/reading-mode-provider';
 import { cn } from '@/lib/utils';
 
-export default function CountryPage() {
+export default function MountainPage() {
   const params = useParams();
   const router = useRouter();
-  const countrySlug = Array.isArray(params.country) ? params.country[0] : params.country;
+  const mountainSlug = Array.isArray(params.country) ? params.country[0] : params.country;
   const firestore = useFirestore();
   const { triggerAnimation } = useAnimation();
   const { isReadingMode, speakText } = useReadingMode();
   
-  const [country, setCountry] = useState<Country | null>(null);
+  const [mountain, setMountain] = useState<Mountain | null>(null);
   const [items, setItems] = useState<InfoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState<'az' | 'en' | 'ru'>('az');
@@ -45,40 +45,40 @@ export default function CountryPage() {
   const pageLang = lang;
 
   useEffect(() => {
-    if (!countrySlug || !firestore) return;
+    if (!mountainSlug || !firestore) return;
 
     async function loadData() {
       setLoading(true);
       try {
-        const countryData = await getCountryData(firestore, countrySlug);
-        setCountry(countryData);
+        const mountainData = await getMountainData(firestore, mountainSlug);
+        setMountain(mountainData);
 
-        if (countryData) {
-            const itemsData = await getItemsForCountry(firestore, countrySlug);
+        if (mountainData) {
+            const itemsData = await getItemsForMountain(firestore, mountainSlug);
             setItems(itemsData);
         }
 
       } catch (error) {
-        console.error("Failed to load country data:", error);
+        console.error("Failed to load mountain data:", error);
       } finally {
         setLoading(false);
       }
     }
     loadData();
-  }, [countrySlug, firestore]);
+  }, [mountainSlug, firestore]);
   
   const availableCategories = CATEGORIES.filter(cat => 
     items.some(item => item.category === cat.id)
   );
   
-  const countryName = (lang === 'en' && country?.name_en) ? country.name_en : (lang === 'ru' && country?.name_ru) ? country.name_ru : country?.name;
-  const countryDescription = (lang === 'en' && country?.description_en) ? country.description_en : (lang === 'ru' && country?.description_ru) ? country.description_ru : country?.description;
+  const mountainName = (lang === 'en' && mountain?.name_en) ? mountain.name_en : (lang === 'ru' && mountain?.name_ru) ? mountain.name_ru : mountain?.name;
+  const mountainDescription = (lang === 'en' && mountain?.description_en) ? mountain.description_en : (lang === 'ru' && mountain?.description_ru) ? mountain.description_ru : mountain?.description;
 
 
     const t = {
-        az: { discover: 'Kəşf edin', all_countries: 'Bütün ölkələr', not_found: 'Ölkə tapılmadı.' },
-        en: { discover: 'Discover', all_countries: 'All Countries', not_found: 'Country not found.' },
-        ru: { discover: 'Откройте для себя', all_countries: 'Все страны', not_found: 'Страна не найдена.' },
+        az: { discover: 'Kəşf edin', all_mountains: 'Bütün dağlar', not_found: 'Dağ tapılmadı.' },
+        en: { discover: 'Discover', all_mountains: 'All Mountains', not_found: 'Mountain not found.' },
+        ru: { discover: 'Откройте для себя', all_mountains: 'Все горы', not_found: 'Гора не найдена.' },
     }[pageLang];
 
   const handleCategoryClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, Icon: LucideIcon) => {
@@ -107,20 +107,20 @@ export default function CountryPage() {
       );
     }
 
-    if (!country) {
+    if (!mountain) {
       return <div className="text-center py-20">{t.not_found}</div>;
     }
 
     return (
       <div>
         <div className="relative h-96 w-full">
-          <Image src={country.imageUrl} alt={countryName || ''} fill objectFit="cover" className="brightness-75" />
+          <Image src={mountain.imageUrl} alt={mountainName || ''} fill objectFit="cover" className="brightness-75" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         </div>
         <div className="container mx-auto px-4 md:px-6 -mt-24 relative z-10">
-          <Card className={cn("p-6 shadow-lg", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(`${countryName}. ${countryDescription}`)}>
-            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl font-headline text-primary">{countryName}</h1>
-            <p className="mt-4 text-lg text-muted-foreground">{countryDescription}</p>
+          <Card className={cn("p-6 shadow-lg", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(`${mountainName}. ${mountainDescription}`)}>
+            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl font-headline text-primary">{mountainName}</h1>
+            <p className="mt-4 text-lg text-muted-foreground">{mountainDescription}</p>
           </Card>
         </div>
 
@@ -130,7 +130,7 @@ export default function CountryPage() {
                 {availableCategories.map(category => {
                     const CategoryIcon = category.icon;
                     const categoryName = pageLang === 'en' ? category.name : (pageLang === 'ru' && category.name_ru) ? category.name_ru : category.name_az;
-                    const href = `/${country.slug}/${category.id}`;
+                    const href = `/${mountain.slug}/${category.id}`;
                     return (
                         <a key={category.id} href={href} onClick={(e) => handleCategoryClick(e, href, CategoryIcon)}>
                             <Card className={cn("p-4 hover:bg-muted transition-all duration-300 group hover:-translate-y-1", isReadingMode && 'cursor-pointer')} onMouseEnter={() => handleSpeak(categoryName)}>
@@ -151,7 +151,6 @@ export default function CountryPage() {
     );
   }
 
-
   return (
     <>
       <AppHeader lang={lang} setLang={handleSetLang} />
@@ -159,7 +158,7 @@ export default function CountryPage() {
         <div className="container mx-auto px-4 md:px-6 pt-6">
             <Link href="/home" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                {t.all_countries}
+                {t.all_mountains}
             </Link>
         </div>
       </div>

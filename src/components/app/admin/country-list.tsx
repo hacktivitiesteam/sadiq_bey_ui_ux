@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { fetchCountries, deleteCountry } from '@/lib/firebase-actions';
-import { Country } from '@/lib/definitions';
+import { fetchMountains, deleteMountain } from '@/lib/firebase-actions';
+import { Mountain } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MoreHorizontal, PlusCircle, Trash2, Edit } from 'lucide-react';
@@ -14,58 +14,58 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFirestore } from '@/firebase';
 
-export default function CountryList() {
-  const [countries, setCountries] = useState<Country[]>([]);
+export default function MountainList() {
+  const [mountains, setMountains] = useState<Mountain[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const [selectedMountain, setSelectedMountain] = useState<Mountain | null>(null);
   const { toast } = useToast();
   const firestore = useFirestore();
 
-  const loadCountries = useCallback(async () => {
+  const loadMountains = useCallback(async () => {
     if (!firestore) return;
     setLoading(true);
     try {
-      const data = await fetchCountries(firestore);
-      setCountries(data);
+      const data = await fetchMountains(firestore);
+      setMountains(data);
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Xəta', description: 'Ölkələri yükləmək mümkün olmadı.' });
+      toast({ variant: 'destructive', title: 'Xəta', description: 'Dağları yükləmək mümkün olmadı.' });
     } finally {
       setLoading(false);
     }
   }, [firestore, toast]);
 
   useEffect(() => {
-    loadCountries();
-  }, [loadCountries]);
+    loadMountains();
+  }, [loadMountains]);
 
   const handleAddClick = () => {
-    setSelectedCountry(null);
+    setSelectedMountain(null);
     setIsFormOpen(true);
   };
 
-  const handleEditClick = (country: Country) => {
-    setSelectedCountry(country);
+  const handleEditClick = (mountain: Mountain) => {
+    setSelectedMountain(mountain);
     setIsFormOpen(true);
   };
 
-  const handleDeleteClick = (country: Country) => {
-    setSelectedCountry(country);
+  const handleDeleteClick = (mountain: Mountain) => {
+    setSelectedMountain(mountain);
     setIsAlertOpen(true);
   };
 
   const confirmDelete = async () => {
-    if (!selectedCountry || !firestore) return;
+    if (!selectedMountain || !firestore) return;
     try {
-      await deleteCountry(firestore, selectedCountry.id);
-      toast({ title: 'Uğurlu', description: `${selectedCountry.name} ölkəsi silindi.` });
-      loadCountries();
+      await deleteMountain(firestore, selectedMountain.id);
+      toast({ title: 'Uğurlu', description: `${selectedMountain.name} dağı silindi.` });
+      loadMountains();
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Xəta', description: 'Ölkəni silmək mümkün olmadı.' });
+      toast({ variant: 'destructive', title: 'Xəta', description: 'Dağı silmək mümkün olmadı.' });
     } finally {
       setIsAlertOpen(false);
-      setSelectedCountry(null);
+      setSelectedMountain(null);
     }
   };
 
@@ -83,16 +83,16 @@ export default function CountryList() {
     <div className="space-y-4">
       <div className="flex justify-end">
         <Button onClick={handleAddClick}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Yeni Ölkə Əlavə Et
+          <PlusCircle className="mr-2 h-4 w-4" /> Yeni Dağ Əlavə Et
         </Button>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {countries.map((country) => (
-          <Card key={country.id} className="relative group">
-            <Image src={country.imageUrl} alt={country.name} width={400} height={200} className="rounded-t-lg object-cover w-full aspect-video" />
+        {mountains.map((mountain) => (
+          <Card key={mountain.id} className="relative group">
+            <Image src={mountain.imageUrl} alt={mountain.name} width={400} height={200} className="rounded-t-lg object-cover w-full aspect-video" />
             <div className="p-4">
-              <CardTitle>{country.name}</CardTitle>
-              <CardDescription className="line-clamp-2">{country.description}</CardDescription>
+              <CardTitle>{mountain.name}</CardTitle>
+              <CardDescription className="line-clamp-2">{mountain.description}</CardDescription>
             </div>
             <div className="absolute top-2 right-2">
               <DropdownMenu>
@@ -102,10 +102,10 @@ export default function CountryList() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleEditClick(country)}>
+                  <DropdownMenuItem onClick={() => handleEditClick(mountain)}>
                     <Edit className="mr-2 h-4 w-4" /> Redaktə et
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleDeleteClick(country)} className="text-red-500">
+                  <DropdownMenuItem onClick={() => handleDeleteClick(mountain)} className="text-red-500">
                     <Trash2 className="mr-2 h-4 w-4" /> Sil
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -118,8 +118,8 @@ export default function CountryList() {
       <CountryForm
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        onFormSubmit={loadCountries}
-        country={selectedCountry}
+        onFormSubmit={loadMountains}
+        country={selectedMountain}
       />
 
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
@@ -127,7 +127,7 @@ export default function CountryList() {
           <AlertDialogHeader>
             <AlertDialogTitle>Silməni təsdiqləyirsiz?</AlertDialogTitle>
             <AlertDialogDescription>
-              Bu əməliyyat geri qaytarıla bilməz. Bu, '{selectedCountry?.name}' ölkəsini və ona aid bütün məlumatları sistemdən siləcək.
+              Bu əməliyyat geri qaytarıla bilməz. Bu, '{selectedMountain?.name}' dağını və ona aid bütün məlumatları sistemdən siləcək.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -1,6 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
-import CountryList from '@/components/app/admin/country-list';
+import MountainList from '@/components/app/admin/country-list';
 import InfoDataTable from '@/components/app/admin/info-data-table';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,21 +15,21 @@ export default function AdminDashboardPage() {
         <p className="text-muted-foreground">Məzmun idarəetməsi.</p>
       </div>
 
-      <Tabs defaultValue="countries">
+      <Tabs defaultValue="mountains">
         <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
-          <TabsTrigger value="countries">Ölkələr</TabsTrigger>
+          <TabsTrigger value="mountains">Dağlar</TabsTrigger>
           <TabsTrigger value="info-items">Məlumatlar</TabsTrigger>
         </TabsList>
-        <TabsContent value="countries">
+        <TabsContent value="mountains">
           <Card>
             <CardHeader>
-              <CardTitle>Ölkə İdarəetməsi</CardTitle>
+              <CardTitle>Dağ İdarəetməsi</CardTitle>
               <CardDescription>
-                Yeni ölkələr əlavə edin, mövcud olanları redaktə edin və ya silin.
+                Yeni dağlar əlavə edin, mövcud olanları redaktə edin və ya silin.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <CountryList />
+              <MountainList />
             </CardContent>
           </Card>
         </TabsContent>
@@ -39,7 +38,7 @@ export default function AdminDashboardPage() {
              <CardHeader>
               <CardTitle>Məlumat İdarəetməsi</CardTitle>
               <CardDescription>
-                Ölkələr üçün otel, restoran, mədəniyyət və s. kimi məlumatları idarə edin.
+                Dağlar üçün otel, restoran, mədəniyyət və s. kimi məlumatları idarə edin.
               </CardDescription>
             </CardHeader>
             <CardContent>

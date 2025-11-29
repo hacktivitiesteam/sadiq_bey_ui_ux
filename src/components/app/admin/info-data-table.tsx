@@ -21,8 +21,8 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { MoreHorizontal, PlusCircle, Edit, Trash2, Filter } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
-import { Country, InfoItem } from '@/lib/definitions';
-import { fetchAllInfoItems, fetchCountries, deleteInfoItem } from '@/lib/firebase-actions';
+import { Mountain, InfoItem } from '@/lib/definitions';
+import { fetchAllInfoItems, fetchMountains, deleteInfoItem } from '@/lib/firebase-actions';
 import { useToast } from '@/hooks/use-toast';
 import InfoFormSheet from './info-form-sheet';
 import { CATEGORIES } from '@/lib/constants';
@@ -31,7 +31,7 @@ import { useFirestore } from '@/firebase';
 
 export default function InfoDataTable() {
   const [data, setData] = React.useState<InfoItem[]>([]);
-  const [countries, setCountries] = React.useState<Country[]>([]);
+  const [mountains, setMountains] = React.useState<Mountain[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -50,9 +50,9 @@ export default function InfoDataTable() {
     if (!firestore) return;
     setLoading(true);
     try {
-      const [itemsData, countriesData] = await Promise.all([fetchAllInfoItems(firestore), fetchCountries(firestore)]);
+      const [itemsData, mountainsData] = await Promise.all([fetchAllInfoItems(firestore), fetchMountains(firestore)]);
       setData(itemsData);
-      setCountries(countriesData);
+      setMountains(mountainsData);
     } catch (error) {
       toast({ variant: 'destructive', title: 'Xəta', description: 'Məlumatları yükləmək mümkün olmadı.' });
     } finally {
@@ -83,7 +83,7 @@ export default function InfoDataTable() {
     if (!selectedItem || !firestore) return;
     try {
       await deleteInfoItem(firestore, selectedItem.id);
-      toast({ title: 'Uğurlu', description: `'${selectedItem.name || selectedItem.phrase}' məlumatı silindi.` });
+      toast({ title: 'Uğurlu', description: `'${selectedItem.name}' məlumatı silindi.` });
       loadData();
     } catch (error) {
       toast({ variant: 'destructive', title: 'Xəta', description: 'Məlumatı silmək mümkün olmadı.' });
@@ -93,9 +93,9 @@ export default function InfoDataTable() {
     }
   };
 
-  const countryMap = React.useMemo(() => {
-    return new Map(countries.map(c => [c.id, c.name]));
-  }, [countries]);
+  const mountainMap = React.useMemo(() => {
+    return new Map(mountains.map(c => [c.id, c.name]));
+  }, [mountains]);
 
   const categoryMap = React.useMemo(() => {
     return new Map(CATEGORIES.map(c => [c.id, c.name_az]));
@@ -105,12 +105,12 @@ export default function InfoDataTable() {
     {
       accessorKey: 'name',
       header: 'Başlıq',
-      cell: ({ row }) => <div className="font-medium">{row.original.name || row.original.phrase}</div>,
+      cell: ({ row }) => <div className="font-medium">{row.original.name}</div>,
     },
     {
-      accessorKey: 'countryId',
-      header: 'Ölkə',
-      cell: ({ row }) => countryMap.get(row.getValue('countryId')) || 'Bilinmir',
+      accessorKey: 'mountainId',
+      header: 'Dağ',
+      cell: ({ row }) => mountainMap.get(row.getValue('mountainId')) || 'Bilinmir',
       filterFn: (row, id, value) => value.includes(row.getValue(id)),
     },
     {
@@ -197,23 +197,23 @@ export default function InfoDataTable() {
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline">
                         <Filter className="mr-2 h-4 w-4" />
-                        Ölkə
+                        Dağ
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                    {countries.map(country => (
+                    {mountains.map(mountain => (
                         <DropdownMenuCheckboxItem
-                            key={country.id}
-                            checked={(table.getColumn('countryId')?.getFilterValue() as string[] || []).includes(country.id)}
+                            key={mountain.id}
+                            checked={(table.getColumn('mountainId')?.getFilterValue() as string[] || []).includes(mountain.id)}
                             onCheckedChange={checked => {
-                                const currentFilter = (table.getColumn('countryId')?.getFilterValue() as string[] || []);
+                                const currentFilter = (table.getColumn('mountainId')?.getFilterValue() as string[] || []);
                                 const newFilter = checked 
-                                    ? [...currentFilter, country.id]
-                                    : currentFilter.filter(id => id !== country.id);
-                                table.getColumn('countryId')?.setFilterValue(newFilter.length ? newFilter : undefined);
+                                    ? [...currentFilter, mountain.id]
+                                    : currentFilter.filter(id => id !== mountain.id);
+                                table.getColumn('mountainId')?.setFilterValue(newFilter.length ? newFilter : undefined);
                             }}
                         >
-                            {country.name}
+                            {mountain.name}
                         </DropdownMenuCheckboxItem>
                     ))}
                 </DropdownMenuContent>
@@ -296,14 +296,14 @@ export default function InfoDataTable() {
         onOpenChange={setIsFormSheetOpen}
         onFormSubmit={loadData}
         item={selectedItem}
-        countries={countries}
+        countries={mountains}
       />
        <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Silməni təsdiqləyirsiz?</AlertDialogTitle>
             <AlertDialogDescription>
-              Bu əməliyyat geri qaytarıla bilməz. Bu, '{selectedItem?.name || selectedItem?.phrase}' məlumatını sistemdən siləcək.
+              Bu əməliyyat geri qaytarıla bilməz. Bu, '{selectedItem?.name}' məlumatını sistemdən siləcək.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -11,7 +11,7 @@ type Lang = 'az' | 'en' | 'ru';
 function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const countrySlug = searchParams.get('country');
+  const mountainSlug = searchParams.get('mountain');
   
   const [lang, setLang] = useState<Lang>('az');
 
@@ -25,9 +25,9 @@ function SuccessContent() {
   const pageLang = lang;
   
   const t = {
-    az: { title: 'Rezervasiya Uğurludur!', description: 'Rezervasiyanız uğurla qeydə alındı. Təyin etdiyiniz zamanda sizi gözləyəcəyik.', new_reservation: 'Yeni Rezervasiya', back_to_country: 'Ölkəyə Qayıt' },
-    en: { title: 'Reservation Successful!', description: 'Your reservation has been successfully registered. We will be waiting for you at the appointed time.', new_reservation: 'New Reservation', back_to_country: 'Back to Country' },
-    ru: { title: 'Бронирование успешно!', description: 'Ваше бронирование успешно зарегистрировано. Мы будем ждать вас в назначенное время.', new_reservation: 'Новое бронирование', back_to_country: 'Вернуться в страну' },
+    az: { title: 'Rezervasiya Uğurludur!', description: 'Rezervasiyanız uğurla qeydə alındı. Təyin etdiyiniz zamanda sizi gözləyəcəyik.', new_reservation: 'Yeni Rezervasiya', back_to_mountain: 'Dağ Səhifəsinə Qayıt' },
+    en: { title: 'Reservation Successful!', description: 'Your reservation has been successfully registered. We will be waiting for you at the appointed time.', new_reservation: 'New Reservation', back_to_mountain: 'Back to Mountain Page' },
+    ru: { title: 'Бронирование успешно!', description: 'Ваше бронирование успешно зарегистрировано. Мы будем ждать вас в назначенное время.', new_reservation: 'Новое бронирование', back_to_mountain: 'Вернуться на страницу горы' },
   }[pageLang];
 
 
@@ -45,8 +45,8 @@ function SuccessContent() {
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row gap-2">
             <Button className="w-full" variant="outline" onClick={() => router.back()}>{t.new_reservation}</Button>
-            {countrySlug && (
-                <Button className="w-full" onClick={() => router.push(`/${countrySlug}`)}>{t.back_to_country}</Button>
+            {mountainSlug && (
+                <Button className="w-full" onClick={() => router.push(`/${mountainSlug}`)}>{t.back_to_mountain}</Button>
             )}
         </CardContent>
       </Card>

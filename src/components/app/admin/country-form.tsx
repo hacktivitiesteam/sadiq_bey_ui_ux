@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { Country } from '@/lib/definitions';
-import { createOrUpdateCountry } from '@/lib/firebase-actions';
+import { Mountain } from '@/lib/definitions';
+import { createOrUpdateMountain } from '@/lib/firebase-actions';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useFirestore } from '@/firebase';
@@ -25,14 +25,14 @@ const formSchema = z.object({
   imageUrl: z.string().url({ message: 'Düzgün bir URL daxil edin.' }),
 });
 
-interface CountryFormProps {
+interface MountainFormProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onFormSubmit: () => void;
-  country?: Country | null;
+  country?: Mountain | null; // Changed from Country to Mountain
 }
 
-export default function CountryForm({ isOpen, onOpenChange, onFormSubmit, country }: CountryFormProps) {
+export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, country: mountain }: MountainFormProps) { // Renamed country to mountain
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,15 +51,15 @@ export default function CountryForm({ isOpen, onOpenChange, onFormSubmit, countr
   const firestore = useFirestore();
 
   useEffect(() => {
-    if (country) {
+    if (mountain) {
       form.reset({
-        name: country.name,
-        name_en: country.name_en || '',
-        name_ru: country.name_ru || '',
-        description: country.description,
-        description_en: country.description_en || '',
-        description_ru: country.description_ru || '',
-        imageUrl: country.imageUrl,
+        name: mountain.name,
+        name_en: mountain.name_en || '',
+        name_ru: mountain.name_ru || '',
+        description: mountain.description,
+        description_en: mountain.description_en || '',
+        description_ru: mountain.description_ru || '',
+        imageUrl: mountain.imageUrl,
       });
     } else {
       form.reset({
@@ -72,16 +72,16 @@ export default function CountryForm({ isOpen, onOpenChange, onFormSubmit, countr
         imageUrl: '',
       });
     }
-  }, [country, form]);
+  }, [mountain, form]);
 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if(!firestore) return;
     try {
-      await createOrUpdateCountry(firestore, values, country?.id);
+      await createOrUpdateMountain(firestore, values, mountain?.id);
       toast({
         title: 'Uğurlu Əməliyyat',
-        description: `Ölkə uğurla ${country ? 'yeniləndi' : 'yaradıldı'}.`,
+        description: `Dağ uğurla ${mountain ? 'yeniləndi' : 'yaradıldı'}.`,
       });
       onFormSubmit();
       onOpenChange(false);
@@ -99,7 +99,7 @@ export default function CountryForm({ isOpen, onOpenChange, onFormSubmit, countr
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{country ? 'Ölkəni Redaktə Et' : 'Yeni Ölkə Əlavə Et'}</DialogTitle>
+          <DialogTitle>{mountain ? 'Dağı Redaktə Et' : 'Yeni Dağ Əlavə Et'}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -108,9 +108,9 @@ export default function CountryForm({ isOpen, onOpenChange, onFormSubmit, countr
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ölkə Adı (AZ)</FormLabel>
+                  <FormLabel>Dağ Adı (AZ)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Məsələn: Azərbaycan" {...field} />
+                    <Input placeholder="Məsələn: Şahdağ" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -121,9 +121,9 @@ export default function CountryForm({ isOpen, onOpenChange, onFormSubmit, countr
               name="name_en"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ölkə Adı (EN)</FormLabel>
+                  <FormLabel>Dağ Adı (EN)</FormLabel>
                   <FormControl>
-                    <Input placeholder="E.g.: Azerbaijan" {...field} />
+                    <Input placeholder="E.g.: Shahdag" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -134,9 +134,9 @@ export default function CountryForm({ isOpen, onOpenChange, onFormSubmit, countr
               name="name_ru"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ölkə Adı (RU)</FormLabel>
+                  <FormLabel>Dağ Adı (RU)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Напр.: Азербайджан" {...field} />
+                    <Input placeholder="Напр.: Шахдаг" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -149,7 +149,7 @@ export default function CountryForm({ isOpen, onOpenChange, onFormSubmit, countr
                 <FormItem>
                   <FormLabel>Təsvir (AZ)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Ölkə haqqında qısa məlumat..." {...field} />
+                    <Textarea placeholder="Dağ haqqında qısa məlumat..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -162,7 +162,7 @@ export default function CountryForm({ isOpen, onOpenChange, onFormSubmit, countr
                 <FormItem>
                   <FormLabel>Təsvir (EN)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Brief information about the country..." {...field} />
+                    <Textarea placeholder="Brief information about the mountain..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -175,7 +175,7 @@ export default function CountryForm({ isOpen, onOpenChange, onFormSubmit, countr
                 <FormItem>
                   <FormLabel>Təsvir (RU)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Краткая информация о стране..." {...field} />
+                    <Textarea placeholder="Краткая информация о горе..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -202,7 +202,7 @@ export default function CountryForm({ isOpen, onOpenChange, onFormSubmit, countr
               </DialogClose>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {country ? 'Yenilə' : 'Əlavə Et'}
+                {mountain ? 'Yenilə' : 'Əlavə Et'}
               </Button>
             </DialogFooter>
           </form>
