@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth, useFirestore } from '@/firebase';
 import { getMountainData, startTour, updateTour, endTour } from '@/lib/firebase-actions';
 import { useToast } from '@/hooks/use-toast';
-import { Mountain, Tour } from '@/lib/definitions';
+import { Mountain } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -43,6 +43,7 @@ const translations = {
     error_location: 'Məkan məlumatı əldə edilə bilmədi.',
     back_to_mountain: 'Dağ Səhifəsinə Qayıt',
     checking_permissions: 'İcazələr yoxlanılır...',
+    error_permissions_missing: 'Turu başlada bilmədik: Zəhmət olmasa, kamera və məkan icazələrini verin.',
   },
   en: {
     tour_with: 'Tour',
@@ -68,6 +69,7 @@ const translations = {
     error_location: 'Could not get location data.',
     back_to_mountain: 'Back to Mountain Page',
     checking_permissions: 'Checking permissions...',
+    error_permissions_missing: 'Could not start tour: Please grant camera and location permissions.',
   },
 };
 
@@ -204,6 +206,16 @@ export default function TourPage() {
 
   // --- Handlers ---
   const handleStart = async () => {
+    // Show popup/toast if permissions are not granted on click
+    if (!hasCameraPermission || !hasLocationPermission) {
+        toast({
+            variant: "destructive",
+            title: t.error_title,
+            description: t.error_permissions_missing
+        });
+        return;
+    }
+
     if (!firestore || !user || !mountain) return;
     setTourStatus('starting');
     try {
@@ -333,7 +345,7 @@ export default function TourPage() {
                             <AlertDescription>{t.location_access_desc}</AlertDescription>
                           </Alert>
                         )}
-                        <Button onClick={handleStart} className="w-full" size="lg" disabled={!permissionsGranted || permissionsLoading || tourStatus === 'starting'}>
+                        <Button onClick={handleStart} className="w-full" size="lg" disabled={tourStatus === 'starting'}>
                            {permissionsLoading ? (
                               <>
                                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
