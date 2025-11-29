@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { fetchMountains } from '@/lib/firebase-actions';
+import { fetchMountains, getUserProfile } from '@/lib/firebase-actions';
 import type { Mountain } from '@/lib/definitions';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,8 @@ import { useReadingMode } from '@/components/app/reading-mode-provider';
 import { cn } from '@/lib/utils';
 import { useAnimation } from '@/components/app/animation-provider';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
+import { doc, getDoc } from 'firebase/firestore';
 
 function ProfileCompletionAlert({ lang }: { lang: 'az' | 'en' }) {
     const { user, isUserLoading } = useUser();
@@ -27,15 +29,13 @@ function ProfileCompletionAlert({ lang }: { lang: 'az' | 'en' }) {
 
     useEffect(() => {
         if (user && firestore) {
-            // A simple check. You can expand this to check for all voluntary fields.
-            // For now, let's just check if a 'gender' field exists.
             const checkProfile = async () => {
-                const userDocRef = doc(firestore, 'users', user.uid);
-                const docSnap = await getDoc(userDocRef);
-                if (docSnap.exists() && docSnap.data().gender) {
-                    setIsProfileComplete(true);
-                } else {
+                const profile = await getUserProfile(firestore, user.uid);
+                // Profile is incomplete if any of the voluntary fields are missing
+                if (!profile || !profile.gender || !profile.age || !profile.family) {
                     setIsProfileComplete(false);
+                } else {
+                    setIsProfileComplete(true);
                 }
             };
             checkProfile();
