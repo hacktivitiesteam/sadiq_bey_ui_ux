@@ -246,15 +246,18 @@ export async function startTour(db: Firestore, userId: string, mountainId: strin
         userName: userName || `User ${userId.substring(0, 6)}`,
     };
     const toursCol = collection(db, 'tours');
-    const docRef = await addDoc(toursCol, tourData).catch(error => {
+    try {
+        const docRef = await addDoc(toursCol, tourData);
+        return docRef.id;
+    } catch (error) {
         errorEmitter.emit('permission-error', new FirestorePermissionError({
             path: toursCol.path,
             operation: 'create',
             requestResourceData: tourData,
         }));
+        // Re-throw the error so the calling function can catch it and show a toast.
         throw error;
-    });
-    return docRef.id;
+    }
 }
 
 

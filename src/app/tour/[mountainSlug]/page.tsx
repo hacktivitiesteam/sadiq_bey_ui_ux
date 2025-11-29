@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { getDistance } from 'geolib';
 
 type Lang = 'az' | 'en';
-type TourStatus = 'pending' | 'active' | 'paused' | 'completed' | 'error';
+type TourStatus = 'pending' | 'starting' | 'active' | 'paused' | 'completed' | 'error';
 
 const translations = {
   az: {
@@ -32,13 +32,14 @@ const translations = {
     speed: 'Sürət',
     duration: 'Müddət',
     start_tour: 'Tura Başla',
+    starting_tour: 'Başladılır...',
     pause_tour: 'Fasilə ver',
     resume_tour: 'Davam et',
     end_tour: 'Turu Bitir',
     tour_completed: 'Tur Tamamlandı!',
     tour_completed_desc: 'Təbriklər! Siz {distance} km məsafə qət etdiniz.',
     error_title: 'Xəta',
-    error_start_tour: 'Turu başlada bilmədik. İcazələri yoxlayın.',
+    error_start_tour: 'Turu başlada bilmədik. İcazələri yoxlayın və ya problem davam edərsə yenidən cəhd edin.',
     error_location: 'Məkan məlumatı əldə edilə bilmədi.',
     back_to_mountain: 'Dağ Səhifəsinə Qayıt',
     checking_permissions: 'İcazələr yoxlanılır...',
@@ -56,13 +57,14 @@ const translations = {
     speed: 'Speed',
     duration: 'Duration',
     start_tour: 'Start Tour',
+    starting_tour: 'Starting...',
     pause_tour: 'Pause Tour',
     resume_tour: 'Resume Tour',
     end_tour: 'End Tour',
     tour_completed: 'Tour Completed!',
     tour_completed_desc: 'Congratulations! You have covered a distance of {distance} km.',
     error_title: 'Error',
-    error_start_tour: 'Could not start tour. Check permissions.',
+    error_start_tour: 'Could not start tour. Check permissions or try again if the problem persists.',
     error_location: 'Could not get location data.',
     back_to_mountain: 'Back to Mountain Page',
     checking_permissions: 'Checking permissions...',
@@ -203,6 +205,7 @@ export default function TourPage() {
   // --- Handlers ---
   const handleStart = async () => {
     if (!firestore || !user || !mountain) return;
+    setTourStatus('starting');
     try {
         const newTourId = await startTour(firestore, user.uid, mountain.id, mountain.name, user.displayName);
         setTourId(newTourId);
@@ -210,8 +213,13 @@ export default function TourPage() {
         lastPosition.current = null;
         setDistance(0);
         setDuration(0);
-    } catch {
-        toast({ variant: 'destructive', title: t.error_title, description: t.error_start_tour });
+    } catch (error: any) {
+        toast({ 
+            variant: 'destructive', 
+            title: t.error_title, 
+            description: `${t.error_start_tour} (${error.message || 'Unknown error'})`
+        });
+        setTourStatus('pending'); // Reset status on failure
     }
   };
 
@@ -256,12 +264,17 @@ export default function TourPage() {
           </Alert>
         )}
         
-        {tourStatus === 'pending' && (
-          <Button onClick={handleStart} className="w-full" size="lg" disabled={!permissionsGranted || permissionsLoading}>
+        {tourStatus === 'pending' || tourStatus === 'starting' ? (
+          <Button onClick={handleStart} className="w-full" size="lg" disabled={!permissionsGranted || permissionsLoading || tourStatus === 'starting'}>
              {permissionsLoading ? (
                 <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     {t.checking_permissions}
+                </>
+             ) : tourStatus === 'starting' ? (
+                <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t.starting_tour}
                 </>
              ) : (
                 <>
@@ -269,7 +282,7 @@ export default function TourPage() {
                 </>
              )}
           </Button>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );
