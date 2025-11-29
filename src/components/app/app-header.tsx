@@ -23,15 +23,14 @@ import { useTheme } from 'next-themes';
 
 
 interface LanguageSwitcherProps {
-  currentLang: 'az' | 'en' | 'ru';
-  setLang: (lang: 'az' | 'en' | 'ru') => void;
+  currentLang: 'az' | 'en';
+  setLang: (lang: 'az' | 'en') => void;
   translations: any;
 }
 
 const languages = [
     { code: 'az', name: 'AZ', flag: '🇦🇿' },
     { code: 'en', name: 'EN', flag: '🇬🇧' },
-    { code: 'ru', name: 'RU', flag: '🇷🇺' },
 ] as const;
 
 
@@ -39,7 +38,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ currentLang, setLan
   const { triggerAnimation } = useAnimation();
   const selectedLanguage = languages.find(l => l.code === currentLang);
 
-  const handleLanguageChange = (e: Event, langCode: 'az' | 'en' | 'ru') => {
+  const handleLanguageChange = (e: Event, langCode: 'az' | 'en') => {
       e.preventDefault();
       triggerAnimation({
           icon: Languages,
@@ -63,7 +62,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ currentLang, setLan
                         {languages.map((lang) => (
                         <DropdownMenuItem key={lang.code} onSelect={(e) => handleLanguageChange(e, lang.code)}>
                             <span className={cn("flex w-full items-center justify-between", currentLang === lang.code && "font-bold")}>
-                                <span>{lang.flag} {lang.name === 'AZ' ? 'Azərbaycanca' : lang.name === 'EN' ? 'English' : 'Русский'}</span>
+                                <span>{lang.flag} {lang.name === 'AZ' ? 'Azərbaycanca' : 'English'}</span>
                                 {currentLang === lang.code && <Check className="h-4 w-4" />}
                             </span>
                         </DropdownMenuItem>
@@ -172,8 +171,8 @@ function ThemeToggle({ translations }: { translations: any }) {
 
 interface AppHeaderProps {
     isAdmin?: boolean;
-    lang?: 'az' | 'en' | 'ru';
-    setLang?: (lang: 'az' | 'en' | 'ru') => void;
+    lang?: 'az' | 'en';
+    setLang?: (lang: 'az' | 'en') => void;
 }
 
 const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
@@ -185,7 +184,7 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
       triggerAnimation({ icon: PenSquare, onAnimationEnd: () => router.push(href) });
   };
   
-    const t = (lang: 'az' | 'en' | 'ru' = 'az') => ({
+    const t = (lang: 'az' | 'en' = 'az') => ({
       az: {
         user_panel: 'İstifadəçi Paneli',
         change_language: 'Dili dəyişdir',
@@ -207,17 +206,6 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
         light: 'Light',
         dark: 'Dark',
         system: 'System',
-      },
-      ru: {
-        user_panel: 'Панель пользователя',
-        change_language: 'Сменить язык',
-        contact_us: 'Связаться с нами',
-        communication_aid: 'Помощник по общению',
-        reading_mode: 'Режим чтения',
-        toggle_theme: 'Переключить тему',
-        light: 'Светлая',
-        dark: 'Темная',
-        system: 'Системная',
       },
     }[lang]);
     

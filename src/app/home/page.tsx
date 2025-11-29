@@ -21,7 +21,7 @@ import { useReadingMode } from '@/components/app/reading-mode-provider';
 import { cn } from '@/lib/utils';
 import { useAnimation } from '@/components/app/animation-provider';
 
-function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
+function Stats({ lang }: { lang: 'az' | 'en' }) {
     const { isReadingMode, speakText } = useReadingMode();
     const content = {
         az: {
@@ -49,19 +49,6 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
             attractions_desc: 'They lack information about attractions on the way to the summit or in the vicinity.',
             safety: 'Safety',
             safety_desc: 'They are often uninformed about weather conditions, route difficulty, and emergency points.',
-        },
-        ru: {
-            section_title: 'Основные проблемы, с которыми сталкиваются альпинисты',
-            route: 'Планирование маршрута',
-            route_desc: 'Большинство альпинистов не имеют достаточной информации о предстоящем горном маршруте.',
-            shelter: 'Приют и ночлег',
-            shelter_desc: 'Они сталкиваются с трудностями в поиске безопасных отелей или кемпингов на маршруте.',
-            food: 'Еда и вода',
-            food_desc: 'Они не знают о надежных близлежащих ресторанах или источниках воды.',
-            attractions: 'Интересные места',
-            attractions_desc: 'У них нет информации о достопримечательностях на пути к вершине или в окрестностях.',
-            safety: 'Безопасность',
-            safety_desc: 'Они часто не информированы о погодных условиях, сложности маршрута и пунктах экстренной помощи.',
         }
     };
 
@@ -94,7 +81,7 @@ function Stats({ lang }: { lang: 'az' | 'en' | 'ru' }) {
   );
 }
 
-function AvailableMountains({ mountains, loading, lang, onMountainClick }: { mountains: Mountain[], loading: boolean, lang: 'az' | 'en' | 'ru', onMountainClick: (href: string) => void }) {
+function AvailableMountains({ mountains, loading, lang, onMountainClick }: { mountains: Mountain[], loading: boolean, lang: 'az' | 'en', onMountainClick: (href: string) => void }) {
   const { isReadingMode, speakText } = useReadingMode();
 
   if (loading) {
@@ -114,7 +101,6 @@ function AvailableMountains({ mountains, loading, lang, onMountainClick }: { mou
   const t = {
       az: 'Mövcud Dağlar',
       en: 'Available Mountains',
-      ru: 'Доступные горы',
   };
 
   const handleSpeak = (text: string) => {
@@ -138,7 +124,7 @@ function AvailableMountains({ mountains, loading, lang, onMountainClick }: { mou
       >
         <CarouselContent>
           {mountains.map((mountain) => {
-            const mountainName = (lang === 'en' && mountain.name_en) ? mountain.name_en : (lang === 'ru' && mountain.name_ru) ? mountain.name_ru : mountain.name;
+            const mountainName = (lang === 'en' && mountain.name_en) ? mountain.name_en : mountain.name;
             const href = `/${mountain.slug}`;
             return (
             <CarouselItem key={mountain.id} className="md:basis-1/2 lg:basis-1/3">
@@ -167,7 +153,7 @@ function AvailableMountains({ mountains, loading, lang, onMountainClick }: { mou
   );
 }
 
-function TravelSection({ mountains, loading, lang, onMountainClick }: { mountains: Mountain[], loading: boolean, lang: 'az' | 'en' | 'ru', onMountainClick: (href: string) => void }) {
+function TravelSection({ mountains, loading, lang, onMountainClick }: { mountains: Mountain[], loading: boolean, lang: 'az' | 'en', onMountainClick: (href: string) => void }) {
   const router = useRouter();
   const { isReadingMode, speakText } = useReadingMode();
   const [selectedMountain, setSelectedMountain] = useState('');
@@ -197,14 +183,6 @@ function TravelSection({ mountains, loading, lang, onMountainClick }: { mountain
         error: 'Please select a mountain you want to visit.',
         no_mountains_title: 'No Mountains Added Yet',
         no_mountains_desc: 'Add a new mountain from the admin panel to see travel information.'
-    },
-    ru: {
-        title: 'Начните свое восхождение',
-        placeholder: 'Выберите гору для покорения...',
-        go: 'Перейти',
-        error: 'Пожалуйста, выберите гору, которую вы хотите посетить.',
-        no_mountains_title: 'Горы еще не добавлены',
-        no_mountains_desc: 'Добавьте новую гору в админ-панели, чтобы увидеть туристическую информацию.'
     }
   }[lang];
 
@@ -244,7 +222,7 @@ function TravelSection({ mountains, loading, lang, onMountainClick }: { mountain
           </SelectTrigger>
           <SelectContent>
             {mountains.map((mountain) => {
-              const mountainName = (lang === 'en' && mountain.name_en) ? mountain.name_en : (lang === 'ru' && mountain.name_ru) ? mountain.name_ru : mountain.name;
+              const mountainName = (lang === 'en' && mountain.name_en) ? mountain.name_en : mountain.name;
               return (
               <SelectItem key={mountain.id} value={mountain.slug}>
                 {mountainName}
@@ -261,7 +239,7 @@ function TravelSection({ mountains, loading, lang, onMountainClick }: { mountain
   );
 }
 
-function CurrencyConverter({ lang }: { lang: 'az' | 'en' | 'ru' }) {
+function CurrencyConverter({ lang }: { lang: 'az' | 'en' }) {
   const [amount, setAmount] = useState('100');
   const [fromCurrency, setFromCurrency] = useState('AZN');
   const [toCurrency, setToCurrency] = useState('USD');
@@ -280,7 +258,6 @@ function CurrencyConverter({ lang }: { lang: 'az' | 'en' | 'ru' }) {
    const t = {
         az: { title: 'Valyuta Konvertoru', amount: 'Məbləğ', from: 'Hansı valyutadan', to: 'Hansı valyutaya', negative_error: 'Mənfi dəyər çevirmək olmaz.' },
         en: { title: 'Currency Converter', amount: 'Amount', from: 'From', to: 'To', negative_error: 'Cannot convert a negative value.' },
-        ru: { title: 'Конвертер валют', amount: 'Сумма', from: 'Из', to: 'В', negative_error: 'Нельзя конвертировать отрицательное значение.' },
     }[lang];
   
   const handleConversion = useCallback(() => {
@@ -374,19 +351,19 @@ export default function HomePage() {
   const { toast } = useToast();
   const firestore = useFirestore();
   const auth = useAuth();
-  const [lang, setLang] = useState<'az' | 'en' | 'ru'>('az');
+  const [lang, setLang] = useState<'az' | 'en'>('az');
   const router = useRouter();
   const { isReadingMode, speakText } = useReadingMode();
   const { triggerAnimation } = useAnimation();
 
   useEffect(() => {
-    const savedLang = localStorage.getItem('app-lang') as 'az' | 'en' | 'ru' | null;
+    const savedLang = localStorage.getItem('app-lang') as 'az' | 'en' | null;
     if (savedLang) {
       setLang(savedLang);
     }
   }, []);
 
-  const handleSetLang = (newLang: 'az' | 'en' | 'ru') => {
+  const handleSetLang = (newLang: 'az' | 'en') => {
     setLang(newLang);
     localStorage.setItem('app-lang', newLang);
   };
@@ -432,7 +409,6 @@ export default function HomePage() {
   const t = {
       az: { title: 'Zirvələri Kəşf Edin', subtitle: 'Dağ Bələdçisi ilə səyahət etdiyiniz dağlar haqqında hər şeyi bir yerdə tapın.' },
       en: { title: 'Discover the Summits', subtitle: 'Find everything about the mountains you travel to with the Mountain Guide, all in one place.' },
-      ru: { title: 'Откройте для себя вершины', subtitle: 'С Путеводителем по горам вы найдете все о горах, в которые вы путешествуете, в одном месте.' },
   }[lang];
 
   const handleSpeak = (text: string) => {

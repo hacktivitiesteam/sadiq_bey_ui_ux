@@ -14,35 +14,40 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useFirestore } from '@/firebase';
 import { useEffect } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Ad (AZ) ən azı 2 hərf olmalıdır.' }),
   name_en: z.string().optional(),
-  name_ru: z.string().optional(),
   description: z.string().min(10, { message: 'Təsvir (AZ) ən azı 10 hərf olmalıdır.' }),
   description_en: z.string().optional(),
-  description_ru: z.string().optional(),
   imageUrl: z.string().url({ message: 'Düzgün bir URL daxil edin.' }),
+  height: z.coerce.number().positive({ message: 'Hündürlük müsbət ədəd olmalıdır.' }).optional(),
+  bestSeason: z.string().optional(),
+  difficulty: z.enum(['Asan', 'Orta', 'Çətin', 'Ekstremal']).optional(),
+  latitude: z.coerce.number().optional(),
+  longitude: z.coerce.number().optional(),
+  temperature: z.string().optional(),
 });
 
 interface MountainFormProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onFormSubmit: () => void;
-  country?: Mountain | null; // Changed from Country to Mountain
+  country?: Mountain | null; // Renaming to mountain internally
 }
 
-export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, country: mountain }: MountainFormProps) { // Renamed country to mountain
+export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, country: mountain }: MountainFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
       name_en: '',
-      name_ru: '',
       description: '',
       description_en: '',
-      description_ru: '',
       imageUrl: '',
+      bestSeason: '',
+      temperature: '',
     },
   });
 
@@ -55,21 +60,29 @@ export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, count
       form.reset({
         name: mountain.name,
         name_en: mountain.name_en || '',
-        name_ru: mountain.name_ru || '',
         description: mountain.description,
         description_en: mountain.description_en || '',
-        description_ru: mountain.description_ru || '',
         imageUrl: mountain.imageUrl,
+        height: mountain.height,
+        bestSeason: mountain.bestSeason,
+        difficulty: mountain.difficulty,
+        latitude: mountain.latitude,
+        longitude: mountain.longitude,
+        temperature: mountain.temperature,
       });
     } else {
       form.reset({
         name: '',
         name_en: '',
-        name_ru: '',
         description: '',
         description_en: '',
-        description_ru: '',
         imageUrl: '',
+        height: undefined,
+        bestSeason: '',
+        difficulty: undefined,
+        latitude: undefined,
+        longitude: undefined,
+        temperature: '',
       });
     }
   }, [mountain, form]);
@@ -97,104 +110,118 @@ export default function MountainForm({ isOpen, onOpenChange, onFormSubmit, count
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{mountain ? 'Dağı Redaktə Et' : 'Yeni Dağ Əlavə Et'}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
+            {/* Basic Info */}
+            <div className='p-4 border rounded-lg space-y-4'>
+                <FormField control={form.control} name="name" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Dağ Adı (AZ)</FormLabel>
+                        <FormControl><Input placeholder="Məsələn: Şahdağ" {...field} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )} />
+                <FormField control={form.control} name="name_en" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Dağ Adı (EN)</FormLabel>
+                        <FormControl><Input placeholder="E.g.: Shahdag" {...field} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )} />
+            </div>
+
+            {/* Description */}
+            <div className='p-4 border rounded-lg space-y-4'>
+                <FormField control={form.control} name="description" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Təsvir (AZ)</FormLabel>
+                        <FormControl><Textarea placeholder="Dağ haqqında qısa məlumat..." {...field} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )} />
+                <FormField control={form.control} name="description_en" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Təsvir (EN)</FormLabel>
+                        <FormControl><Textarea placeholder="Brief information about the mountain..." {...field} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )} />
+            </div>
+            
+            {/* Image */}
+            <FormField control={form.control} name="imageUrl" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dağ Adı (AZ)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Məsələn: Şahdağ" {...field} />
-                  </FormControl>
-                  <FormMessage />
+                    <FormLabel>Şəkil URL</FormLabel>
+                    <FormControl><Input placeholder="https://example.com/image.jpg" {...field} /></FormControl>
+                    <FormMessage />
                 </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name_en"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Dağ Adı (EN)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="E.g.: Shahdag" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="name_ru"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Dağ Adı (RU)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Напр.: Шахдаг" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Təsvir (AZ)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Dağ haqqında qısa məlumat..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description_en"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Təsvir (EN)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Brief information about the mountain..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="description_ru"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Təsvir (RU)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Краткая информация о горе..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Şəkil URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://example.com/image.jpg" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
+            )} />
+
+            {/* Mountain Details */}
+            <div className='p-4 border rounded-lg space-y-4'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                    <FormField control={form.control} name="height" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Hündürlük (m)</FormLabel>
+                            <FormControl><Input type="number" placeholder="4243" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    <FormField control={form.control} name="difficulty" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Çətinlik Səviyyəsi</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Səviyyə seçin" /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Asan">Asan</SelectItem>
+                                    <SelectItem value="Orta">Orta</SelectItem>
+                                    <SelectItem value="Çətin">Çətin</SelectItem>
+                                    <SelectItem value="Ekstremal">Ekstremal</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                </div>
+                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                    <FormField control={form.control} name="bestSeason" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Ən Yaxşı Mövsüm</FormLabel>
+                            <FormControl><Input placeholder="İyun-Avqust" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    <FormField control={form.control} name="temperature" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Ortalama Temperatur (°C)</FormLabel>
+                            <FormControl><Input placeholder="5°C - 15°C" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                </div>
+                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                    <FormField control={form.control} name="latitude" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Enlik (Latitude)</FormLabel>
+                            <FormControl><Input type="number" step="any" placeholder="41.032" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    <FormField control={form.control} name="longitude" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Uzunluq (Longitude)</FormLabel>
+                            <FormControl><Input type="number" step="any" placeholder="48.271" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                </div>
+            </div>
+
+            <DialogFooter className='pt-4'>
               <DialogClose asChild>
                 <Button type="button" variant="secondary">
                   Ləğv et

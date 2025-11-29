@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { InfoItem } from '@/lib/definitions';
 
-type Lang = 'az' | 'en' | 'ru';
+type Lang = 'az' | 'en';
 
 function ReservationContent() {
   const router = useRouter();
@@ -40,7 +40,6 @@ function ReservationContent() {
   const t = {
     az: { back: 'Geri', not_available: 'Şəkil yoxdur', nearby_restaurant: 'Yaxınlıqdakı Restoran', description: 'Rezervasiya etmək üçün aşağıdakı formu doldurun.', details: 'Rezervasiya Detalları' },
     en: { back: 'Back', not_available: 'Image not available', nearby_restaurant: 'Nearby Restaurant', description: 'Please fill out the form below to make a reservation.', details: 'Reservation Details' },
-    ru: { back: 'Назад', not_available: 'Изображение недоступно', nearby_restaurant: 'Ближайший ресторан', description: 'Пожалуйста, заполните форму ниже, чтобы сделать бронирование.', details: 'Детали бронирования' },
   }[pageLang];
 
   const mockItem: InfoItem = {
@@ -96,7 +95,7 @@ function ReservationContent() {
 }
 
 function ReservationFallback() {
-    const [lang, setLang] = useState<'az' | 'en' | 'ru'>('az');
+    const [lang, setLang] = useState<'az' | 'en'>('az');
      useEffect(() => {
         const savedLang = localStorage.getItem('app-lang') as Lang;
         if (savedLang) {

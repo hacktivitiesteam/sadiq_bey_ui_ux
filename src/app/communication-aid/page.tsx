@@ -48,7 +48,7 @@ import { cn } from '@/lib/utils';
 import { useReadingMode } from '@/components/app/reading-mode-provider';
 import { Separator } from '@/components/ui/separator';
 
-type Lang = 'az' | 'en' | 'ru';
+type Lang = 'az' | 'en';
 
 const translations = (lang: Lang) => ({
   az: {
@@ -147,55 +147,6 @@ const translations = (lang: Lang) => ({
       lostItem: 'I lost my item',
       photo: 'Can you take a photo?',
       souvenir: 'I want to buy a souvenir',
-    },
-  },
-  ru: {
-    title: 'Помощник по общению',
-    description: 'Визуальные средства общения для тех, кто испытывает трудности с речью.',
-    whiteboardTab: 'Доска для письма',
-    whiteboardPlaceholder: 'Напишите ваше сообщение здесь...',
-    clear: 'Очистить',
-    iconBoardTab: 'Доска с иконами',
-    iconBoardDescription: 'Нажмите на иконку, чтобы сообщить о своей потребности.',
-    backToHome: 'Вернуться на главную',
-    categories: {
-      food: 'Еда / Напитки',
-      health: 'Здоровье и безопасность',
-      communication: 'Общение',
-      transport: 'Транспорт и направление',
-      accommodation: 'Проживание и отель',
-      entertainment: 'Развлечения и мероприятия',
-      security: 'Безопасность',
-      general: 'Общие потребности',
-      social: 'Социальные и культурные',
-    },
-    icons: {
-      vegetarian: 'Я хочу вегетарианское/веганское блюдо',
-      drink: 'Я хочу пить',
-      dessert: 'Я хочу десерт',
-      emergency: 'Мне нужна неотложная помощь',
-      medicine: 'Мне нужно лекарство',
-      allergy: 'У меня аллергия',
-      language: 'У меня языковой барьер',
-      translator: 'Мне нужен переводчик',
-      phone: 'Мне нужно позвонить',
-      taxi: 'Мне нужно такси',
-      guide: 'Мне нужен гид',
-      direction: 'Покажите дорогу',
-      roomKey: 'Мне нужен ключ от номера',
-      roomCleaning: 'Пожалуйста, уберите в номере',
-      wifi: 'Мне нужен Wi-Fi',
-      activity: 'Я хочу на экскурсию/мероприятие',
-      ticket: 'Я хочу купить билет',
-      police: 'Мне нужна полиция',
-      danger: 'Произошла авария/опасность',
-      currency: 'Я хочу обменять валюту',
-      water: 'Я хочу воды',
-      restroom: 'Туалет',
-      laundry: 'Мне нужно постирать одежду',
-      lostItem: 'Я потерял свою вещь',
-      photo: 'Можете сфотографировать?',
-      souvenir: 'Я хочу купить сувенир',
     },
   },
 });

@@ -19,7 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useReadingMode } from '@/components/app/reading-mode-provider';
 import { cn } from '@/lib/utils';
 
-type Lang = 'az' | 'en' | 'ru';
+type Lang = 'az' | 'en';
 
 const t = (lang: Lang) => ({
     az: {
@@ -46,18 +46,6 @@ const t = (lang: Lang) => ({
         noInfo: 'No Information Found',
         noInfoDesc: 'No information has been added for this category yet.',
     },
-    ru: {
-        location: 'Местоположение',
-        nearby: 'Ближайший ресторан',
-        showMenu: 'Показать меню',
-        reserve: 'Забронировать',
-        entranceFee: 'Входная плата:',
-        ingredients: 'Ингредиенты:',
-        menu: 'Меню',
-        back: 'Назад',
-        noInfo: 'Информация не найдена',
-        noInfoDesc: 'Для этой категории еще не добавлена информация.',
-    }
 }[lang]);
 
 
@@ -83,9 +71,9 @@ function CardItem({ item, lang }: { item: InfoItem, lang: Lang }) {
         return `/reserve/nearby?${params.toString()}`;
     }
 
-    const name = (lang === 'en' && item.name_en) ? item.name_en : (lang === 'ru' && item.name_ru) ? item.name_ru : item.name;
-    const description = (lang === 'en' && item.description_en) ? item.description_en : (lang === 'ru' && item.description_ru) ? item.description_ru : item.description;
-    const ingredients = (lang === 'en' && item.ingredients_en) ? item.ingredients_en : (lang === 'ru' && item.ingredients_ru) ? item.ingredients_ru : item.ingredients;
+    const name = (lang === 'en' && item.name_en) ? item.name_en : item.name;
+    const description = (lang === 'en' && item.description_en) ? item.description_en : item.description;
+    const ingredients = (lang === 'en' && item.ingredients_en) ? item.ingredients_en : item.ingredients;
     const trans = t(lang);
 
     const handleSpeak = (text: string | undefined) => {
@@ -278,8 +266,8 @@ export default function CategoryPage() {
     );
   };
   
-  const mountainName = (pageLang === 'en' && mountain?.name_en) ? mountain.name_en : (pageLang === 'ru' && mountain?.name_ru) ? mountain.name_ru : mountain?.name;
-  const categoryName = (pageLang === 'en' ? categoryDetails?.name : (pageLang === 'ru' && categoryDetails?.name_ru) ? categoryDetails?.name_ru : categoryDetails?.name_az);
+  const mountainName = (pageLang === 'en' && mountain?.name_en) ? mountain.name_en : mountain?.name;
+  const categoryName = (pageLang === 'en' ? categoryDetails?.name : categoryDetails?.name_az);
 
   return (
     <>

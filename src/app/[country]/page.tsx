@@ -28,16 +28,16 @@ export default function MountainPage() {
   const [mountain, setMountain] = useState<Mountain | null>(null);
   const [items, setItems] = useState<InfoItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [lang, setLang] = useState<'az' | 'en' | 'ru'>('az');
+  const [lang, setLang] = useState<'az' | 'en'>('az');
   
   useEffect(() => {
-    const savedLang = localStorage.getItem('app-lang') as 'az' | 'en' | 'ru';
+    const savedLang = localStorage.getItem('app-lang') as 'az' | 'en';
     if (savedLang) {
       setLang(savedLang);
     }
   }, []);
 
-  const handleSetLang = (newLang: 'az' | 'en' | 'ru') => {
+  const handleSetLang = (newLang: 'az' | 'en') => {
     setLang(newLang);
     localStorage.setItem('app-lang', newLang);
   };
@@ -71,14 +71,13 @@ export default function MountainPage() {
     items.some(item => item.category === cat.id)
   );
   
-  const mountainName = (lang === 'en' && mountain?.name_en) ? mountain.name_en : (lang === 'ru' && mountain?.name_ru) ? mountain.name_ru : mountain?.name;
-  const mountainDescription = (lang === 'en' && mountain?.description_en) ? mountain.description_en : (lang === 'ru' && mountain?.description_ru) ? mountain.description_ru : mountain?.description;
+  const mountainName = (lang === 'en' && mountain?.name_en) ? mountain.name_en : mountain?.name;
+  const mountainDescription = (lang === 'en' && mountain?.description_en) ? mountain.description_en : mountain?.description;
 
 
     const t = {
         az: { discover: 'Kəşf edin', all_mountains: 'Bütün dağlar', not_found: 'Dağ tapılmadı.' },
         en: { discover: 'Discover', all_mountains: 'All Mountains', not_found: 'Mountain not found.' },
-        ru: { discover: 'Откройте для себя', all_mountains: 'Все горы', not_found: 'Гора не найдена.' },
     }[pageLang];
 
   const handleCategoryClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, Icon: LucideIcon) => {
@@ -129,7 +128,7 @@ export default function MountainPage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {availableCategories.map(category => {
                     const CategoryIcon = category.icon;
-                    const categoryName = pageLang === 'en' ? category.name : (pageLang === 'ru' && category.name_ru) ? category.name_ru : category.name_az;
+                    const categoryName = pageLang === 'en' ? category.name : category.name_az;
                     const href = `/${mountain.slug}/${category.id}`;
                     return (
                         <a key={category.id} href={href} onClick={(e) => handleCategoryClick(e, href, CategoryIcon)}>

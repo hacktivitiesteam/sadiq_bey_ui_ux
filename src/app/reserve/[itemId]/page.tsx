@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Star, ArrowLeft } from 'lucide-react';
 import { useFirestore } from '@/firebase';
 
-type Lang = 'az' | 'en' | 'ru';
+type Lang = 'az' | 'en';
 
 export default function ReservationPage() {
   const params = useParams();
@@ -63,7 +63,6 @@ export default function ReservationPage() {
   const t = {
     az: { back: 'Geri', not_found: 'Məkan tapılmadı.', hotel: 'Otel', restaurant: 'Restoran', details: 'Rezervasiya Detalları' },
     en: { back: 'Back', not_found: 'Location not found.', hotel: 'Hotel', restaurant: 'Restaurant', details: 'Reservation Details' },
-    ru: { back: 'Назад', not_found: 'Место не найдено.', hotel: 'Отель', restaurant: 'Ресторан', details: 'Детали бронирования' },
   }[pageLang];
 
 
@@ -96,8 +95,8 @@ export default function ReservationPage() {
     );
   }
   
-  const name = (pageLang === 'en' && item.name_en) ? item.name_en : (pageLang === 'ru' && item.name_ru) ? item.name_ru : item.name;
-  const description = (pageLang === 'en' && item.description_en) ? item.description_en : (pageLang === 'ru' && item.description_ru) ? item.description_ru : item.description;
+  const name = (pageLang === 'en' && item.name_en) ? item.name_en : item.name;
+  const description = (pageLang === 'en' && item.description_en) ? item.description_en : item.description;
 
   return (
     <>

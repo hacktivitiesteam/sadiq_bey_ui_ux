@@ -5,12 +5,16 @@ export type Mountain = {
   id: string;
   name: string;
   name_en?: string;
-  name_ru?: string;
   slug: string;
   imageUrl: string;
   description: string;
   description_en?: string;
-  description_ru?: string;
+  height?: number;
+  bestSeason?: string;
+  difficulty?: 'Asan' | 'Orta' | 'Çətin' | 'Ekstremal';
+  latitude?: number;
+  longitude?: number;
+  temperature?: string;
 };
 
 export type InfoCategory = 'hotels' | 'restaurants' | 'attractions' | 'cuisine';
@@ -23,11 +27,9 @@ export type InfoItem = {
   
   name: string; 
   name_en?: string;
-  name_ru?: string;
   
   description: string;
   description_en?: string;
-  description_ru?: string;
 
   imageUrl?: string;
   rating?: number;
@@ -37,7 +39,6 @@ export type InfoItem = {
   
   ingredients?: string; 
   ingredients_en?: string;
-  ingredients_ru?: string;
   
   menu?: string; 
   address?: string; 

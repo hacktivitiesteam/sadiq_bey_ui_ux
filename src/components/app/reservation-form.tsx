@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useFirestore } from '@/firebase';
 import { Textarea } from '../ui/textarea';
 
-type Lang = 'az' | 'en' | 'ru';
+type Lang = 'az' | 'en';
 
 const translations = {
   az: {
@@ -61,27 +61,6 @@ const translations = {
         date: 'A date is required.',
         time: 'Please enter a valid time format (HH:MM).',
         guests: 'Number of guests must be at least 1.',
-    }
-  },
-  ru: {
-    fullName: 'Полное имя',
-    date: 'Дата',
-    pickDate: 'Выберите дату',
-    time: 'Время',
-    guests: 'Количество гостей',
-    notes: 'Дополнительные примечания',
-    notesPlaceholder: 'Напишите здесь свои пожелания, например, столик у окна...',
-    confirm: 'Подтвердить бронирование',
-    successTitle: 'Бронирование успешно',
-    successDesc: 'Ваше бронирование принято. Спасибо!',
-    errorTitle: 'Ошибка',
-    errorDesc: 'Произошла ошибка при бронировании.',
-    validation: {
-        name: 'Имя должно состоять как минимум из 2 букв.',
-        email: 'Введите правильный адрес электронной почты.',
-        date: 'Требуется указать дату.',
-        time: 'Введите правильный формат времени (ЧЧ:ММ).',
-        guests: 'Количество гостей должно быть не менее 1.',
     }
   },
 };

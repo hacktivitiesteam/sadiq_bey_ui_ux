@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/componentsui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from '@/components/ui/sheet';
 import { Mountain, InfoItem, InfoCategory } from '@/lib/definitions';
 import { CATEGORIES } from '@/lib/constants';
@@ -22,17 +22,14 @@ const formSchema = z.object({
   category: z.string().min(1, 'Kateqoriya seçmək məcburidir.'),
   name: z.string().optional(),
   name_en: z.string().optional(),
-  name_ru: z.string().optional(),
   description: z.string().optional(),
   description_en: z.string().optional(),
-  description_ru: z.string().optional(),
   imageUrl: z.string().optional(),
   rating: z.any().optional(),
   price: z.string().optional(),
   googleMapsUrl: z.string().url({ message: 'Düzgün bir URL daxil edin.' }).optional().or(z.literal('')),
   ingredients: z.string().optional(),
   ingredients_en: z.string().optional(),
-  ingredients_ru: z.string().optional(),
   menu: z.string().optional(),
   address: z.string().optional(),
   phone: z.string().optional(),
@@ -47,7 +44,7 @@ interface InfoFormSheetProps {
   onOpenChange: (isOpen: boolean) => void;
   onFormSubmit: () => void;
   item?: InfoItem | null;
-  countries: Mountain[]; // Changed from Country to Mountain
+  countries: Mountain[]; // Renamed from Country to Mountain
 }
 
 export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item, countries: mountains }: InfoFormSheetProps) { // Renamed countries to mountains
@@ -58,16 +55,13 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
       category: '',
       name: '',
       name_en: '',
-      name_ru: '',
       description: '',
       description_en: '',
-      description_ru: '',
       imageUrl: '',
       price: '',
       googleMapsUrl: '',
       ingredients: '',
       ingredients_en: '',
-      ingredients_ru: '',
       menu: '',
       address: '',
       phone: '',
@@ -83,10 +77,8 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
       form.reset({
         name: item?.name || '',
         name_en: item?.name_en || '',
-        name_ru: item?.name_ru || '',
         description: item?.description || '',
         description_en: item?.description_en || '',
-        description_ru: item?.description_ru || '',
         mountainId: item?.mountainId || '',
         category: item?.category || '',
         imageUrl: item?.imageUrl || '',
@@ -95,7 +87,6 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
         googleMapsUrl: item?.googleMapsUrl || '',
         ingredients: item?.ingredients || '',
         ingredients_en: item?.ingredients_en || '',
-        ingredients_ru: item?.ingredients_ru || '',
         menu: item?.menu || '',
         address: item?.address || '',
         phone: item?.phone || '',
@@ -126,17 +117,14 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
         category: values.category as InfoCategory,
         name: values.name || '',
         name_en: values.name_en || '',
-        name_ru: values.name_ru || '',
         description: values.description || '',
         description_en: values.description_en || '',
-        description_ru: values.description_ru || '',
         imageUrl: values.imageUrl || '',
         rating: values.rating ? Number(values.rating) : undefined,
         price: values.price || '',
         googleMapsUrl: values.googleMapsUrl || '',
         ingredients: values.ingredients || '',
         ingredients_en: values.ingredients_en || '',
-        ingredients_ru: values.ingredients_ru || '',
         menu: values.menu || '',
         address: values.address || '',
         phone: values.phone || '',
@@ -244,9 +232,6 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
                          <FormField control={form.control} name="name_en" render={({ field }) => (
                             <FormItem><FormLabel>Başlıq (EN)</FormLabel><FormControl><Input placeholder="Title in English" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
                         )} />
-                         <FormField control={form.control} name="name_ru" render={({ field }) => (
-                            <FormItem><FormLabel>Başlıq (RU)</FormLabel><FormControl><Input placeholder="Название на русском" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
-                        )} />
                     </div>
 
                     <div className="p-4 border rounded-lg space-y-4">
@@ -255,9 +240,6 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
                         )} />
                         <FormField control={form.control} name="description_en" render={({ field }) => (
                             <FormItem><FormLabel>Məzmun (EN)</FormLabel><FormControl><Textarea placeholder="Content in English..." {...field} value={field.value || ''} rows={10} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name="description_ru" render={({ field }) => (
-                            <FormItem><FormLabel>Məzmun (RU)</FormLabel><FormControl><Textarea placeholder="Содержимое на русском..." {...field} value={field.value || ''} rows={10} /></FormControl><FormMessage /></FormItem>
                         )} />
                     </div>
                     
@@ -310,9 +292,6 @@ export default function InfoFormSheet({ isOpen, onOpenChange, onFormSubmit, item
                             )} />
                              <FormField control={form.control} name="ingredients_en" render={({ field }) => (
                                 <FormItem><FormLabel>İnqrediyentlər (EN)</FormLabel><FormControl><Textarea placeholder="Ingredients in English..." {...field} value={field.value || ''} rows={3} /></FormControl><FormMessage /></FormItem>
-                            )} />
-                             <FormField control={form.control} name="ingredients_ru" render={({ field }) => (
-                                <FormItem><FormLabel>İnqrediyentlər (RU)</FormLabel><FormControl><Textarea placeholder="Ингредиенты на русском..." {...field} value={field.value || ''} rows={3} /></FormControl><FormMessage /></FormItem>
                             )} />
                         </div>
                     )}

@@ -16,7 +16,7 @@ interface Message {
   sender: 'user' | 'ai';
 }
 
-type Lang = 'az' | 'en' | 'ru';
+type Lang = 'az' | 'en';
 
 export default function ChatAssistant() {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,13 +42,6 @@ export default function ChatAssistant() {
             errorTitle: 'AI Assistant Error',
             errorDesc: 'An error occurred',
         },
-        ru: {
-            title: 'AI-помощник',
-            greeting: 'Здравствуйте! Я ваш помощник по путешествиям. У вас есть вопросы о вашей поездке?',
-            placeholder: "Напр., 'Где лучший кебаб в Баку?'",
-            errorTitle: 'Ошибка AI-помощника',
-            errorDesc: 'Произошла ошибка',
-        }
     };
     
   useEffect(() => {

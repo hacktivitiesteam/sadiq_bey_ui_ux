@@ -16,7 +16,7 @@ import { useFirestore } from '@/firebase';
 import { useAnimation } from '../app/animation-provider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
-type Lang = 'az' | 'en' | 'ru';
+type Lang = 'az' | 'en';
 
 const translations = {
   az: {
@@ -59,27 +59,6 @@ const translations = {
         surname: 'Surname must be at least 2 characters.',
         email: 'Please enter a valid email.',
         message: 'Message must be at least 10 characters.'
-    }
-  },
-  ru: {
-    contact: 'Связаться с нами',
-    name: 'Имя',
-    namePlaceholder: 'Ваше имя',
-    surname: 'Фамилия',
-    surnamePlaceholder: 'Ваша фамилия',
-    suggestions: 'Предложения или комментарии',
-    messagePlaceholder: 'Ваше сообщение...',
-    cancel: 'Отмена',
-    send: 'Отправить',
-    successTitle: 'Сообщение отправлено',
-    successDescription: 'Спасибо за ваш отзыв!',
-    errorTitle: 'Ошибка',
-    errorDescription: 'Произошла ошибка. Пожалуйста, попробуйте еще раз.',
-     validation: {
-        name: 'Имя должно содержать не менее 2 букв.',
-        surname: 'Фамилия должна содержать не менее 2 букв.',
-        email: 'Пожалуйста, введите действительный email.',
-        message: 'Сообщение должно содержать не менее 10 символов.'
     }
   },
 }
