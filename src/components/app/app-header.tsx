@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { Globe, Languages, Check, ChevronDown, Headset, Ear, PenSquare, Moon, Sun, Laptop, Menu } from 'lucide-react';
+import { Globe, Languages, Check, Headset, Ear, PenSquare, Moon, Sun, Laptop, Menu, LogIn, UserPlus, User as UserIcon } from 'lucide-react';
 import ContactUs from './contact-us';
 import {
   DropdownMenu,
@@ -13,19 +13,14 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { cn } from '@/lib/utils';
 import { useAnimation } from '../app/animation-provider';
 import React from 'react';
 import { useReadingMode } from './reading-mode-provider';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
-
+import { useUser } from '@/firebase';
+import { LogoutButton } from './logout-button';
 
 interface LanguageSwitcherProps {
   currentLang: 'az' | 'en';
@@ -38,11 +33,9 @@ const languages = [
     { code: 'en', name: 'EN', flag: '🇬🇧' },
 ] as const;
 
-
 const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ currentLang, setLang, translations }) => {
   const { triggerAnimation } = useAnimation();
-  const selectedLanguage = languages.find(l => l.code === currentLang);
-
+  
   const handleLanguageChange = (e: Event, langCode: 'az' | 'en') => {
       e.preventDefault();
       triggerAnimation({
@@ -141,7 +134,6 @@ function ThemeToggle({ translations }: { translations: any }) {
   );
 }
 
-
 interface AppHeaderProps {
     isAdmin?: boolean;
     lang?: 'az' | 'en';
@@ -150,16 +142,10 @@ interface AppHeaderProps {
 
 const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
   const router = useRouter();
-  const { triggerAnimation } = useAnimation();
-
-  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-      e.preventDefault();
-      triggerAnimation({ icon: PenSquare, onAnimationEnd: () => router.push(href) });
-  };
-  
+  const { user, isUserLoading } = useUser();
+    
     const t = (lang: 'az' | 'en' = 'az') => ({
       az: {
-        user_panel: 'İstifadəçi Paneli',
         change_language: 'Dili dəyişdir',
         contact_us: 'Bizimlə əlaqə',
         communication_aid: 'Ünsiyyət köməkçisi',
@@ -168,9 +154,14 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
         light: 'İşıqlı',
         dark: 'Tünd',
         system: 'Sistem',
+        login: 'Giriş',
+        signup: 'Qeydiyyat',
+        profile: 'Profil',
+        my_account: 'Hesabım',
+        coupons: 'Kuponlar',
+        logout: 'Çıxış',
       },
       en: {
-        user_panel: 'User Panel',
         change_language: 'Change language',
         contact_us: 'Contact Us',
         communication_aid: 'Communication Aid',
@@ -179,10 +170,62 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
         light: 'Light',
         dark: 'Dark',
         system: 'System',
+        login: 'Log In',
+        signup: 'Sign Up',
+        profile: 'Profile',
+        my_account: 'My Account',
+        coupons: 'Coupons',
+        logout: 'Logout',
       },
     }[lang]);
     
   const translations = t(lang);
+
+  const renderAuthSection = () => {
+    if (isUserLoading) {
+        return null; // Or a loading spinner
+    }
+
+    if (user) {
+        return (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost">
+                        <UserIcon className="mr-2" />
+                        {translations.profile}
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={() => router.push('/profile')}>
+                        {translations.my_account}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => router.push('/profile?tab=coupons')}>
+                        {translations.coupons}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <LogoutButton />
+                </DropdownMenuContent>
+            </DropdownMenu>
+        );
+    }
+
+    return (
+        <div className="flex items-center gap-2">
+            <Button variant="ghost" asChild>
+                <Link href="/login">
+                    <LogIn className="mr-2" />
+                    {translations.login}
+                </Link>
+            </Button>
+            <Button asChild>
+                <Link href="/register">
+                    <UserPlus className="mr-2" />
+                    {translations.signup}
+                </Link>
+            </Button>
+        </div>
+    );
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
@@ -194,44 +237,21 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
             <p className="text-xs text-muted-foreground -mt-1">by Hacktivities</p>
           </div>
         </Link>
-        <nav className="flex items-center gap-2">
-          {isAdmin ? (
-             <div className='flex items-center gap-1'>
-                <Link href="/home" passHref>
-                   <Button variant="ghost">{translations.user_panel}</Button>
-                </Link>
-                {/* Admin does not need a sub-menu for theme */}
-                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                        <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                        <span className="sr-only">Toggle theme</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => useTheme().setTheme("light")}>
-                        {translations.light}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => useTheme().setTheme("dark")}>
-                        {translations.dark}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => useTheme().setTheme("system")}>
-                        {translations.system}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+        <nav className="flex items-center gap-4">
+          {!isAdmin && (
+            <div className="hidden md:flex items-center gap-2">
+                {renderAuthSection()}
             </div>
-          ) : (
+          )}
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="outline" size="icon">
                         <Menu className="h-5 w-5" />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                      {lang && setLang && <LanguageSwitcher currentLang={lang} setLang={setLang} translations={translations} />}
-                     {lang && <ContactUs lang={lang} translations={translations} />}
+                     {lang && <ContactUs lang={lang} translations={{...translations}} />}
                      <DropdownMenuItem onSelect={() => router.push('/communication-aid')}>
                         <PenSquare className="mr-2 h-4 w-4" />
                         <span>{translations.communication_aid}</span>
@@ -239,9 +259,36 @@ const AppHeader = ({ isAdmin = false, lang, setLang }: AppHeaderProps) => {
                     <DropdownMenuSeparator />
                     <ReadingModeToggle translations={translations} />
                     <ThemeToggle translations={translations} />
+                     {!isAdmin && (
+                        <div className="md:hidden">
+                            <DropdownMenuSeparator />
+                            {user ? (
+                                <>
+                                    <DropdownMenuItem onSelect={() => router.push('/profile')}>
+                                        {translations.my_account}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={() => router.push('/profile?tab=coupons')}>
+                                        {translations.coupons}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <LogoutButton />
+                                </>
+                            ) : (
+                                <>
+                                    <DropdownMenuItem onSelect={() => router.push('/login')}>
+                                        <LogIn className="mr-2" />
+                                        {translations.login}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={() => router.push('/register')}>
+                                        <UserPlus className="mr-2" />
+                                        {translations.signup}
+                                    </DropdownMenuItem>
+                                </>
+                            )}
+                        </div>
+                    )}
                 </DropdownMenuContent>
              </DropdownMenu>
-          )}
         </nav>
       </div>
     </header>

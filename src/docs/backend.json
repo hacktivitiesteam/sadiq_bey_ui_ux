@@ -73,12 +73,32 @@
             "endTime": { "type": "string", "format": "date-time", "description": "The end time of the tour." }
         },
         "required": ["id", "userId", "mountainId", "mountainName", "distance", "status", "startTime"]
-    }
+    },
+    "UserProfile": {
+        "title": "User Profile",
+        "description": "Represents a user's profile with personal and travel information.",
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email", "description": "User's email address." },
+          "emergencyContactName": { "type": "string", "description": "Name of the emergency contact person." },
+          "emergencyContactPhone": { "type": "string", "description": "Phone number of the emergency contact person." },
+          "name": { "type": "string", "description": "User's full name." },
+          "gender": { "type": "string", "enum": ["Male", "Female", "Other"] },
+          "age": { "type": "number" },
+          "family": { "type": "number", "description": "Family status: 0=no kids, 1=one kid, 2=more than one." },
+          "region": { "type": "string", "description": "The region where the user lives." },
+          "trips_per_year": { "type": "number" },
+          "avg_budget_per_year": { "type": "number" },
+          "favorite_destination": { "type": "string" },
+          "vacation_type": { "type": "string" },
+          "travel_interest": { "type": "number", "description": "Rating of interest in domestic travel." }
+        },
+        "required": ["email", "emergencyContactName", "emergencyContactPhone"]
+      }
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "password"
     ]
   },
   "firestore": {
@@ -88,47 +108,41 @@
         "definition": {
           "entityName": "Mountain",
           "schema": { "$ref": "#/backend/entities/Mountain" },
-          "description": "Stores information about mountains.",
-          "params": [{ "name": "mountainId", "description": "The unique ID of the mountain." }]
+          "description": "Stores information about mountains."
         }
       },
       {
-        "path": "/mountains/{mountainId}/infoItems/{infoItemId}",
+        "path": "/infoItems/{infoItemId}",
         "definition": {
           "entityName": "InfoItem",
           "schema": { "$ref": "#/backend/entities/InfoItem" },
-          "description": "Stores information items related to a mountain. Includes denormalized 'mountainId' for authorization independence.",
-          "params": [
-            { "name": "mountainId", "description": "The unique ID of the mountain." },
-            { "name": "infoItemId", "description": "The unique ID of the information item." }
-          ]
+          "description": "Stores information items (hotels, restaurants, etc.)."
         }
       },
       {
-        "path": "/mountains/{mountainId}/infoItems/{infoItemId}/reservations/{reservationId}",
+        "path": "/reservations/{reservationId}",
         "definition": {
           "entityName": "Reservation",
           "schema": { "$ref": "#/backend/entities/Reservation" },
-          "description": "Stores reservation data related to a specific info item.",
-          "params": [
-            { "name": "mountainId", "description": "The unique ID of the mountain." },
-            { "name": "infoItemId", "description": "The unique ID of the information item." },
-            { "name": "reservationId", "description": "The unique ID of the reservation." }
-          ]
+          "description": "Stores reservation data."
         }
       },
       {
-          "path": "/tours/{tourId}",
-          "definition": {
-              "entityName": "Tour",
-              "schema": { "$ref": "#/backend/entities/Tour"},
-              "description": "Stores live and completed tour data for the scoreboard.",
-              "params": [
-                  {"name": "tourId", "description": "The unique ID of the tour session."}
-              ]
-          }
+        "path": "/tours/{tourId}",
+        "definition": {
+            "entityName": "Tour",
+            "schema": { "$ref": "#/backend/entities/Tour"},
+            "description": "Stores live and completed tour data for the scoreboard."
+        }
+      },
+      {
+        "path": "/users/{userId}",
+        "definition": {
+            "entityName": "UserProfile",
+            "schema": { "$ref": "#/backend/entities/UserProfile" },
+            "description": "Stores user profile data."
+        }
       }
-    ],
-    "reasoning": "The Firestore structure is designed to store mountain information, related info items, and reservations. It prioritizes authorization independence by not requiring `get()` calls in security rules. Since there are no explicit roles or user-specific data besides reservations, the structure focuses on organizing the data in a way that's easily queryable and maintainable, with a clear separation of concerns.\n\n1.  Mountains: Stores basic information about mountains.\n2.  InfoItems: Stores information about specific places or items near a mountain. Mountain ID is denormalized to each InfoItem to allow for easy querying of all InfoItems for a specific mountain.\n3.  Reservations: Stores reservation data related to each info item.\n4.  Tours: A new top-level collection to store data from active and completed tours. This allows for easy querying for the public scoreboard and for admins to monitor active tours without complex sub-collection queries. User-specific data is linked by `userId`.\n\nThis structure enables secure `list` operations because the security rules can be applied at the collection level without needing to check parent documents. Since there are no user-based roles or access control requirements described in the document, the security rules will focus on data validation and preventing unauthorized modifications.\n\nAdmin access is managed via cookies and Next.js server actions so it won't be a part of the firestore rules."
+    ]
   }
 }

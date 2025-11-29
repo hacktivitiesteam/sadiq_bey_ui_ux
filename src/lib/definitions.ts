@@ -101,3 +101,21 @@ export type Tour = {
     };
     userName?: string; // Optional user name for scoreboard
 };
+
+export const UserProfileSchema = z.object({
+  email: z.string().email(),
+  emergencyContactName: z.string(),
+  emergencyContactPhone: z.string(),
+  name: z.string().optional(),
+  gender: z.enum(['Male', 'Female', 'Other']).optional(),
+  age: z.number().optional(),
+  family: z.number().optional(),
+  region: z.string().optional(),
+  trips_per_year: z.number().optional(),
+  avg_budget_per_year: z.number().optional(),
+  favorite_destination: z.string().optional(),
+  vacation_type: z.string().optional(),
+  travel_interest: z.number().optional(),
+});
+
+export type UserProfile = z.infer<typeof UserProfileSchema>;

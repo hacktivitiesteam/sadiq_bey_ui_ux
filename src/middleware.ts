@@ -1,23 +1,33 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { AUTH_TOKEN_COOKIE } from './lib/constants';
 
-const AUTH_TOKEN_COOKIE = 'firebase-auth-token';
+const protectedRoutes = ['/home', '/profile', '/scoreboard', '/tour', '/communication-aid'];
+const authRoutes = ['/login', '/register'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(AUTH_TOKEN_COOKIE)?.value;
 
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  const isAuthRoute = authRoutes.includes(pathname);
   const isAdminRoute = pathname.startsWith('/admin');
-  const isLoginPage = pathname === '/admin/login';
 
-  // If trying to access a protected admin route without a token, redirect to login
-  if (isAdminRoute && !isLoginPage && !token) {
+  // Handle Admin routes
+  if (isAdminRoute && pathname !== '/admin/login' && !token) {
     return NextResponse.redirect(new URL('/admin/login', request.url));
   }
+  if (pathname === '/admin/login' && token) {
+     return NextResponse.redirect(new URL('/admin', request.url));
+  }
 
-  // If logged in and trying to access login page, redirect to admin dashboard
-  if (isLoginPage && token) {
-    return NextResponse.redirect(new URL('/admin', request.url));
+  // Handle User routes
+  if (isProtectedRoute && !token) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  if (isAuthRoute && token) {
+    return NextResponse.redirect(new URL('/home', request.url));
   }
 
   return NextResponse.next();
@@ -25,13 +35,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

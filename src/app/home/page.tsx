@@ -6,20 +6,72 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { fetchMountains } from '@/lib/firebase-actions';
 import type { Mountain } from '@/lib/definitions';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Mountain as MountainIcon, UtensilsCrossed, MapPinned, Globe, Repeat, ArrowRight, Compass, BookOpen, Route, Tent, Trophy } from 'lucide-react';
+import { Mountain as MountainIcon, UtensilsCrossed, MapPinned, Globe, Repeat, ArrowRight, Compass, Tent, Trophy } from 'lucide-react';
 import AppHeader from '@/components/app/app-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useAuth } from '@/firebase';
-import { signInAnonymously } from 'firebase/auth';
+import { useFirestore, useUser } from '@/firebase';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useReadingMode } from '@/components/app/reading-mode-provider';
 import { cn } from '@/lib/utils';
 import { useAnimation } from '@/components/app/animation-provider';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+function ProfileCompletionAlert({ lang }: { lang: 'az' | 'en' }) {
+    const { user, isUserLoading } = useUser();
+    const firestore = useFirestore();
+    const [isProfileComplete, setIsProfileComplete] = useState(true);
+
+    useEffect(() => {
+        if (user && firestore) {
+            // A simple check. You can expand this to check for all voluntary fields.
+            // For now, let's just check if a 'gender' field exists.
+            const checkProfile = async () => {
+                const userDocRef = doc(firestore, 'users', user.uid);
+                const docSnap = await getDoc(userDocRef);
+                if (docSnap.exists() && docSnap.data().gender) {
+                    setIsProfileComplete(true);
+                } else {
+                    setIsProfileComplete(false);
+                }
+            };
+            checkProfile();
+        }
+    }, [user, firestore]);
+
+    if (isUserLoading || isProfileComplete || !user) {
+        return null;
+    }
+
+    const t = {
+        az: {
+            title: 'Profilinizi Tamamlayın!',
+            description: 'Daha yaxşı təcrübə və kuponlar üçün profil məlumatlarınızı doldurun.',
+            action: 'Profilə Get',
+        },
+        en: {
+            title: 'Complete Your Profile!',
+            description: 'Fill in your profile information for a better experience and coupons.',
+            action: 'Go to Profile',
+        }
+    }[lang];
+
+    return (
+        <Alert className="mb-8 bg-primary/10 border-primary/20">
+            <AlertTitle className="font-bold">{t.title}</AlertTitle>
+            <AlertDescription className="flex items-center justify-between">
+                {t.description}
+                <Button asChild size="sm">
+                    <Link href="/profile">{t.action}</Link>
+                </Button>
+            </AlertDescription>
+        </Alert>
+    );
+}
+
 
 function Stats({ lang }: { lang: 'az' | 'en' }) {
     const { isReadingMode, speakText } = useReadingMode();
@@ -57,7 +109,7 @@ function Stats({ lang }: { lang: 'az' | 'en' }) {
     }
     
   const stats = [
-    { icon: Route, percentage: '33%', title: content[lang].route, description: content[lang].route_desc },
+    { icon: Compass, percentage: '33%', title: content[lang].route, description: content[lang].route_desc },
     { icon: Tent, percentage: '28%', title: content[lang].shelter, description: content[lang].shelter_desc },
     { icon: UtensilsCrossed, percentage: '19%', title: content[lang].food, description: content[lang].food_desc },
     { icon: MapPinned, percentage: '15%', title: content[lang].attractions, description: content[lang].attractions_desc },
@@ -154,7 +206,6 @@ function AvailableMountains({ mountains, loading, lang, onMountainClick }: { mou
 }
 
 function TravelSection({ mountains, loading, lang, onMountainClick }: { mountains: Mountain[], loading: boolean, lang: 'az' | 'en', onMountainClick: (href: string) => void }) {
-  const router = useRouter();
   const { isReadingMode, speakText } = useReadingMode();
   const [selectedMountain, setSelectedMountain] = useState<string | undefined>(undefined);
   const [error, setError] = useState('');
@@ -350,7 +401,6 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const firestore = useFirestore();
-  const auth = useAuth();
   const [lang, setLang] = useState<'az' | 'en'>('az');
   const router = useRouter();
   const { isReadingMode, speakText } = useReadingMode();
@@ -368,19 +418,6 @@ export default function HomePage() {
     localStorage.setItem('app-lang', newLang);
   };
   
-  useEffect(() => {
-    if (auth && !auth.currentUser) {
-      signInAnonymously(auth).catch((error) => {
-        console.error("Anonymous sign-in failed:", error);
-        toast({
-          variant: "destructive",
-          title: "Authentication Failed",
-          description: "Could not sign in anonymously. Some features may not work.",
-        });
-      });
-    }
-  }, [auth, toast]);
-
   useEffect(() => {
     async function getMountains() {
       if(!firestore) return;
@@ -429,6 +466,7 @@ export default function HomePage() {
     <>
       <AppHeader lang={lang} setLang={handleSetLang} />
       <main className="container mx-auto px-4 py-12 space-y-16">
+        <ProfileCompletionAlert lang={lang} />
         <div className={cn("text-center max-w-3xl mx-auto", isReadingMode && 'cursor-pointer hover:bg-muted/50')} onMouseEnter={() => handleSpeak(`${t.title}. ${t.subtitle}`)}>
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-6xl text-primary">
             {t.title}

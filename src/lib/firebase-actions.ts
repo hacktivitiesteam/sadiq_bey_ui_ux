@@ -13,11 +13,48 @@ import {
   orderBy,
   serverTimestamp,
   Firestore,
+  setDoc,
 } from 'firebase/firestore';
-import type { Mountain, InfoItem, Reservation, InfoCategory, Feedback, Tour } from './definitions';
+import type { Mountain, InfoItem, Reservation, InfoCategory, Feedback, Tour, UserProfile } from './definitions';
 import { slugify } from './utils';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+
+// --- User Profile Actions ---
+
+export async function createUserProfile(db: Firestore, userId: string, data: UserProfile) {
+    const userDocRef = doc(db, 'users', userId);
+    await setDoc(userDocRef, data).catch(error => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: userDocRef.path,
+            operation: 'create',
+            requestResourceData: data,
+        }));
+        throw error;
+    });
+}
+
+export async function updateUserProfile(db: Firestore, userId: string, data: Partial<UserProfile>) {
+    const userDocRef = doc(db, 'users', userId);
+    await updateDoc(userDocRef, data).catch(error => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: userDocRef.path,
+            operation: 'update',
+            requestResourceData: data,
+        }));
+        throw error;
+    });
+}
+
+export async function getUserProfile(db: Firestore, userId: string): Promise<UserProfile | null> {
+    const userDocRef = doc(db, 'users', userId);
+    const docSnap = await getDoc(userDocRef);
+    if (docSnap.exists()) {
+        return docSnap.data() as UserProfile;
+    }
+    return null;
+}
+
 
 // --- Mountain Actions ---
 
@@ -164,7 +201,6 @@ export async function deleteInfoItem(db: Firestore, id: string): Promise<void> {
   });
 }
 
-
 // --- Reservation Actions ---
 
 export async function addReservation(db: Firestore, reservation: Omit<Reservation, 'id' | 'createdAt'>): Promise<void> {
@@ -232,7 +268,6 @@ export async function getFeedback(db: Firestore): Promise<Feedback[]> {
     });
 }
 
-
 // --- Tour Actions ---
 
 export async function startTour(db: Firestore, userId: string, mountainId: string, mountainName: string, userName: string | null): Promise<string> {
@@ -255,7 +290,6 @@ export async function startTour(db: Firestore, userId: string, mountainId: strin
             operation: 'create',
             requestResourceData: tourData,
         }));
-        // Re-throw the error so the calling function can catch it and show a toast.
         throw error;
     }
 }
