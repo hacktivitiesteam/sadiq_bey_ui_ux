@@ -18,6 +18,8 @@ import { Loader2, User as UserIcon, Ticket, Gift } from 'lucide-react';
 import AppHeader from '@/components/app/app-header';
 import { Skeleton } from '@/components/ui/skeleton';
 
+type Lang = 'az' | 'en';
+
 function ProfileForm() {
     const { user } = useUser();
     const firestore = useFirestore();
@@ -146,57 +148,57 @@ function CouponsTab() {
 function ProfilePageContents() {
     const searchParams = useSearchParams();
     const tab = searchParams.get('tab') || 'profile';
-    const [lang, setLang] = useState&lt;'az' | 'en'&gt;('az');
+    const [lang, setLang] = useState<Lang>('az');
 
     useEffect(() => {
-        const savedLang = localStorage.getItem('app-lang') as 'az' | 'en' | null;
+        const savedLang = localStorage.getItem('app-lang') as Lang | null;
         if (savedLang) {
             setLang(savedLang);
         }
     }, []);
 
     return (
-        &lt;&gt;
-            &lt;AppHeader lang={lang} setLang={setLang} /&gt;
-            &lt;main className="container mx-auto px-4 py-8"&gt;
-                &lt;div className="max-w-4xl mx-auto"&gt;
-                    &lt;Tabs defaultValue={tab} className="w-full"&gt;
-                        &lt;TabsList className="grid w-full grid-cols-2"&gt;
-                            &lt;TabsTrigger value="profile"&gt;
-                                &lt;UserIcon className="mr-2 h-4 w-4" /&gt; Profil
-                            &lt;/TabsTrigger&gt;
-                            &lt;TabsTrigger value="coupons"&gt;
-                                &lt;Ticket className="mr-2 h-4 w-4" /&gt; Kuponlar
-                            &lt;/TabsTrigger&gt;
-                        &lt;/TabsList&gt;
-                        &lt;TabsContent value="profile" className="mt-6"&gt;
-                            &lt;ProfileForm /&gt;
-                        &lt;/TabsContent&gt;
-                        &lt;TabsContent value="coupons" className="mt-6"&gt;
-                            &lt;CouponsTab /&gt;
-                        &lt;/TabsContent&gt;
-                    &lt;/Tabs&gt;
-                &lt;/div&gt;
-            &lt;/main&gt;
-        &lt;/&gt;
+        <>
+            <AppHeader lang={lang} setLang={setLang} />
+            <main className="container mx-auto px-4 py-8">
+                <div className="max-w-4xl mx-auto">
+                    <Tabs defaultValue={tab} className="w-full">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="profile">
+                                <UserIcon className="mr-2 h-4 w-4" /> Profil
+                            </TabsTrigger>
+                            <TabsTrigger value="coupons">
+                                <Ticket className="mr-2 h-4 w-4" /> Kuponlar
+                            </TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="profile" className="mt-6">
+                            <ProfileForm />
+                        </TabsContent>
+                        <TabsContent value="coupons" className="mt-6">
+                            <CouponsTab />
+                        </TabsContent>
+                    </Tabs>
+                </div>
+            </main>
+        </>
     );
 }
 
 function ProfilePageFallback() {
     return (
-        &lt;div className="container mx-auto px-4 py-8"&gt;
-             &lt;div className="max-w-4xl mx-auto space-y-8"&gt;
-                &lt;Skeleton className="h-10 w-full" /&gt;
-                &lt;Skeleton className="h-96 w-full" /&gt;
-             &lt;/div&gt;
-        &lt;/div&gt;
+        <div className="container mx-auto px-4 py-8">
+             <div className="max-w-4xl mx-auto space-y-8">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-96 w-full" />
+             </div>
+        </div>
     )
 }
 
 export default function ProfilePage() {
     return (
-        &lt;Suspense fallback=&lt;ProfilePageFallback/&gt;&gt;
-            &lt;ProfilePageContents /&gt;
-        &lt;/Suspense&gt;
+        <Suspense fallback={<ProfilePageFallback />}>
+            <ProfilePageContents />
+        </Suspense>
     )
 }
