@@ -106,3 +106,4 @@ Layihənin hazırlanması zamanı müasir və effektiv veb texnologiyalardan ist
 # herseyibitiremreensonfunklar
 # herseyibitiremreensonfunklar
 # yeni-super-muper
+# sadiq_bey_ui_ux
